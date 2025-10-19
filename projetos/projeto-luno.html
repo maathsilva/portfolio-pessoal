@@ -26,7 +26,7 @@
         <section class="projeto-hero">
             <div class="container">
                 <span class="breadcrumb"><a href="../index.html#projetos">Projetos</a> /</span>
-                <h1>Luno</h1>
+                <h1>Luno - Gerador de Escalas de Rotinas</h1>
                 <p class="projeto-subtitulo">Aplicação desktop (PyQt5) para criação e gestão automatizada de escalas de trabalho semanais para farmácias.</p>
             </div>
         </section>
@@ -46,18 +46,18 @@
                     <h2>A Solução: Aplicação Desktop Luno</h2>
                     <p>Desenvolvi o "Luno", uma aplicação desktop em Python com interface gráfica PyQt5, projetada para simplificar e automatizar a geração de escalas de rotinas em farmácias:</p>
                     <ul class="lista-detalhada">
-                        <li><strong>Gestão Centralizada:</strong> Permite cadastrar funcionários (manualmente ou via importação Excel), definir seus grupos de trabalho (cores) e gerenciar rotinas específicas para cada turno e grupo.</li>
+                        <li><strong>Gestão Centralizada:</strong> Permite cadastrar funcionários (manualmente ou via importação Excel), definir seus grupos de trabalho (cores) e gerenciar rotinas específicas para cada turno e grupo (salvas em JSON).</li>
                         <li><strong>Gerenciador de Folgas:</strong> Interface dedicada para registrar os dias de folga fixos de cada funcionário, salvando os dados em formato JSON para persistência.</li>
                         <li><strong>Dois Modos de Geração:</strong>
                             <ul>
-                                <li><em>Grupos Fixos (Manual):</em> Aloca funcionários às rotinas baseando-se estritamente no grupo de cor definido, rotacionando dentro do grupo para evitar sobrecarga.</li>
+                                <li><em>Grupos Fixos (Manual):</em> Aloca funcionários às rotinas baseando-se estritamente no grupo de cor definido, rotacionando dentro do grupo para evitar sobrecarga e respeitando folgas.</li>
                                 <li><em>Rotação Diária (Automático):</em> Distribui aleatoriamente os funcionários disponíveis (sem folga no dia) entre os grupos de rotinas ativos, garantindo cobertura e variação.</li>
                             </ul>
                         </li>
                         <li><strong>Visualização Clara da Escala:</strong> Apresenta a escala semanal gerada numa tabela (QTableWidget) colorida de acordo com os grupos, facilitando a visualização.</li>
                         <li><strong>Fixação Manual (Pinning):</strong> Permite ao usuário clicar com o botão direito numa célula da escala e "fixar" um funcionário específico para aquela rotina/dia, sobrepondo a geração automática.</li>
-                        <li><strong>Importação/Exportação Excel:</strong> Facilita a entrada de dados (funcionários, rotinas) e a partilha da escala final gerada.</li>
-                        <li><strong>Interface Personalizada:</strong> Utiliza um stylesheet customizado (`ui_design.py`) e ícones SVG para um visual moderno e agradável.</li>
+                        <li><strong>Importação/Exportação Excel:</strong> Facilita a entrada de dados (funcionários, rotinas via Excel) e a partilha da escala final gerada (formato Excel).</li>
+                        <li><strong>Interface Personalizada:</strong> Utiliza um stylesheet customizado (`ui_design.py`) e ícones SVG para um visual moderno e agradável, focado na usabilidade.</li>
                     </ul>
 
                     <h2>Interface da Aplicação Luno</h2>
@@ -75,10 +75,10 @@
                             <img src="../assets/images/luno3.png" alt="Gerenciador de Folgas">
                             <figcaption>Janela modal para definir os dias de folga fixos de cada funcionário.</figcaption>
                         </figure>
-                    </div>
+                        </div>
 
                     <h2>Código em Destaque</h2>
-                    <p>Trecho do `main_app.py` que implementa a lógica de geração da escala no modo "Grupos Fixos". Ele utiliza `deque` para rotacionar os funcionários dentro de cada grupo e verifica as folgas antes de alocar.</p>
+                    <p>Trecho do `main_app.py` que implementa a lógica de geração da escala no modo "Grupos Fixos". Ele utiliza `deque` para rotacionar os funcionários dentro de cada grupo e verifica as folgas (`days_off_data`) antes de alocar um funcionário a uma célula da escala.</p>
                     
                     <div class="code-block">
                         <div class="code-header">
@@ -104,24 +104,28 @@ class PharmacyScheduler(QMainWindow):
             
             # Itera sobre cada rotina (linhas da tabela)
             for row_idx in range(self.schedule_table.rowCount()):
-                routine_group = self.routine_map[row_idx] # Obtém o grupo da rotina atual
+                # self.routine_map mapeia linha da tabela -> grupo de cor
+                routine_group = self.routine_map[row_idx] 
                 found_employee = None
                 
                 # Verifica se há funcionários no deque para o grupo da rotina
                 if group_deques[routine_group]:
                     # Tenta encontrar um funcionário disponível (sem folga)
+                    # Loopa no máximo o número de funcionários no grupo
                     for _ in range(len(group_deques[routine_group])):
                         candidate = group_deques[routine_group][0] # Pega o próximo da fila
                         # Verifica se o candidato NÃO está de folga neste dia
+                        # self.days_off_data é um dict: {'NomeFunc': ['SEGUNDA', 'TERÇA'], ...}
                         if day not in self.days_off_data.get(candidate, []):
                             found_employee = candidate # Encontrou!
-                            break # Para de procurar neste grupo
-                        # Se estava de folga, rotaciona o deque para o próximo
+                            break # Para de procurar neste grupo para esta rotina
+                        
+                        # Se estava de folga, rotaciona o deque para testar o próximo
                         group_deques[routine_group].rotate(-1) 
                         
-                employee_name = found_employee # Nome a ser exibido (pode ser None)
+                employee_name = found_employee # Nome a ser exibido (pode ser None se ninguém estiver disponível)
                 
-                # Verifica se há um funcionário fixado (pinned) para esta célula
+                # Verifica se há um funcionário fixado (pinned) pelo usuário para esta célula
                 if (row_idx, col_idx) in self.pinned_assignments:
                     employee_name = self.pinned_assignments[(row_idx, col_idx)]
                     
@@ -131,7 +135,7 @@ class PharmacyScheduler(QMainWindow):
                     self.set_table_cell(row_idx, col_idx, employee_name, routine_group)
             
             # Após processar todas as rotinas do dia, rotaciona TODOS os deques
-            # para que a próxima pessoa do grupo comece no dia seguinte
+            # Isso garante que a próxima pessoa do grupo comece no dia seguinte
             for group in group_deques:
                 if group_deques[group]: 
                     group_deques[group].rotate(-1)
@@ -139,18 +143,17 @@ class PharmacyScheduler(QMainWindow):
     # ... (generate_with_daily_rotation, setup_table, set_table_cell, etc.) ...
 
 </code></pre>
-                    </div> </div>
-
-                <aside class="projeto-sidebar">
+                    </div> </div> <aside class="projeto-sidebar">
                     <div class="sidebar-box">
                         <h3>Tecnologias Principais</h3>
                         <ul class="tech-list">
                             <li><i data-feather="check"></i> Python</li>
                             <li><i data-feather="check"></i> PyQt5 (GUI)</li>
-                            <li><i data-feather="check"></i> JSON (Persistência de Dados)</li>
-                            <li><i data-feather="check"></i> Pandas (Import/Export Excel)</li>
+                            <li><i data-feather="check"></i> JSON (Persistência)</li>
+                            <li><i data-feather="check"></i> Pandas (Import/Export)</li>
                             <li><i data-feather="check"></i> Openpyxl</li>
                             <li><i data-feather="check"></i> Algoritmos de Escala</li>
+                            <li><i data-feather="check"></i> `collections.deque`</li>
                         </ul>
                     </div>
                     <div class="sidebar-box">
@@ -164,16 +167,13 @@ class PharmacyScheduler(QMainWindow):
                     <div class="sidebar-box">
                         <h3>Resultados Chave</h3>
                         <p>• Automação completa da criação de escalas semanais.</p>
-                        <p>• Redução de erros e inconsistências no agendamento.</p>
+                        <p>• Redução significativa de tempo e erros no agendamento.</p>
                         <p>• Flexibilidade com dois modos de geração (Fixo e Rotativo).</p>
-                        <p>• Gestão fácil de funcionários, rotinas e folgas.</p>
-                        <p>• Exportação para Excel para fácil partilha.</p>
-                        <p>• Interface gráfica amigável.</p>
+                        <p>• Gestão centralizada de funcionários, rotinas e folgas.</p>
+                        <p>• Exportação para Excel para fácil partilha e impressão.</p>
+                        <p>• Interface gráfica amigável e personalizada.</p>
                     </div>
-                </aside>
-            </div>
-        </section>
-    </main>
+                </aside> </div> </section> </main>
 
     <footer class="footer">
         <p>© 2025 - Matheus Silva</p>
@@ -187,6 +187,7 @@ class PharmacyScheduler(QMainWindow):
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script>
+        // Corrige o problema da "página branca"
         gsap.to('html', { duration: 0.5, opacity: 1, ease: 'power1.inOut' });
     </script>
     
