@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matheus Silva | Case Study: Módulo Validador</title>
+    
+    <link rel="stylesheet" href="../style.css"> <link rel="stylesheet" href="projeto-style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body class="pagina-projeto">
+
+    <header class="header">
+        <nav class="navbar container">
+            <a href="../index.html" class="logo">Matheus Silva</a>
+            <ul class="nav-menu">
+                <li><a href="../index.html#sobre" class="nav-link">Sobre</a></li>
+                <li><a href="../index.html#projetos" class="nav-link">Projetos</a></li>
+                <li><a href="../index.html#contato" class="nav-link">Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="projeto-hero">
+            <div class="container">
+                <span class="breadcrumb"><a href="../index.html#projetos">Projetos</a> /</span>
+                <h1>Validador</h1>
+                <p class="projeto-subtitulo">Sistema de validação de dados financeiros com regras dinâmicas por convênio, utilizando Python, SQL (PostgreSQL) e PyQt5.</p>
+            </div>
+        </section>
+
+        <div class="container">
+            <img src="../assets/images/validador2.png" alt="Interface da Aplicação - Aba Limpeza de Planilhas" class="projeto-imagem-destaque">
+            <figcaption style="text-align: center; font-size: 0.9rem; color: var(--cor-texto-secundario); margin-top: 0.75rem;">
+                Interface da aplicação mostrando a aba "Limpeza de Planilhas", integrada ao Módulo Validador.
+            </figcaption>
+        </div>
+
+
+        <section class="projeto-conteudo">
+            <div class="container">
+                
+                <div class="projeto-descricao">
+                    <h2>O Desafio</h2>
+                    <p>A validação de dados financeiros provenientes de diferentes convênios (INSS, Consiglog, Zetra, etc.) exigia processos manuais complexos e regras de negócio distintas para cada um. Era necessário automatizar essa validação, garantindo a integridade dos dados, a aplicação correta das regras e a geração de relatórios consolidados para análise.</p>
+                    <p>O sistema precisava ser flexível o suficiente para acomodar as particularidades de cada convênio, desde os arquivos de entrada necessários até os scripts SQL específicos para a validação.</p>
+
+                    <h2>A Solução: Módulo Validador Integrado</h2>
+                    <p>Desenvolvi o Módulo Validador como parte integrante da aplicação desktop "Mordomo" (construída com PyQt5). Este módulo utiliza Python e PostgreSQL para orquestrar o processo de validação:</p>
+                    <ul class="lista-detalhada">
+                        <li><strong>Interface Dinâmica (PyQt5):</strong> A aba "Validador de Convênios" adapta dinamicamente os campos de upload de arquivos com base no convênio selecionado pelo usuário, utilizando configurações pré-definidas (`configuracoes.py`).</li>
+                        <li><strong>Importação Robusta de Dados (Python/Pandas/Psycopg2):</strong> Carrega múltiplos arquivos CSV para tabelas PostgreSQL, detectando delimitadores, tratando diferentes encodings (UTF-8, Latin-1) e limpando dados textuais (remoção de acentos).</li>
+                        <li><strong>Criação Dinâmica de Schemas (Psycopg2/SQL):</strong> Para convênios não-INSS, gera dinamicamente as instruções `CREATE TABLE` com base nas colunas e tipos de dados inferidos do CSV, garantindo flexibilidade. Para INSS, utiliza schemas SQL pré-definidos (`criacao_tabelas.py`).</li>
+                        <li><strong>Execução de Regras SQL Específicas (Psycopg2):</strong> Seleciona e executa o script SQL de validação apropriado (`scripts_sql.py`) para o convênio escolhido. Esses scripts realizam joins complexos, cálculos (somas condicionais, diferenças, percentuais) e atualizam status (`LIBERADO`, `BLOQUEADO`, `REVISAR`).</li>
+                        <li><strong>Geração de Relatório Consolidado (Pandas/Openpyxl):</strong> Exporta os resultados das tabelas de validação para um arquivo Excel (`.xlsx`) com múltiplas abas nomeadas, aplicando formatação (bordas, alinhamento) e tratando a formatação de números (ponto vs. vírgula) para melhor legibilidade.</li>
+                    </ul>
+
+                    <h2>Interface Dinâmica do Validador</h2>
+                    <p>A interface se adapta aos arquivos exigidos por cada convênio, como Igeprev (Zetra) e INSS.</p>
+                    <div class="galeria-grid">
+                        <figure>
+                            <img src="../assets/images/validador4.png" alt="Validador configurado para Igeprev (Zetra)">
+                            <figcaption>Seleção do convênio Igeprev (tipo Zetra), exigindo 3 arquivos específicos.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="../assets/images/validador3.png" alt="Validador configurado para INSS">
+                            <figcaption>Seleção do convênio INSS, que requer um conjunto maior e diferente de arquivos.</figcaption>
+                        </figure>
+                    </div>
+
+                    <h2>Código em Destaque</h2>
+                    <p>Função `get_validation_query` do arquivo `validacao_base.py`. Ela demonstra a lógica central para selecionar o script SQL correto com base no tipo de convênio identificado no arquivo de configurações.</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i data-feather="file-text"></i>
+                            <span>validacao/validacao_base.py (Seleção de Query)</span>
+                        </div>
+<pre><code class="language-python">
+# (Trecho de validacao_base.py)
+from .configuracoes import (
+    CONVENIOS_TIPO_INSS, CONVENIOS_TIPO_CONSIGLOG, CONVENIOS_TIPO_CIP, 
+    # ... outros tipos ...
+    CONVENIOS_TIPO_ZETRA_ORBITAL
+)
+import validacao.scripts_sql as scripts_sql
+
+def get_validation_query(convenio_selecionado):
+    """
+    Retorna o script SQL de validação apropriado para o convênio selecionado.
+    """
+    CONVENIOS_PADRAO = (
+        CONVENIOS_TIPO_CONSIGLOG + CONVENIOS_TIPO_CIP + 
+        CONVENIOS_TIPO_KONEXIA + CONVENIOS_TIPO_NEOCONSIG + 
+        CONVENIOS_TIPO_SMARTCONSIG + CONVENIOS_TIPO_SICON + 
+        CONVENIOS_TIPO_ZETRA
+    )
+
+    if convenio_selecionado in CONVENIOS_PADRAO:
+        return scripts_sql.VALIDACAO_PADRAO
+    elif convenio_selecionado in CONVENIOS_TIPO_CONSIGFACIL:
+        return scripts_sql.VALIDACAO_CONSIGFACIL
+    elif convenio_selecionado in CONVENIOS_TIPO_NEOCONSIG_ORBITAL:
+        return scripts_sql.VALIDACAO_NEOCONSIG_ORBITAL
+    elif convenio_selecionado in CONVENIOS_TIPO_ZETRA_ORBITAL:
+        return scripts_sql.VALIDACAO_ZETRA_ORBITAL
+    elif convenio_selecionado in CONVENIOS_TIPO_INSS:
+        return scripts_sql.VALIDACAO_INSS
+    else:
+        # Retorna None se nenhum script corresponder, 
+        # para ser tratado na função chamadora.
+        return None
+
+</code></pre>
+                    </div> </div>
+
+                <aside class="projeto-sidebar">
+                    <div class="sidebar-box">
+                        <h3>Tecnologias Principais</h3>
+                        <ul class="tech-list">
+                            <li><i data-feather="check"></i> Python</li>
+                            <li><i data-feather="check"></i> PyQt5 (GUI)</li>
+                            <li><i data-feather="check"></i> PostgreSQL (Banco de Dados)</li>
+                            <li><i data-feather="check"></i> Psycopg2 (Conector DB)</li>
+                            <li><i data-feather="check"></i> SQL (Scripts Dinâmicos)</li>
+                            <li><i data-feather="check"></i> Pandas (Manipulação de Dados)</li>
+                            <li><i data-feather="check"></i> Openpyxl (Exportação Excel)</li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-box">
+                        <h3>Tipo de Projeto</h3>
+                        <p>Aplicação Desktop / Validação de Dados / ETL</p>
+                    </div>
+                    <div class="sidebar-box">
+                        <h3>Contexto</h3>
+                        <p>Módulo da Ferramenta Interna (Capital Consig)</p>
+                    </div>
+                    <div class="sidebar-box">
+                        <h3>Resultados Chave</h3>
+                        <p>• Automação completa do processo de validação para múltiplos convênios.</p>
+                        <p>• Aplicação consistente e auditável de regras de negócio complexas via SQL.</p>
+                        <p>• Flexibilidade para adaptar e adicionar novos convênios através de configurações.</p>
+                        <p>• Geração de relatórios Excel formatados e prontos para análise.</p>
+                        <p>• Integração transparente com a interface gráfica existente.</p>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 - Matheus Silva</p>
+    </footer>
+
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        feather.replace();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+        gsap.to('html', { duration: 0.5, opacity: 1, ease: 'power1.inOut' });
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matheus Silva | Case Study: Aplicação Nero</title>
+    
+    <link rel="stylesheet" href="../style.css"> <link rel="stylesheet" href="projeto-style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body class="pagina-projeto">
+
+    <header class="header">
+        <nav class="navbar container">
+            <a href="../index.html" class="logo">Matheus Silva</a>
+            <ul class="nav-menu">
+                <li><a href="../index.html#sobre" class="nav-link">Sobre</a></li>
+                <li><a href="../index.html#projetos" class="nav-link">Projetos</a></li>
+                <li><a href="../index.html#contato" class="nav-link">Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="projeto-hero">
+            <div class="container">
+                <span class="breadcrumb"><a href="../index.html#projetos">Projetos</a> /</span>
+                <h1>Nero</h1>
+                <p class="projeto-subtitulo">Ferramenta desktop (PyQt5) para consolidação de dados e geração de relatórios Excel formatados (Consolidado e Individual).</p>
+            </div>
+        </section>
+
+        <div class="container">
+            <img src="../assets/images/nero1.png" alt="Interface da Aplicação Nero - Aba Relatório Consolidado" class="projeto-imagem-destaque">
+        </div>
+
+        <section class="projeto-conteudo">
+            <div class="container">
+                
+                <div class="projeto-descricao">
+                    <h2>O Desafio</h2>
+                    <p>Após a validação dos dados financeiros pelo Módulo Validador, era necessário consolidar as informações de múltiplas planilhas (uma por convênio ou consignatária) em relatórios finais padronizados e bem formatados para análise gerencial. A criação manual desses relatórios era demorada e sujeita a inconsistências.</p>
+                    <p>O objetivo era desenvolver uma ferramenta que automatizasse a geração de dois tipos principais de relatórios em Excel: um Consolidado, agrupando dados de vários ficheiros, e um Individual, sumarizando informações por consignatária.</p>
+
+                    <h2>A Solução: Aplicação Desktop Nero</h2>
+                    <p>Desenvolvi o "Nero", uma aplicação desktop com interface gráfica (PyQt5) focada na geração de relatórios Excel. Ele complementa o fluxo de trabalho iniciado pelo Módulo Validador:</p>
+                    <ul class="lista-detalhada">
+                        <li><strong>Interface com Abas (PyQt5):</strong> Organiza as funcionalidades em duas abas claras: "Relatório Consolidado" e "Relatório Individual".</li>
+                        <li><strong>Processamento Consolidado (Pandas/QThread):</strong> A aba "Consolidado" permite carregar múltiplas planilhas de resultados (geradas pelo Validador). Um worker em background (QThread) processa cada ficheiro, extraindo KPIs (Valor Lançado, Contratos Lançados/Não Lançados, Saldos) com base em aliases de colunas flexíveis (`config.py`).</li>
+                        <li><strong>Geração de Relatório Individual (Pandas/QThread):</strong> A aba "Individual" permite configurar um relatório sumarizado por consignatária, lendo dados de planilhas separadas e calculando totais.</li>
+                        <li><strong>Exportação Profissional para Excel (Openpyxl):</strong> Gera ficheiros `.xlsx` com formatação detalhada:
+                            <ul>
+                                <li>Cabeçalhos com cores personalizáveis (definidas via UI).</li>
+                                <li>Fontes, cores e alinhamentos específicos para títulos, KPIs e dados.</li>
+                                <li>Bordas em todas as células.</li>
+                                <li>Formatação numérica (Moeda R$, Inteiro).</li>
+                                <li>Linhas de Total Geral com fórmulas `=SUM()`.</li>
+                                <li>Ajuste automático da largura das colunas.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Configuração Flexível (config.py):</strong> Permite definir aliases para nomes de colunas (tornando o sistema robusto a pequenas variações nos ficheiros de entrada), mapear tipos de convênio e definir cores para o Excel.</li>
+                        <li><strong>Feedback de Processamento:</strong> Uma área de "Log de Execução" em cada aba informa o usuário sobre o progresso e o resultado da geração.</li>
+                    </ul>
+
+                    <h2>Interface das Abas de Relatório</h2>
+                    <p>Visualização das duas principais funcionalidades da aplicação Nero.</p>
+                    <div class="galeria-grid">
+                        <figure>
+                             <img src="../assets/images/nero1.png" alt="Aba Relatório Consolidado">
+                            <figcaption>Aba "Relatório Consolidado": Carregamento e processamento de múltiplas planilhas.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="../assets/images/nero2.png" alt="Aba Relatório Individual">
+                            <figcaption>Aba "Relatório Individual": Configuração e geração de sumário por consignatária.</figcaption>
+                        </figure>
+                    </div>
+
+                    <h2>Código em Destaque</h2>
+                    <p>Trecho do `processing.py` (dentro da classe `MiniReportWorker`) que demonstra a utilização da biblioteca Openpyxl para aplicar estilos e formatação avançada às células do relatório Excel gerado, incluindo cores, fontes, bordas e formatos numéricos.</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i data-feather="file-text"></i>
+                            <span>processing.py (Formatação Excel)</span>
+                        </div>
+<pre><code class="language-python">
+# (Trecho adaptado de processing.py - MiniReportWorker.run)
+import openpyxl
+from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+from openpyxl.utils import get_column_letter
+from openpyxl.utils.dataframe import dataframe_to_rows
+
+# --- (Após processar os dados e ter o resumo_df em Pandas) ---
+
+            workbook = openpyxl.Workbook()
+            sheet = workbook.active
+            
+            # --- ESTILOS ---
+            header_fill = PatternFill(fill_type="solid", fgColor=self.header_color_code) # Cor vinda da UI
+            white_fill = PatternFill(fill_type="solid", fgColor="FFFFFF")
+            
+            # Fontes
+            header_font = Font(bold=True, color="FFFFFF", size=11)
+            title_font = Font(bold=True, size=18, color="2c3e50")
+            subtitle_font = Font(bold=True, size=14, color="2c3e50")
+            total_font = Font(bold=True, color="2c3e50", size=11)
+            data_font = Font(color="2c3e50") # Fonte escura para dados
+            
+            # Alinhamentos
+            center_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            left_align = Alignment(horizontal="left", vertical="center")
+            right_align = Alignment(horizontal="right", vertical="center")
+            
+            # Bordas
+            thin_border = Border(
+                left=Side(style="thin"), right=Side(style="thin"), 
+                top=Side(style="thin"), bottom=Side(style="thin")
+            )
+            
+            # Formatos Numéricos (Estilo Brasileiro)
+            accounting_format = 'R$ #,##0.00' 
+            integer_format = '#,##0'
+            
+            # --- CABEÇALHO FIXO (Título, Convênio, Data) ---
+            # ... (código para mesclar células e aplicar estilos de título/subtítulo) ...
+
+            current_row = 4 # Linha onde começam os cabeçalhos da tabela
+            
+            # --- CABEÇALHOS DA TABELA (CONSIGNATARIA, VALIDAÇÃO, etc.) ---
+            headers = list(resumo_df.columns)
+            for col_idx, header_text in enumerate(headers, 1):
+                cell = sheet.cell(row=current_row, column=col_idx, value=header_text)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = center_align
+                cell.border = thin_border
+            
+            # --- DADOS (Linha 5+) ---
+            start_data_row = current_row + 1
+            for r_idx, row_data in enumerate(dataframe_to_rows(resumo_df, index=False, header=False)):
+                for c_idx, value in enumerate(row_data, 1):
+                    row = start_data_row + r_idx
+                    cell = sheet.cell(row=row, column=c_idx, value=value)
+                    cell.font = data_font # Aplica fonte escura
+                    cell.fill = white_fill # Aplica fundo branco
+                    cell.alignment = left_align if c_idx == 1 else center_align # Alinha a primeira coluna à esquerda
+                    cell.border = thin_border # Aplica borda fina
+                    
+                    # Aplica formatação numérica específica
+                    if headers[c_idx-1] in ["VALIDAÇÃO", "LANÇAMENTO"]:
+                        cell.number_format = accounting_format
+                    elif headers[c_idx-1] == "QTD CONTRATOS LANÇADOS":
+                        cell.number_format = integer_format
+
+            # --- LINHA TOTAL GERAL ---
+            total_row_idx = sheet.max_row + 1
+            total_label_cell = sheet.cell(row=total_row_idx, column=1, value="TOTAL")
+            # ... (aplicar estilos na célula TOTAL) ...
+
+            # Adiciona FÓRMULAS de soma e formata as células de total
+            for col_idx in range(2, 5): # Colunas B, C, D (Validação, Lançamento, QTD)
+                col_letter = get_column_letter(col_idx)
+                formula = f"=SUM({col_letter}{start_data_row}:{col_letter}{total_row_idx - 1})"
+                total_cell = sheet.cell(row=total_row_idx, column=col_idx, value=formula)
+                # ... (aplicar estilos e formato numérico na célula de total) ...
+            
+            # ... (Código para ajustar largura das colunas e salvar o workbook) ...
+
+</code></pre>
+                    </div> </div>
+
+                <aside class="projeto-sidebar">
+                    <div class="sidebar-box">
+                        <h3>Tecnologias Principais</h3>
+                        <ul class="tech-list">
+                            <li><i data-feather="check"></i> Python</li>
+                            <li><i data-feather="check"></i> PyQt5 (GUI)</li>
+                            <li><i data-feather="check"></i> Pandas (Leitura/Agregação)</li>
+                            <li><i data-feather="check"></i> Openpyxl (Geração Excel)</li>
+                            <li><i data-feather="check"></i> QThread (Background Processing)</li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-box">
+                        <h3>Tipo de Projeto</h3>
+                        <p>Aplicação Desktop / Processamento de Dados / Geração de Relatórios</p>
+                    </div>
+                    <div class="sidebar-box">
+                        <h3>Contexto</h3>
+                        <p>Ferramenta Interna (Capital Consig)</p>
+                    </div>
+                    <div class="sidebar-box">
+                        <h3>Resultados Chave</h3>
+                        <p>• Automação da geração de relatórios Consolidado e Individual.</p>
+                        <p>• Padronização e formatação profissional dos relatórios Excel.</p>
+                        <p>• Flexibilidade na leitura de dados através de aliases de colunas.</p>
+                        <p>• Interface gráfica simples para configuração e execução.</p>
+                        <p>• Processamento em background para não travar a interface.</p>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 - Matheus Silva</p>
+    </footer>
+
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        feather.replace();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+        gsap.to('html', { duration: 0.5, opacity: 1, ease: 'power1.inOut' });
+    </script>
+    
+</body>
+</html>

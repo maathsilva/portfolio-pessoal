@@ -1,0 +1,512 @@
+/* --- 1. VARIÁVEIS GLOBAIS (O Coração do Tema) --- */
+:root {
+    /* Paleta Dark Mode Corporativa */
+    --cor-fundo: #0F172A; /* Azul-marinho muito escuro */
+    --cor-fundo-secundaria: #1E293B; /* Azul-ardósia escuro (para cards) */
+    --cor-borda: #334155; /* Cinza-azulado para bordas sutis */
+    
+    --cor-texto-principal: #F1F5F9; /* Quase branco (para textos) */
+    --cor-texto-secundario: #94A3B8; /* Cinza-claro (para parágrafos) */
+    
+    --cor-primaria: #3B82F6; /* Azul de destaque (confiável) */
+    --cor-primaria-hover: #2563EB; /* Azul mais escuro para hover */
+
+    /* Tipografia */
+    --fonte-principal: 'Inter', sans-serif;
+    --fonte-titulos: 'Montserrat', sans-serif;
+}
+
+/* --- 2. RESET BÁSICO E ESTILOS GERAIS --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    opacity: 0; /* Para animação GSAP */
+}
+
+body {
+    font-family: var(--fonte-principal);
+    color: var(--cor-texto-principal);
+    background-color: var(--cor-fundo);
+    line-height: 1.7;
+    overflow-x: hidden; /* Garante que não haja scroll horizontal */
+}
+
+.container {
+    max-width: 1100px;
+    width: 90%; 
+    margin: 0 auto;
+}
+
+/* --- 3. ESTILOS DOS ÍCONES (FEATHER) --- */
+svg.feather {
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+}
+
+/* --- 4. HEADER / NAVEGAÇÃO --- */
+.header {
+    background-color: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--cor-borda);
+    padding: 1.25rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-family: var(--fonte-titulos);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--cor-primaria);
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--cor-texto-principal);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--cor-primaria);
+}
+
+.hamburger { display: none; }
+
+/* --- 5. TÍTULOS DE SEÇÃO (Profissional) --- */
+.section-title {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+.section-title h2 {
+    font-size: 2.5rem;
+    font-family: var(--fonte-titulos);
+    margin-bottom: 0.5rem;
+}
+.title-divider {
+    width: 60px;
+    height: 4px;
+    background: var(--cor-primaria);
+    margin: 0 auto;
+    border-radius: 2px;
+}
+
+/* --- 6. BOTÕES (CTAs) --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+    font-family: var(--fonte-titulos);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+.btn-primary {
+    background-color: var(--cor-primaria);
+    color: #FFF;
+}
+.btn-primary:hover {
+    background-color: var(--cor-primaria-hover);
+}
+.btn-secondary {
+    background-color: transparent;
+    color: var(--cor-primaria);
+    border: 2px solid var(--cor-primaria);
+    margin-left: 1rem;
+}
+.btn-secondary:hover {
+    background-color: var(--cor-primaria);
+    color: #FFF;
+}
+
+/* --- 7. SEÇÕES ESPECÍFICAS --- */
+
+/* SEÇÃO HOME */
+.home-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 90vh;
+    padding: 5rem 0;
+}
+.home-content h1 {
+    font-size: 3.5rem;
+    font-family: var(--fonte-titulos);
+    color: #FFF;
+    min-height: 5rem; 
+}
+.home-content p {
+    font-size: 1.25rem;
+    color: var(--cor-texto-secundario);
+    max-width: 650px;
+    margin: 1rem auto 2.5rem auto;
+}
+
+/* SEÇÃO SOBRE (COM FLEXBOX) */
+.sobre-section {
+    padding: 6rem 0;
+    background-color: var(--cor-fundo-secundaria);
+}
+.sobre-content {
+    display: flex; 
+    gap: 3rem;
+    align-items: flex-start; /* Alinha pelo topo */
+}
+.minha-foto {
+    width: 300px;
+    height: 300px;
+    max-width: 300px;
+    flex-shrink: 0; 
+    border-radius: 50%;
+    border: 4px solid var(--cor-borda);
+    transition: border-color 0.3s;
+    object-fit: cover; 
+}
+.minha-foto:hover {
+    border-color: var(--cor-primaria);
+}
+.sobre-texto {
+    flex-grow: 1; 
+}
+.sobre-texto h3 {
+    font-family: var(--fonte-titulos);
+    font-size: 1.5rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+}
+.sobre-texto h3:first-child { margin-top: 0; }
+.sobre-texto p {
+    color: var(--cor-texto-secundario);
+    margin-bottom: 1rem;
+}
+.skills-lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.skills-lista span {
+    background: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+.skills-lista span svg {
+    color: var(--cor-primaria);
+}
+
+/* SEÇÃO PROJETOS (GRID RESPONSIVO E FLEX INTERNO) */
+.projetos-section {
+    padding: 6rem 0;
+}
+.projetos-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 colunas iguais */
+    gap: 1.5rem; /* Espaçamento entre os cards */
+    align-items: stretch; /* Garante que todos os cards na linha estiquem para a mesma altura */
+}
+
+.projeto-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex; /* Faz o link preencher o espaço e permite esticar */
+    height: 100%; /* Garante que o link ocupe toda a altura da célula do grid */
+}
+
+.projeto-card {
+    background: var(--cor-fundo-secundaria);
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    height: 100%; /* Garante que o card ocupe toda a altura do link */
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    display: flex; /* Habilita flexbox para alinhar conteúdo interno */
+    flex-direction: column; /* Organiza o conteúdo em coluna */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+    padding: 5px; /* Adiciona um pequeno padding interno */
+    box-sizing: border-box; /* Garante que o padding não aumente o tamanho */
+}
+.projeto-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--cor-primaria);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+}
+
+.card-conteudo {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Faz o conteúdo esticar para preencher o espaço vertical */
+}
+.card-conteudo h3 {
+    font-family: var(--fonte-titulos);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #FFF;
+}
+.card-conteudo p {
+    font-size: 0.95rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 1rem;
+    line-height: 1.5; 
+}
+.tags {
+    display: flex; 
+    flex-wrap: wrap; 
+    /* << CORREÇÃO: Reduzido o espaço entre as tags */
+    gap: 0.25rem;  /* Era 0.5rem */
+    margin-top: auto; 
+    padding-top: 1rem; 
+    justify-content: flex-start; 
+    width: 100%; 
+}
+
+.tags span {
+    background: var(--cor-fundo);
+    color: var(--cor-primaria);
+    font-size: 0.8rem;
+    font-weight: 500;
+    /* << CORREÇÃO: Reduzido o padding interno da tag */
+    padding: 0.2rem 0.6rem; /* Era 0.25rem 0.75rem */
+    border-radius: 15px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* O estilo do SVG dentro da tag permanece o mesmo */
+.tags span svg {
+    width: 14px;
+    height: 14px;
+    margin-right: 0.25rem;
+}
+
+/* SEÇÃO CONTATO */
+.contato-section {
+    padding: 6rem 0;
+    background-color: var(--cor-fundo-secundaria);
+    text-align: center;
+}
+.contato-section p {
+    font-size: 1.1rem;
+    color: var(--cor-texto-secundario);
+    max-width: 500px;
+    margin: 0 auto 2.5rem auto;
+}
+.contato-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+.contato-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--cor-texto-secundario);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.contato-link:hover {
+    color: var(--cor-primaria);
+    background-color: var(--cor-fundo);
+}
+.contato-link svg {
+    width: 32px;
+    height: 32px;
+    margin: 0 0 0.5rem 0;
+}
+.contato-link span {
+    font-weight: 500;
+}
+
+/* --- 8. RODAPÉ --- */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    background: var(--cor-fundo);
+    color: var(--cor-texto-secundario);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--cor-borda);
+}
+.footer svg {
+    vertical-align: sub;
+}
+
+
+/* --- 9. RESPONSIVIDADE --- */
+
+/* Telas Médias (ex: Tablets < 992px) - 2 Colunas */
+@media (max-width: 992px) { 
+    .projetos-grid {
+        grid-template-columns: repeat(2, 1fr); /* Muda para 2 colunas */
+    }
+}
+
+/* Telas Pequenas (ex: Mobile < 768px) - 1 Coluna */
+@media (max-width: 768px) {
+    .container {
+        width: 90%; 
+    }
+    
+    .home-content h1 { 
+        font-size: 2.5rem;
+        min-height: 7rem;
+    }
+    .home-content p { font-size: 1rem; }
+    .home-buttons { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 1rem; 
+        align-items: center;
+    }
+    .btn-secondary { margin-left: 0; }
+    
+    .section-title h2 { font-size: 2rem; }
+    
+    .sobre-content {
+        flex-direction: column; 
+        align-items: center; 
+    }
+    .minha-foto {
+        margin: 0 auto 2rem auto; 
+        width: 80%; 
+        max-width: 300px; 
+        height: auto; 
+    }
+    .sobre-texto {
+        text-align: left; 
+        width: 100%; 
+    }
+    .skills-lista {
+        justify-content: center; 
+    }
+    .formacao-lista {
+        text-align: left; 
+    }
+
+    /* Projetos viram 1 coluna no mobile */
+    .projetos-grid {
+        grid-template-columns: 1fr; 
+    }
+
+    /* Lógica do Menu Hamburguer */
+    .nav-menu {
+        position: fixed;
+        left: -100%;
+        top: 85px; 
+        flex-direction: column;
+        background-color: var(--cor-fundo-secundaria);
+        width: 100%;
+        text-align: center;
+        transition: 0.3s;
+        gap: 0;
+        border-bottom: 1px solid var(--cor-borda);
+    }
+    .nav-menu.active {
+        left: 0;
+    }
+    .nav-item {
+        width: 100%;
+    }
+    .nav-link {
+        display: block;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--cor-borda);
+    }
+    .hamburger {
+        display: block;
+        cursor: pointer;
+    }
+    .bar {
+        display: block;
+        width: 25px;
+        height: 3px;
+        margin: 5px auto;
+        transition: all 0.3s ease-in-out;
+        background-color: var(--cor-texto-principal);
+    }
+    .hamburger.active .bar:nth-child(2) { opacity: 0; }
+    .hamburger.active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+}
+
+/* --- 10. ESTILOS DO TYPED.JS --- */
+#typed-name {
+    color: var(--cor-primaria);
+}
+.typed-cursor {
+    color: var(--cor-primaria);
+    opacity: 1;
+    animation: typed-blink 0.7s infinite;
+}
+@keyframes typed-blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* --- 11. ESTILOS DA SEÇÃO SOBRE (Educação) --- */
+.formacao-lista {
+    list-style: none;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left; 
+}
+.formacao-lista li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+.formacao-lista li svg {
+    color: var(--cor-primaria);
+    width: 20px;
+    height: 20px;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    margin-top: 5px;
+}
+.formacao-lista li div {
+    display: flex;
+    flex-direction: column;
+}
+.formacao-lista li strong {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--cor-texto-principal);
+    line-height: 1.4;
+}
+.formacao-lista li span {
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+}

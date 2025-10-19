@@ -1,0 +1,251 @@
+/* --- ESTILO GERAL DA PÁGINA DE PROJETO --- */
+.pagina-projeto .header {
+    background-color: var(--cor-fundo); 
+}
+
+/* --- 1. SEÇÃO HERO (CABEÇALHO) --- */
+.projeto-hero {
+    padding-top: 4rem;
+    padding-bottom: 3rem;
+    background-color: var(--cor-fundo-secundaria);
+}
+.projeto-hero .container {
+    max-width: 900px; 
+    width: 90%; /* Responsividade */
+}
+.projeto-hero .breadcrumb {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.projeto-hero .breadcrumb a {
+    color: var(--cor-primaria);
+    text-decoration: none;
+}
+.projeto-hero .breadcrumb a:hover {
+    text-decoration: underline;
+}
+.projeto-hero h1 {
+    font-size: 3rem;
+    font-family: var(--fonte-titulos);
+    color: #FFF;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.projeto-hero .projeto-subtitulo {
+    font-size: 1.25rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 2rem;
+}
+.projeto-hero .btn svg {
+    margin-right: 0.5rem;
+}
+
+
+/* --- 2. IMAGEM DE DESTAQUE --- */
+.projeto-imagem-destaque {
+    width: 100%;
+    max-width: 900px; 
+    margin: 0 auto; /* Centraliza a imagem */
+    display: block;
+    border-radius: 8px;
+    /* margin-top: -2rem; -- REMOVIDO */ 
+    margin-top: 2rem; /* << NOVO: Adiciona um espaço positivo acima da imagem */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative; /* Mantém para o z-index funcionar, se necessário */
+    z-index: 10;        /* Mantém caso haja sobreposição futura */
+    border: 1px solid var(--cor-borda);
+}
+
+/* --- 3. CONTEÚDO DO PROJETO (GRID 2 COLUNAS) --- */
+.projeto-conteudo {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+.projeto-conteudo .container {
+    max-width: 900px; 
+    width: 90%; /* Responsividade */
+    display: grid;
+    grid-template-columns: 2.5fr 1fr; 
+    gap: 3rem;
+}
+
+/* Coluna da Esquerda (Descrição) */
+.projeto-descricao h2 {
+    font-family: var(--fonte-titulos);
+    font-size: 2rem;
+    color: var(--cor-primaria);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--cor-borda);
+    padding-bottom: 0.5rem;
+}
+.projeto-descricao h2:first-child {
+    margin-top: 0;
+}
+.projeto-descricao p, .projeto-descricao li {
+    color: var(--cor-texto-secundario);
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+.projeto-descricao p {
+    margin-bottom: 1rem;
+}
+.lista-detalhada {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    padding-left: 0; /* Remove padding padrão da ul */
+}
+.lista-detalhada li {
+    margin-bottom: 0.5rem;
+}
+
+/* Galeria de Imagens */
+.galeria-grid {
+    display: grid;
+    grid-template-columns: 1fr; 
+    gap: 2rem; 
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+.galeria-grid figure {
+    margin: 0; 
+}
+.galeria-grid img {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid var(--cor-borda);
+    display: block; 
+}
+.galeria-grid figcaption {
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+    text-align: center;
+    margin-top: 0.75rem;
+}
+
+/* Coluna da Direita (Sidebar) */
+.projeto-sidebar {
+    position: sticky; 
+    top: 120px; 
+}
+.sidebar-box {
+    background: var(--cor-fundo-secundaria);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--cor-borda);
+}
+.sidebar-box h3 {
+    font-family: var(--fonte-titulos);
+    font-size: 1.25rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+.sidebar-box p {
+    color: var(--cor-texto-secundario);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem; 
+}
+.tech-list {
+    list-style: none;
+    padding-left: 0;
+}
+.tech-list li {
+    color: var(--cor-texto-secundario);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: flex-start; /* << MUDOU: Alinha pelo topo */
+}
+.tech-list li svg {
+    color: var(--cor-primaria);
+    width: 16px;         /* Garante tamanho consistente */
+    height: 16px;        /* Garante tamanho consistente */
+    flex-shrink: 0;      /* Impede que o ícone encolha */
+    margin-right: 0.5rem;
+    margin-top: 4px;     /* << NOVO: Pequeno ajuste para alinhar com a linha de base do texto */
+}
+
+/* --- 4. O BLOCO DE CÓDIGO (PRISM.JS) --- */
+.code-block {
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    margin-top: 1rem;
+    overflow: hidden; 
+}
+.code-header {
+    display: flex;
+    align-items: center;
+    background-color: #1E1E1E; 
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+.code-header svg {
+    width: 16px;
+    height: 16px;
+    color: var(--cor-texto-secundario);
+    margin-right: 0.5rem;
+}
+.code-header span {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+}
+pre[class*="language-"] {
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 0 8px 8px !important;
+    font-size: 0.9rem !important;
+    background-color: #1E1E1E !important; 
+    overflow: auto;
+    white-space: pre; 
+}
+
+
+/* --- 5. RESPONSIVIDADE --- */
+@media (max-width: 900px) { /* Tablets */
+    .projeto-conteudo .container {
+        grid-template-columns: 1fr; /* Coluna única */
+    }
+    .projeto-sidebar {
+        position: static; 
+        order: -1; /* Sidebar vai para cima */
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Sidebar vira 2 colunas */
+        gap: 1rem;
+    }
+    .sidebar-box {
+        margin-bottom: 0;
+    }
+    .projeto-descricao h2 {
+        margin-top: 3rem; 
+    }
+    /* Galeria volta para 2 colunas no tablet */
+    .galeria-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+@media (max-width: 768px) { /* Mobile Grande */
+    .projeto-hero h1 { font-size: 2.2rem; }
+}
+@media (max-width: 500px) { /* Mobile Pequeno */
+    .projeto-sidebar {
+        grid-template-columns: 1fr; /* Sidebar vira 1 coluna */
+    }
+    /* Galeria volta para 1 coluna */
+    .galeria-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- 6. AJUSTE EXTRA: Centralizar Botão do Hero --- */
+.projeto-hero .projeto-links-principais {
+    text-align: center; /* Centraliza o botão */
+    margin-top: 1.5rem; /* Adiciona um espaço acima do botão */
+}
+
+/* Ajusta a margem do botão secundário para funcionar no centro */
+.projeto-hero .btn-secondary {
+    margin-left: 0; 
+}

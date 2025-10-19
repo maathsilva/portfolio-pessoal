@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matheus Silva | Case Study: Luno - Gerador de Escalas</title>
+    
+    <link rel="stylesheet" href="../style.css"> <link rel="stylesheet" href="projeto-style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body class="pagina-projeto">
+
+    <header class="header">
+        <nav class="navbar container">
+            <a href="../index.html" class="logo">Matheus Silva</a>
+            <ul class="nav-menu">
+                <li><a href="../index.html#sobre" class="nav-link">Sobre</a></li>
+                <li><a href="../index.html#projetos" class="nav-link">Projetos</a></li>
+                <li><a href="../index.html#contato" class="nav-link">Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="projeto-hero">
+            <div class="container">
+                <span class="breadcrumb"><a href="../index.html#projetos">Projetos</a> /</span>
+                <h1>Luno</h1>
+                <p class="projeto-subtitulo">Aplicação desktop (PyQt5) para criação e gestão automatizada de escalas de trabalho semanais para farmácias.</p>
+            </div>
+        </section>
+
+        <div class="container">
+            <img src="../assets/images/luno4.png" alt="Exemplo de Escala Gerada pelo Luno" class="projeto-imagem-destaque">
+        </div>
+
+        <section class="projeto-conteudo">
+            <div class="container">
+                
+                <div class="projeto-descricao">
+                    <h2>O Desafio</h2>
+                    <p>A criação manual de escalas de rotinas semanais em farmácias é uma tarefa complexa e demorada. É preciso conciliar as rotinas específicas de cada turno e grupo de trabalho com as folgas individuais dos funcionários, garantindo a cobertura de todas as tarefas e uma distribuição justa.</p>
+                    <p>Fazer isso manualmente, muitas vezes em planilhas, é propenso a erros, difícil de manter e consome um tempo valioso que poderia ser dedicado a outras atividades da farmácia.</p>
+
+                    <h2>A Solução: Aplicação Desktop Luno</h2>
+                    <p>Desenvolvi o "Luno", uma aplicação desktop em Python com interface gráfica PyQt5, projetada para simplificar e automatizar a geração de escalas de rotinas em farmácias:</p>
+                    <ul class="lista-detalhada">
+                        <li><strong>Gestão Centralizada:</strong> Permite cadastrar funcionários (manualmente ou via importação Excel), definir seus grupos de trabalho (cores) e gerenciar rotinas específicas para cada turno e grupo.</li>
+                        <li><strong>Gerenciador de Folgas:</strong> Interface dedicada para registrar os dias de folga fixos de cada funcionário, salvando os dados em formato JSON para persistência.</li>
+                        <li><strong>Dois Modos de Geração:</strong>
+                            <ul>
+                                <li><em>Grupos Fixos (Manual):</em> Aloca funcionários às rotinas baseando-se estritamente no grupo de cor definido, rotacionando dentro do grupo para evitar sobrecarga.</li>
+                                <li><em>Rotação Diária (Automático):</em> Distribui aleatoriamente os funcionários disponíveis (sem folga no dia) entre os grupos de rotinas ativos, garantindo cobertura e variação.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Visualização Clara da Escala:</strong> Apresenta a escala semanal gerada numa tabela (QTableWidget) colorida de acordo com os grupos, facilitando a visualização.</li>
+                        <li><strong>Fixação Manual (Pinning):</strong> Permite ao usuário clicar com o botão direito numa célula da escala e "fixar" um funcionário específico para aquela rotina/dia, sobrepondo a geração automática.</li>
+                        <li><strong>Importação/Exportação Excel:</strong> Facilita a entrada de dados (funcionários, rotinas) e a partilha da escala final gerada.</li>
+                        <li><strong>Interface Personalizada:</strong> Utiliza um stylesheet customizado (`ui_design.py`) e ícones SVG para um visual moderno e agradável.</li>
+                    </ul>
+
+                    <h2>Interface da Aplicação Luno</h2>
+                    <p>Visualização das principais telas: configuração inicial, gerenciador de rotinas e gerenciador de folgas.</p>
+                    <div class="galeria-grid">
+                        <figure>
+                            <img src="../assets/images/luno1.png" alt="Tela inicial do Luno">
+                            <figcaption>Tela principal da aplicação, com painel de controle à esquerda.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="../assets/images/luno2.png" alt="Gerenciador de Rotinas">
+                            <figcaption>Janela modal para adicionar, editar, remover e importar rotinas por turno e grupo.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="../assets/images/luno3.png" alt="Gerenciador de Folgas">
+                            <figcaption>Janela modal para definir os dias de folga fixos de cada funcionário.</figcaption>
+                        </figure>
+                    </div>
+
+                    <h2>Código em Destaque</h2>
+                    <p>Trecho do `main_app.py` que implementa a lógica de geração da escala no modo "Grupos Fixos". Ele utiliza `deque` para rotacionar os funcionários dentro de cada grupo e verifica as folgas antes de alocar.</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i data-feather="file-text"></i>
+                            <span>main_app.py (Geração - Grupos Fixos)</span>
+                        </div>
+<pre><code class="language-python">
+# (Trecho adaptado de main_app.py - PharmacyScheduler)
+from collections import deque
+# ... outras importações ...
+
+class PharmacyScheduler(QMainWindow):
+    # ... (init, setup_ui, etc.) ...
+
+    def generate_with_fixed_groups(self):
+        # Cria um deque (fila circular) para cada grupo de cor com os funcionários
+        group_deques = {group: deque(sorted([name for name, g in self.employees.items() if g == group])) 
+                        for group in GROUP_COLORS}
+        
+        # Itera sobre cada dia da semana (colunas da tabela)
+        for day_idx, day in enumerate(DAYS_OF_WEEK):
+            col_idx = day_idx + 1 # Índice da coluna na tabela (começa em 1)
+            
+            # Itera sobre cada rotina (linhas da tabela)
+            for row_idx in range(self.schedule_table.rowCount()):
+                routine_group = self.routine_map[row_idx] # Obtém o grupo da rotina atual
+                found_employee = None
+                
+                # Verifica se há funcionários no deque para o grupo da rotina
+                if group_deques[routine_group]:
+                    # Tenta encontrar um funcionário disponível (sem folga)
+                    for _ in range(len(group_deques[routine_group])):
+                        candidate = group_deques[routine_group][0] # Pega o próximo da fila
+                        # Verifica se o candidato NÃO está de folga neste dia
+                        if day not in self.days_off_data.get(candidate, []):
+                            found_employee = candidate # Encontrou!
+                            break # Para de procurar neste grupo
+                        # Se estava de folga, rotaciona o deque para o próximo
+                        group_deques[routine_group].rotate(-1) 
+                        
+                employee_name = found_employee # Nome a ser exibido (pode ser None)
+                
+                # Verifica se há um funcionário fixado (pinned) para esta célula
+                if (row_idx, col_idx) in self.pinned_assignments:
+                    employee_name = self.pinned_assignments[(row_idx, col_idx)]
+                    
+                # Se encontrou um funcionário (ou ele estava fixado)
+                if employee_name:
+                    # Define o texto e a cor da célula na tabela
+                    self.set_table_cell(row_idx, col_idx, employee_name, routine_group)
+            
+            # Após processar todas as rotinas do dia, rotaciona TODOS os deques
+            # para que a próxima pessoa do grupo comece no dia seguinte
+            for group in group_deques:
+                if group_deques[group]: 
+                    group_deques[group].rotate(-1)
+    
+    # ... (generate_with_daily_rotation, setup_table, set_table_cell, etc.) ...
+
+</code></pre>
+                    </div> </div>
+
+                <aside class="projeto-sidebar">
+                    <div class="sidebar-box">
+                        <h3>Tecnologias Principais</h3>
+                        <ul class="tech-list">
+                            <li><i data-feather="check"></i> Python</li>
+                            <li><i data-feather="check"></i> PyQt5 (GUI)</li>
+                            <li><i data-feather="check"></i> JSON (Persistência de Dados)</li>
+                            <li><i data-feather="check"></i> Pandas (Import/Export Excel)</li>
+                            <li><i data-feather="check"></i> Openpyxl</li>
+                            <li><i data-feather="check"></i> Algoritmos de Escala</li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-box">
+                        <h3>Tipo de Projeto</h3>
+                        <p>Aplicação Desktop / Ferramenta de Gestão / Scheduling</p>
+                    </div>
+                    <div class="sidebar-box">
+                        <h3>Contexto</h3>
+                        <p>Projeto Pessoal (para Farmácia)</p>
+                    </div>
+                    <div class="sidebar-box">
+                        <h3>Resultados Chave</h3>
+                        <p>• Automação completa da criação de escalas semanais.</p>
+                        <p>• Redução de erros e inconsistências no agendamento.</p>
+                        <p>• Flexibilidade com dois modos de geração (Fixo e Rotativo).</p>
+                        <p>• Gestão fácil de funcionários, rotinas e folgas.</p>
+                        <p>• Exportação para Excel para fácil partilha.</p>
+                        <p>• Interface gráfica amigável.</p>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 - Matheus Silva</p>
+    </footer>
+
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        feather.replace();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+        gsap.to('html', { duration: 0.5, opacity: 1, ease: 'power1.inOut' });
+    </script>
+    
+</body>
+</html>
