@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-R" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Matheus Silva | Analista de Dados | IA & Machine Learning</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
     
-    <link rel="stylesheet" href="style.css">
-
-    </head>
+    <link rel="stylesheet" href="style.css" />
+</head>
 <body>
 
     <header class="header">
         <nav class="navbar container">
-            <a href="#home" class="logo">Matheus Silva</a>
+            <a href="#home" class="logo gradient-text">Matheus Silva</a>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="#sobre" class="nav-link">Sobre</a></li>
+                <li class="nav-item"><a href="#formacao" class="nav-link">Formação</a></li>
                 <li class="nav-item"><a href="#projetos" class="nav-link">Projetos</a></li>
                 <li class="nav-item"><a href="#contato" class="nav-link">Contato</a></li>
             </ul>
@@ -31,148 +31,205 @@
     </header>
 
     <main>
-        <section id="home" class="home-section">
-            <div class="container home-content">
-                <h1 class="gsap-hero-title">Olá, eu sou <span id="typed-name"></span></h1>
-                <p class="gsap-hero-subtitle">Analista de Dados | Machine Learning | Big Data | AI | ETL & Pipelines | Python | SQL</p>
-                <div class="home-buttons gsap-hero-buttons">
-                    <a href="#projetos" class="btn btn-primary">
-                        <i data-feather="briefcase"></i> Meus Projetos
-                    </a>
-                    <a href="assets/docs/matheus_silva_AnalistaDeDados.pdf" target="_blank" class="btn btn-secondary">
-                        <i data-feather="download"></i> Baixar Currículo
-                    </a>
+
+        <section id="home" class="hero-section">
+            <div class="container hero-content">
+                <div class="hero-text gsap-fade-up">
+                    <h1>Olá, eu sou <span class="gradient-text" id="typed-hero"></span></h1>
+                    <p class="hero-subtitle">Analista de Dados | Machine Learning | Big Data | AI | ETL & Pipelines | Python | SQL</p>
+                    <div class="hero-buttons">
+                        <a href="#projetos" class="btn btn-primary hover-lift">
+                            <i data-feather="briefcase"></i> Meus Projetos
+                        </a>
+                        <a href="assets/docs/matheus_silva_AnalistaDeDados.pdf" target="_blank" class="btn btn-secondary hover-lift">
+                            <i data-feather="download"></i> Baixar Currículo
+                        </a>
+                    </div>
                 </div>
             </div>
+            <div class="glow-primary hero-glow-1"></div>
+            <div class="glow-accent hero-glow-2"></div>
         </section>
 
-        <section id="sobre" class="sobre-section gsap-fade-in">
+        <section id="sobre" class="sobre-section gsap-fade-up">
             <div class="container">
-                <div class="section-title">
-                    <h2>Sobre Mim</h2>
-                    <div class="title-divider"></div>
-                </div>
-                <div class="sobre-content">
-                    <img src="assets/images/foto_perfil.png" alt="Foto de Matheus Silva" class="minha-foto">
-                    <div class="sobre-texto">
+                <h2 class="section-title">Sobre <span class="gradient-text">Mim</span></h2>
+                <div class="section-divider"></div>
+                
+                <div class="sobre-grid">
+                    <div class="sobre-texto glass-card hover-lift">
                         <h3>Quem eu sou</h3>
-                        <p>Sou um Analista de Dados com foco em criar sistemas inteligentes que reduzem tempo, erros e barreiras entre o dado bruto e o insight estratégico.</p>
-                        <p>Desenvolvo solutions em Python, SQL, Power BI e Excel avançado que conectam eficiência operacional à inteligência analítica. Acredito que automação é a nova criatividade e que cada linha de código é uma oportunidade de simplificar o futuro do trabalho com dados.</p>
-                        <h3>Formação Acadêmica</h3>
-                        <ul class="formacao-lista">
-                             <li><i data-feather="award"></i><div><strong>Pós-graduação, Inteligência Artificial</strong><span>Universidade São Judas Tadeu (2025)</span></div></li>
-                             <li><i data-feather="book-open"></i><div><strong>Bacharelado, Engenharia de Software</strong><span>Universidade Cidade de São Paulo (2021-2024)</span></div></li>
-                        </ul>
-                        <h3>Cursos e Certificações</h3>
-                        <ul class="formacao-lista">
-                             <li><i data-feather="check-square"></i><div><strong>Aprendizado de Máquina</strong></div></li>
-                             <li><i data-feather="check-square"></i><div><strong>Formação Modelagem de dados</strong></div></li>
-                             <li><i data-feather="check-square"></i><div><strong>Engenharia, Preparação e Visualização de Dados</strong></div></li>
-                             <li><i data-feather="check-square"></i><div><strong>Formação Python para Data Science</strong></div></li>
-                        </ul>
-                        <h3>Habilidades Técnicas</h3>
-                        <div class="skills-lista">
-                            <span><i data-feather="code"></i> Python</span>
-                            <span><i data-feather="database"></i> SQL / PostgreSQL</span>
-                            <span><i data-feather="cpu"></i> Inteligência Artificial</span>
-                            <span><i data-feather="git-merge"></i> Machine Learning</span>
-                            <span><i data-feather="bar-chart-2"></i> Power BI</span>
-                            <span><i data-feather="file-text"></i> Excel Avançado</span>
-                            <span><i data-feather="git-pull-request"></i> ETL & Pipelines</span>
+                        <p>Sou um Analista de Dados apaixonado por transformar dados em insights acionáveis. Com experiência em Machine Learning, Big Data e desenvolvimento de soluções automatizadas, ajudo empresas a tomar decisões baseadas em dados.</p>
+                        <p>Especializado em Python, SQL, ETL Pipelines e ferramentas de análise avançada, desenvolvo sistemas que otimizam processos e geram valor real para o negócio.</p>
+                    </div>
+                    
+                    <div class="sobre-skills-grid">
+                        <div class="skill-card glass-card hover-lift">
+                            <i data-feather="cpu"></i>
+                            <span>Machine Learning</span>
+                        </div>
+                        <div class="skill-card glass-card hover-lift">
+                            <i data-feather="database"></i>
+                            <span>Big Data</span>
+                        </div>
+                        <div class="skill-card glass-card hover-lift">
+                            <i data-feather="code"></i>
+                            <span>Python & SQL</span>
+                        </div>
+                        <div class="skill-card glass-card hover-lift">
+                            <i data-feather="bar-chart-2"></i>
+                            <span>Data Analytics</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="projetos" class="projetos-section gsap-fade-in">
+        <section id="formacao" class="formacao-section gsap-fade-up">
             <div class="container">
-                <div class="section-title">
-                    <h2>Projetos</h2> 
-                    <div class="title-divider"></div>
+                <h2 class="section-title">Minha <span class="gradient-text">Formação</span></h2>
+                <div class="section-divider"></div>
+
+                <h3 class="subsection-title"><i data-feather="award"></i> Formação Acadêmica</h3>
+                <div class="formacao-grid">
+                    <div class="formacao-card glass-card hover-lift">
+                        <span class="card-year">2025</span>
+                        <h4>Pós-graduação Lato Sensu - Inteligência Artificial</h4>
+                        <span class="card-institution">Universidade São Judas Tadeu</span>
+                        <p>Especialização em IA com foco em machine learning, deep learning e aplicações práticas de sistemas inteligentes.</p>
+                    </div>
+                    <div class="formacao-card glass-card hover-lift">
+                        <span class="card-year">2021 - 2024</span>
+                        <h4>Bacharelado - Engenharia de Software</h4>
+                        <span class="card-institution">Universidade Cidade de São Paulo</span>
+                        <p>Formação completa em desenvolvimento de software, arquitetura de sistemas e boas práticas de engenharia.</p>
+                    </div>
                 </div>
-                
-                <div class="projetos-grid"> 
+
+                <h3 class="subsection-title"><i data-feather="check-square"></i> Certificações</h3>
+                <div class="certificacoes-grid">
+                    <div class="cert-card glass-card hover-lift">
+                        <i data-feather="shield"></i><span>Aprendizado de Máquina</span>
+                    </div>
+                    <div class="cert-card glass-card hover-lift">
+                        <i data-feather="shield"></i><span>Formação Modelagem de Dados</span>
+                    </div>
+                    <div class="cert-card glass-card hover-lift">
+                        <i data-feather="shield"></i><span>Engenharia, Preparação e Visualização de Dados</span>
+                    </div>
+                    <div class="cert-card glass-card hover-lift">
+                        <i data-feather="shield"></i><span>Experiência do Usuário e IA</span>
+                    </div>
+                    <div class="cert-card glass-card hover-lift">
+                        <i data-feather="shield"></i><span>Formação Python para Data Science</span>
+                    </div>
+                    <div class="cert-card glass-card hover-lift">
+                        <i data-feather="shield"></i><span>Formação SQL</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projetos" class="projetos-section gsap-fade-up">
+            <div class="container">
+                <h2 class="section-title">Meus <span class="gradient-text">Projetos</span></h2>
+                <div class="section-divider"></div>
+
+                <div class="projetos-grid">
+
+                    <a href="projetos/projeto-zion.html" class="projeto-card-link">
+                        <article class="projeto-card glass-card hover-lift">
+                            <h3>Zion</h3>
+                            <p>Aplicação desktop (PyQt5) para limpeza e validação de dados financeiros com regras dinâmicas por convênio.</p>
+                            <div class="tags">
+                                <span>Python</span>
+                                <span>PostgreSQL</span>
+                                <span>PyQt5</span>
+                            </div>
+                            <span class="details-link">Ver detalhes <i data-feather="arrow-right"></i></span>
+                        </article>
+                    </a>
+
                     <a href="projetos/projeto-mordomo.html" class="projeto-card-link">
-                        <article class="projeto-card">
-                            <div class="card-conteudo">
-                                <h3>Mordomo</h3>
-                                <p>Aplicação desktop (PyQt5) para automação de downloads e relatórios de portais financeiros.</p>
-                                <div class="tags">
-                                    <span><i data-feather="code"></i> Python</span>
-                                    <span><i data-feather="chrome"></i> Selenium</span> 
-                                </div>
+                        <article class="projeto-card glass-card hover-lift">
+                            <h3>Mordomo</h3>
+                            <p>Interface gráfica para automação centralizada de downloads e relatórios de múltiplos portais financeiros.</p>
+                            <div class="tags">
+                                <span>Python</span>
+                                <span>Selenium</span>
+                                <span>PyQt5</span>
                             </div>
+                            <span class="details-link">Ver detalhes <i data-feather="arrow-right"></i></span>
                         </article>
                     </a>
-                    <a href="projetos/projeto-validador.html" class="projeto-card-link">
-                        <article class="projeto-card">
-                            <div class="card-conteudo">
-                                <h3>Validador</h3>
-                                <p>Sistema de validação de dados financeiros com regras dinâmicas por convênio (Python + SQL).</p>
-                                <div class="tags">
-                                    <span><i data-feather="code"></i> Python</span>
-                                    <span><i data-feather="database"></i> PostgreSQL</span>
-                                    <span><i data-feather="file-text"></i> Excel</span>
-                                </div>
-                            </div>
-                        </article>
-                    </a>
+
                     <a href="projetos/projeto-nero.html" class="projeto-card-link">
-                        <article class="projeto-card">
-                            <div class="card-conteudo">
-                                <h3>Nero</h3>
-                                <p>Gerador de relatórios Excel (Consolidado/Individual) com formatação avançada (PyQt5 + Openpyxl).</p>
-                                <div class="tags">
-                                    <span><i data-feather="code"></i> Python</span>
-                                    <span><i data-feather="file-text"></i> Excel</span>
-                                </div>
+                        <article class="projeto-card glass-card hover-lift">
+                            <h3>Nero</h3>
+                            <p>Ferramenta para consolidação de dados e geração de relatórios Excel formatados (Consolidado e Individual).</p>
+                            <div class="tags">
+                                <span>Python</span>
+                                <span>Pandas</span>
+                                <span>Excel</span>
                             </div>
+                            <span class="details-link">Ver detalhes <i data-feather="arrow-right"></i></span>
                         </article>
                     </a>
+                    
                     <a href="projetos/projeto-luno.html" class="projeto-card-link">
-                        <article class="projeto-card">
-                            <div class="card-conteudo">
-                                <h3>Luno</h3>
-                                <p>Aplicação desktop (PyQt5) para criação automatizada de escalas de rotinas em farmácias.</p>
-                                <div class="tags">
-                                    <span><i data-feather="code"></i> Python</span>
-                                    <span><i data-feather="file-text"></i> Excel</span>
-                                </div>
+                        <article class="projeto-card glass-card hover-lift">
+                            <h3>Luno</h3>
+                            <p>Aplicação desktop (PyQt5) para criação e gestão automatizada de escalas de trabalho semanais para farmácias.</p>
+                            <div class="tags">
+                                <span>Python</span>
+                                <span>PyQt5</span>
+                                <span>Algoritmos</span>
                             </div>
+                            <span class="details-link">Ver detalhes <i data-feather="arrow-right"></i></span>
                         </article>
                     </a>
-                </div> </div> </section>
 
-
-        <section id="contato" class="contato-section gsap-fade-in">
-            <div class="container">
-                <div class="section-title">
-                    <h2>Vamos Conversar?</h2>
-                    <div class="title-divider"></div>
                 </div>
-                <p>Estou disponível para novos desafios e colaborações. Entre em contato.</p>
+            </div>
+            <div class="glow-accent projects-glow"></div>
+        </section>
+        <section id="contato" class="contato-section gsap-fade-up">
+            <div class="container">
+                <h2 class="section-title">Vamos <span class="gradient-text">Conversar</span></h2>
+                <div class="section-divider"></div>
+                <p class="section-subtitle">Estou sempre aberto a novos projetos e oportunidades. Entre em contato!</p>
+                
                 <div class="contato-links">
-                    <a href="mailto:maatheussilvab01@gmail.com" class="contato-link" target="_blank"><i data-feather="mail"></i><span>E-mail</span></a>
-                    <a href="https://www.linkedin.com/in/matheussilvabaptista" class="contato-link" target="_blank"><i data-feather="linkedin"></i><span>LinkedIn</span></a>
-                    <a href="https://github.com/maathsilva" class="contato-link" target="_blank"><i data-feather="github"></i><span>GitHub</span></a>
-                    <a href="https://wa.me/5511981614133?text=Olá%20Matheus!%20Gostaria%20de%20conversar%20sobre%20uma%20oportunidade?" class="contato-link" target="_blank"><i data-feather="message-circle"></i><span>WhatsApp</span></a>
+                    <a href="mailto:maatheussilvab01@gmail.com" class="btn btn-secondary hover-lift">
+                        <i data-feather="mail"></i> Email
+                    </a>
+                    <a href="https://www.linkedin.com/in/matheussilvabaptista" target="_blank" class="btn btn-secondary hover-lift">
+                        <i data-feather="linkedin"></i> LinkedIn
+                    </a>
+                    <a href="https://github.com/maathsilva" target="_blank" class="btn btn-secondary hover-lift">
+                        <i data-feather="github"></i> GitHub
+                    </a>
+                    <a href="https://wa.me/5511981614133?text=Ol%C3%A1%20Matheus!%20Vamos%20conversar%20sobre%20uma%20oportunidade%20%3F" target="_blank" class="btn btn-secondary hover-lift">
+                        <i data-feather="message-circle"></i> WhatsApp
+                    </a>
                 </div>
             </div>
         </section>
     </main>
 
     <footer class="footer">
-        <p>© 2025 - Matheus Silva</p>
+        <div class="container">
+            <p>© 2025 Matheus Silva. Todos os direitos reservados.</p>
+        </div>
     </footer>
 
     
+    <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
     
     <script src="script.js"></script>
 
-    </body>
+</body>
 </html>

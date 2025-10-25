@@ -1,41 +1,51 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matheus Silva | Case Study: Luno - Gerador de Escalas</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matheus Silva | Luno</title>
     
-    <link rel="stylesheet" href="../style.css"> <link rel="stylesheet" href="projeto-style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="projeto-style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" />
 </head>
 <body class="pagina-projeto">
 
     <header class="header">
         <nav class="navbar container">
-            <a href="../index.html" class="logo">Matheus Silva</a>
+            <a href="../index.html" class="logo gradient-text">Matheus Silva</a>
             <ul class="nav-menu">
-                <li><a href="../index.html#sobre" class="nav-link">Sobre</a></li>
-                <li><a href="../index.html#projetos" class="nav-link">Projetos</a></li>
-                <li><a href="../index.html#contato" class="nav-link">Contato</a></li>
+                <li class="nav-item"><a href="../index.html#sobre" class="nav-link">Sobre</a></li>
+                <li class="nav-item"><a href="../index.html#formacao" class="nav-link">Formação</a></li>
+                <li class="nav-item"><a href="../index.html#projetos" class="nav-link">Projetos</a></li>
+                <li class="nav-item"><a href="../index.html#contato" class="nav-link">Contato</a></li>
             </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
         </nav>
     </header>
 
     <main>
-        <section class="projeto-hero">
+        <section class="projeto-hero gsap-fade-in">
             <div class="container">
                 <span class="breadcrumb"><a href="../index.html#projetos">Projetos</a> /</span>
-                <h1>Luno - Gerador de Escalas de Rotinas</h1>
+                <h1>Luno</h1>
                 <p class="projeto-subtitulo">Aplicação desktop (PyQt5) para criação e gestão automatizada de escalas de trabalho semanais para farmácias.</p>
             </div>
         </section>
 
-        <div class="container">
+        <div class="container gsap-fade-in">
             <img src="../assets/images/luno4.png" alt="Exemplo de Escala Gerada pelo Luno" class="projeto-imagem-destaque">
         </div>
 
-        <section class="projeto-conteudo">
+        <section class="projeto-conteudo gsap-fade-in">
             <div class="container">
                 
                 <div class="projeto-descricao">
@@ -46,7 +56,7 @@
                     <h2>A Solução: Aplicação Desktop Luno</h2>
                     <p>Desenvolvi o "Luno", uma aplicação desktop em Python com interface gráfica PyQt5, projetada para simplificar e automatizar a geração de escalas de rotinas em farmácias:</p>
                     <ul class="lista-detalhada">
-                        <li><strong>Gestão Centralizada:</strong> Permite cadastrar funcionários (manualmente ou via importação Excel), definir seus grupos de trabalho (cores) e gerenciar rotinas específicas para cada turno e grupo (salvas em JSON).</li>
+                        <li><strong>Gestão Centralizada:</strong> Permite cadastrar funcionários (manually ou via importação Excel), definir seus grupos de trabalho (cores) e gerenciar rotinas específicas para cada turno e grupo (salvas em JSON).</li>
                         <li><strong>Gerenciador de Folgas:</strong> Interface dedicada para registrar os dias de folga fixos de cada funcionário, salvando os dados em formato JSON para persistência.</li>
                         <li><strong>Dois Modos de Geração:</strong>
                             <ul>
@@ -86,64 +96,47 @@
                             <span>main_app.py (Geração - Grupos Fixos)</span>
                         </div>
 <pre><code class="language-python">
-# (Trecho adaptado de main_app.py - PharmacyScheduler)
 from collections import deque
-# ... outras importações ...
 
 class PharmacyScheduler(QMainWindow):
-    # ... (init, setup_ui, etc.) ...
 
     def generate_with_fixed_groups(self):
-        # Cria um deque (fila circular) para cada grupo de cor com os funcionários
         group_deques = {group: deque(sorted([name for name, g in self.employees.items() if g == group])) 
                         for group in GROUP_COLORS}
         
-        # Itera sobre cada dia da semana (colunas da tabela)
         for day_idx, day in enumerate(DAYS_OF_WEEK):
-            col_idx = day_idx + 1 # Índice da coluna na tabela (começa em 1)
+            col_idx = day_idx + 1
             
-            # Itera sobre cada rotina (linhas da tabela)
             for row_idx in range(self.schedule_table.rowCount()):
-                # self.routine_map mapeia linha da tabela -> grupo de cor
                 routine_group = self.routine_map[row_idx] 
                 found_employee = None
                 
-                # Verifica se há funcionários no deque para o grupo da rotina
                 if group_deques[routine_group]:
-                    # Tenta encontrar um funcionário disponível (sem folga)
-                    # Loopa no máximo o número de funcionários no grupo
                     for _ in range(len(group_deques[routine_group])):
-                        candidate = group_deques[routine_group][0] # Pega o próximo da fila
-                        # Verifica se o candidato NÃO está de folga neste dia
-                        # self.days_off_data é um dict: {'NomeFunc': ['SEGUNDA', 'TERÇA'], ...}
+                        candidate = group_deques[routine_group][0]
                         if day not in self.days_off_data.get(candidate, []):
-                            found_employee = candidate # Encontrou!
-                            break # Para de procurar neste grupo para esta rotina
+                            found_employee = candidate
+                            break
                         
-                        # Se estava de folga, rotaciona o deque para testar o próximo
                         group_deques[routine_group].rotate(-1) 
                         
-                employee_name = found_employee # Nome a ser exibido (pode ser None se ninguém estiver disponível)
+                employee_name = found_employee
                 
-                # Verifica se há um funcionário fixado (pinned) pelo usuário para esta célula
                 if (row_idx, col_idx) in self.pinned_assignments:
                     employee_name = self.pinned_assignments[(row_idx, col_idx)]
                     
-                # Se encontrou um funcionário (ou ele estava fixado)
                 if employee_name:
-                    # Define o texto e a cor da célula na tabela
                     self.set_table_cell(row_idx, col_idx, employee_name, routine_group)
             
-            # Após processar todas as rotinas do dia, rotaciona TODOS os deques
-            # Isso garante que a próxima pessoa do grupo comece no dia seguinte
             for group in group_deques:
                 if group_deques[group]: 
                     group_deques[group].rotate(-1)
     
-    # ... (generate_with_daily_rotation, setup_table, set_table_cell, etc.) ...
-
 </code></pre>
-                    </div> </div> <aside class="projeto-sidebar">
+                    </div> 
+                </div> 
+                
+                <aside class="projeto-sidebar">
                     <div class="sidebar-box">
                         <h3>Tecnologias Principais</h3>
                         <ul class="tech-list">
@@ -166,29 +159,37 @@ class PharmacyScheduler(QMainWindow):
                     </div>
                     <div class="sidebar-box">
                         <h3>Resultados Chave</h3>
-                        <p>• Automação completa da criação de escalas semanais.</p>
-                        <p>• Redução significativa de tempo e erros no agendamento.</p>
-                        <p>• Flexibilidade com dois modos de geração (Fixo e Rotativo).</p>
-                        <p>• Gestão centralizada de funcionários, rotinas e folgas.</p>
-                        <p>• Exportação para Excel para fácil partilha e impressão.</p>
-                        <p>• Interface gráfica amigável e personalizada.</p>
+                        <ul class="tech-list">
+                            <li><i data-feather="check"></i> Automação completa da criação de escalas.</li>
+                            <li><i data-feather="check"></i> Redução de tempo e erros no agendamento.</li>
+                            <li><i data-feather="check"></i> Flexibilidade com dois modos de geração.</li>
+                            <li><i data-feather="check"></i> Gestão centralizada de dados.</li>
+                            <li><i data-feather="check"></i> Exportação para Excel.</li>
+                            <li><i data-feather="check"></i> Interface gráfica amigável.</li>
+                        </ul>
                     </div>
-                </aside> </div> </section> </main>
+                </aside> 
+            </div> 
+        </section> 
+    </main>
 
     <footer class="footer">
-        <p>© 2025 - Matheus Silva</p>
+        <div class="container">
+            <p>© 2025 Matheus Silva. Todos os direitos reservados.</p>
+        </div>
     </footer>
 
     <script src="https://unpkg.com/feather-icons"></script>
-    <script>
-        feather.replace();
-    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    
+    <script src="../script.js"></script>
+    <script src="projeto-script.js"></script>
+    
     <script>
-        // Corrige o problema da "página branca"
-        gsap.to('html', { duration: 0.5, opacity: 1, ease: 'power1.inOut' });
+        feather.replace();
     </script>
     
 </body>
