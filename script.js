@@ -25,8 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const typedOptions = {
         strings: [
+            "Matheus Silva",
             "Especialista em IA",
             "Analista de Dados",
+            "Engenheiro de Software",
             "Engenheiro de Machine Learning",
             "Desenvolvedor Python"
         ],
