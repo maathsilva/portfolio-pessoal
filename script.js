@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "Matheus Silva",
             "Especialista em IA",
             "Analista de Dados",
+            "Cientista de Dados",
             "Engenheiro de Software",
             "Engenheiro de Machine Learning",
             "Desenvolvedor Python"
