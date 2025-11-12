@@ -286,8 +286,6 @@ img {
     font-weight: 700;
     margin-bottom: 1rem;
 }
-/* ===== ESTA É A MUDANÇA ===== */
-/* O seletor foi removido para que o span flua como texto normal */
 .hero-subtitle {
     font-size: 1.25rem;
     color: var(--muted);
@@ -362,11 +360,10 @@ img {
     padding: 6rem 0;
     background-color: var(--card);
 }
-/* Em meu-portifolio/style.css */
 
 .formacao-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* Antes era: 1fr 1fr */
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 2rem;
 }
 .formacao-card {
@@ -612,4 +609,64 @@ img {
     .certificacoes-grid {
         grid-template-columns: 1fr;
     }
+}
+
+.dashboard-section {
+    padding: 6rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-swiper {
+    width: 100%;
+    padding: 2rem 0 4rem 0;
+    overflow: hidden;
+}
+
+.swiper-slide {
+    background-position: center;
+    background-size: cover;
+    width: 80%;
+    max-width: 800px;
+    text-align: center;
+    border-radius: var(--radius);
+    overflow: hidden;
+    
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+}
+
+.swiper-slide img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.swiper-slide h3 {
+    font-family: var(--font-display);
+    color: var(--foreground);
+    font-size: 1.25rem;
+    padding: 1.5rem 1rem;
+    margin: 0;
+}
+
+.swiper-pagination-bullet {
+    background: var(--muted);
+}
+
+.swiper-pagination-bullet-active {
+    background: var(--accent);
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    color: var(--primary);
+    transition: var(--transition);
+}
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    color: var(--accent);
 }
