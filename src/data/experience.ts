@@ -50,7 +50,7 @@ export interface Education {
 
 export const education: Education[] = [
   {
-    period: '2025 — 2026',
+    period: '2026',
     title: 'Pós-graduação Lato Sensu — Ciência de Dados',
     institution: 'Universidade São Judas Tadeu',
     description: 'Análise, modelagem e aplicação de dados para negócios.',
@@ -76,9 +76,9 @@ export interface Certification {
 }
 
 export const certifications: Certification[] = [
-  { title: 'Formação Python para Data Science', institution: 'Alura', year: '2024' },
+  { title: 'Formação Python', institution: 'Alura', year: '2024' },
   { title: 'Formação SQL', institution: 'Alura', year: '2024' },
   { title: 'Formação Power BI', institution: 'Alura', year: '2024' },
-  { title: 'Formação Excel Avançado', institution: 'Alura', year: '2024' },
   { title: 'Formação Modelagem de Dados', institution: 'Alura', year: '2024' },
+  { title: 'Formação Databricks', institution: 'Alura', year: '2024' },
 ];
