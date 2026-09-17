@@ -38,10 +38,10 @@ export const projects: Project[] = [
     tags: ['API', 'Informatica PowerCenter', 'ETL', 'Governança'],
     cover: 'faster1.png',
     problem:
-      'A documentação técnica de processos ETL (Mappings, Sessions, Lookups e Transformações) no Informatica PowerCenter era feita manualmente: cada alteração de pipeline exigia revisitar XMLs exportados à mão para manter rastreabilidade e auditoria em dia. O processo consumia horas por ciclo e era a principal fonte de divergência entre o que rodava em produção e o que estava documentado.',
+      'A documentação técnica de processos ETL (metadados, SQL Overrides, mappings, sessions e transformações) no Informatica PowerCenter era feita manualmente: cada alteração de pipeline exigia revisitar XMLs exportados à mão para manter rastreabilidade e auditoria em dia. O processo consumia horas por ciclo e era a principal fonte de divergência entre o que rodava em produção e o que estava documentado.',
     solution: [
-      'Integração direta com a API do Informatica PowerCenter para extração automatizada dos XMLs de definição de cada processo.',
-      'Parser que decompõe Mappings, Sessions, Lookups e Transformações em uma estrutura de dados normalizada.',
+      'Integração direta com a API do Informatica PowerCenter para extração automatizada de metadados e XMLs de definição de cada processo.',
+      'Parser que decompõe SQL Overrides, mappings, sessions e transformações em uma estrutura de dados normalizada.',
       'Geração automática de documentação técnica a partir dessa estrutura, sempre sincronizada com o que está publicado na plataforma.',
       'Trilha de auditoria consultável, eliminando a dependência de atualização manual de planilhas de controle.',
     ],
@@ -68,13 +68,13 @@ export const projects: Project[] = [
   {
     slug: 'projeto-orus',
     title: 'Orus',
-    subtitle: 'Plataforma para automação de gestão de acessos, conexões e permissões em massa.',
+    subtitle: 'Plataforma para automação de gestão de acessos, permissões, conexões e folders no ambiente Informatica PowerCenter.',
     context: 'Corporativo',
-    timeframe: '2025',
-    tags: ['API', 'Automação', 'IAM'],
+    timeframe: '2025 — Spread Tecnologia',
+    tags: ['API', 'Automação', 'PowerCenter', 'IAM'],
     cover: 'orus1.png',
     problem:
-      'Provisionar acessos, conexões e permissões era uma rotina manual, repetitiva e sujeita a erro humano, com cada solicitação levando cerca de 30 minutos para ser processada — um gargalo direto para as equipes que dependiam desses acessos para trabalhar.',
+      'Provisionar acessos, permissões, conexões e folders no ambiente PowerCenter era uma rotina manual, repetitiva e sujeita a erro humano, com cada solicitação levando cerca de 30 minutos para ser processada — um gargalo direto para as equipes que dependiam desses acessos para trabalhar.',
     solution: [
       'Plataforma integrada via API que centraliza a criação, alteração e revogação de acessos em lote.',
       'Regras de permissão parametrizáveis, eliminando a necessidade de intervenção manual por solicitação.',

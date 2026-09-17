@@ -1,6 +1,5 @@
 ---
 import Icon from './Icon.astro';
-import { site } from '../data/site';
 
 const isHome = Astro.url.pathname === '/';
 const base = isHome ? '' : '/';
@@ -23,14 +22,6 @@ const links = [
       {links.map((link) => (
         <li><a href={link.href} class="nav-link">{link.label}</a></li>
       ))}
-      <li class="nav-icons">
-        <a href={site.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub de Matheus Silva">
-          <Icon name="github" size={20} />
-        </a>
-        <a href={site.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn de Matheus Silva">
-          <Icon name="linkedin" size={20} />
-        </a>
-      </li>
     </ul>
 
     <button
@@ -98,15 +89,6 @@ const links = [
   .nav-link:hover::after {
     width: 100%;
   }
-  .nav-icons {
-    display: flex;
-    gap: 1rem;
-    color: var(--muted);
-  }
-  .nav-icons a:hover {
-    color: var(--accent);
-  }
-
   .menu-toggle {
     display: none;
     background: none;
@@ -157,10 +139,6 @@ const links = [
       display: block;
       padding: 1.1rem 0;
       font-size: 1.1rem;
-    }
-    .nav-icons {
-      padding: 1.5rem 0;
-      border-bottom: none !important;
     }
   }
 </style>
