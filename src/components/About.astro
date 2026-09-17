@@ -1,0 +1,117 @@
+---
+import { skillGroups } from '../data/skills';
+import Icon from './Icon.astro';
+---
+
+<section id="sobre" class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Sobre</span>
+      <h2 class="section-title">O que eu faço</h2>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-text card">
+        <p>
+          Sou Analista de Dados com experiência em ETL, automação de processos e governança de
+          dados. Trabalho com Python, SQL, Power BI, Informatica PowerCenter, Databricks e Azure
+          Data Platform para transformar rotinas manuais em pipelines confiáveis.
+        </p>
+        <p>
+          Meus projetos mais recentes reduziram tempo de provisionamento de acesso em 93%,
+          esforço de documentação de ETL em 85% e processos de extração de relatórios em 83% —
+          números que vêm de operações reais, não de estimativa. Meu foco é simplificar o
+          operacional e transformar dado bruto em decisão auditável e escalável.
+        </p>
+      </div>
+
+      <div class="skills-grid">
+        {skillGroups.map((group) => (
+          <div class="skill-group card card-hover">
+            <div class="skill-group-head">
+              <Icon name={group.icon} size={22} />
+              <h3>{group.title}</h3>
+            </div>
+            <ul class="skill-items">
+              {group.items.map((item) => <li>{item}</li>)}
+            </ul>
+            {group.usedIn && (
+              <p class="skill-usedin mono">usado em: {group.usedIn.join(', ')}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .about-text {
+    padding: 2.25rem;
+    position: sticky;
+    top: 6.5rem;
+  }
+  .about-text p {
+    margin-bottom: 1.1rem;
+    font-size: 1.02rem;
+  }
+  .about-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .skill-group {
+    padding: 1.5rem;
+  }
+  .skill-group-head {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .skill-group-head h3 {
+    font-size: 1rem;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-weight: 600;
+  }
+  .skill-items li {
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .skill-items li:last-child {
+    border-bottom: none;
+  }
+  .skill-usedin {
+    margin-top: 0.9rem;
+    font-size: 0.72rem;
+    color: var(--muted-2);
+  }
+
+  @media (max-width: 960px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+    }
+    .about-text {
+      position: static;
+    }
+  }
+  @media (max-width: 560px) {
+    .skills-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

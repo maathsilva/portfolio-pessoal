@@ -1,0 +1,129 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { getImage } from '../lib/images';
+import type { Project } from '../data/projects';
+
+interface Props {
+  project: Project;
+  featured?: boolean;
+}
+
+const { project, featured = false } = Astro.props;
+const cover = getImage(project.cover);
+const topResult = project.results[0];
+---
+
+<a href={`/projetos/${project.slug}.html`} class={`project-card card card-hover ${featured ? 'is-featured' : ''}`}>
+  <div class="project-media">
+    <Image
+      src={cover}
+      alt={`Captura de tela do projeto ${project.title}`}
+      width={featured ? 640 : 420}
+      loading="lazy"
+    />
+    {topResult && (
+      <span class="project-stat mono">{topResult.value}</span>
+    )}
+  </div>
+  <div class="project-body">
+    <div class="project-heading">
+      <h3>{project.title}</h3>
+      <span class="mono project-context">{project.context}</span>
+    </div>
+    <p>{project.subtitle}</p>
+    <div class="tags">
+      {project.tags.map((tag) => <span class="tag">{tag}</span>)}
+    </div>
+    <span class="details-link">
+      Ver case completo <Icon name="arrow-right" size={16} />
+    </span>
+  </div>
+</a>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+  }
+  .project-media {
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elevated);
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+  .project-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+  .project-stat {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    background: hsl(30 3% 6% / 0.85);
+    border: 1px solid var(--border-strong);
+    color: var(--accent);
+    font-size: 0.82rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 99px;
+    backdrop-filter: blur(4px);
+  }
+  .project-body {
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  .project-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .project-heading h3 {
+    font-size: 1.3rem;
+    font-family: var(--font-sans);
+    font-weight: 700;
+  }
+  .project-context {
+    font-size: 0.7rem;
+    color: var(--muted-2);
+    white-space: nowrap;
+  }
+  .project-body p {
+    font-size: 0.92rem;
+    margin: 0.6rem 0 1.1rem;
+    flex-grow: 1;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .details-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: auto;
+  }
+  .project-card:hover .details-link,
+  .project-card:focus-visible .details-link {
+    color: var(--accent);
+  }
+  .project-card:hover .details-link :global(svg),
+  .project-card:focus-visible .details-link :global(svg) {
+    transform: translateX(4px);
+  }
+  .details-link :global(svg) {
+    transition: transform var(--dur) var(--ease);
+  }
+</style>

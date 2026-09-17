@@ -1,0 +1,179 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+import { getImage } from '../lib/images';
+
+const photo = getImage('foto_perfil.png');
+---
+
+<section id="home" class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="hero-tag mono">
+        <span class="dot" aria-hidden="true"></span>
+        {site.role} <span class="hero-cursor" aria-hidden="true">_</span>
+      </p>
+      <h1>
+        Transformo processos manuais em <span class="accent">pipelines confiáveis</span>.
+      </h1>
+      <p class="hero-lede">
+        Construo automações, ETLs e dashboards que tiram o operacional do caminho e colocam
+        dado auditável na mão de quem decide — de Python e SQL a Power BI e Databricks.
+      </p>
+
+      <div class="hero-buttons">
+        <a href="#projetos" class="btn btn-primary">
+          <Icon name="briefcase" /> Ver Projetos
+        </a>
+        <a href={site.resumeUrl} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          <Icon name="download" /> Baixar Currículo
+        </a>
+      </div>
+
+      <dl class="hero-stats">
+        {site.heroStats.map((stat) => (
+          <div class="stat">
+            <dt class="mono">{stat.value}</dt>
+            <dd>{stat.label}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <div class="hero-media">
+      <div class="hero-photo-frame">
+        <Image src={photo} alt="Foto de Matheus Silva" width={440} height={440} loading="eager" />
+      </div>
+      <div class="hero-photo-tag mono">/ dados em produção</div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding: 5.5rem 0 4rem;
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 3.5rem;
+    align-items: center;
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--accent);
+    background: hsl(32 60% 58% / 0.1);
+    border: 1px solid hsl(32 60% 58% / 0.25);
+    padding: 0.4rem 0.9rem;
+    border-radius: 99px;
+    margin-bottom: 1.5rem;
+  }
+  .hero-tag .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .hero-cursor {
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+  h1 {
+    font-size: clamp(2.2rem, 4.4vw, 3.4rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+  }
+  .hero-lede {
+    font-size: 1.1rem;
+    max-width: 52ch;
+    margin-bottom: 2.25rem;
+  }
+  .hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.75rem;
+    max-width: 620px;
+  }
+  .stat dt {
+    font-size: 1.3rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .stat dd {
+    margin-top: 0.35rem;
+    font-size: 0.82rem;
+    color: var(--muted-2);
+    line-height: 1.4;
+  }
+
+  .hero-media {
+    position: relative;
+    justify-self: center;
+  }
+  .hero-photo-frame {
+    width: min(360px, 80vw);
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+  }
+  .hero-photo-frame :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero-photo-tag {
+    position: absolute;
+    bottom: -0.85rem;
+    right: -0.5rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    .hero-lede {
+      margin-inline: auto;
+    }
+    .hero-buttons {
+      justify-content: center;
+    }
+    .hero-stats {
+      margin-inline: auto;
+    }
+    .hero-media {
+      order: -1;
+    }
+  }
+  @media (max-width: 480px) {
+    .hero-stats {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      text-align: left;
+    }
+  }
+</style>

@@ -1,0 +1,259 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  color-scheme: dark;
+
+  /* Neutrals — near-black, slightly warm, not the generic blue-tinted "AI dark" bg */
+  --bg: hsl(30, 3%, 6%);
+  --bg-elevated: hsl(30, 3%, 9%);
+  --card: hsl(30, 4%, 11%);
+  --border: hsl(30, 4%, 20%);
+  --border-strong: hsl(30, 4%, 28%);
+
+  --text: hsl(30, 15%, 96%);
+  --muted: hsl(30, 6%, 62%);
+  --muted-2: hsl(30, 5%, 45%);
+
+  /* One signature accent — amber "signal" — instead of the violet/cyan gradient pair every AI portfolio uses */
+  --accent: hsl(32, 95%, 58%);
+  --accent-strong: hsl(32, 95%, 68%);
+  --accent-dim: hsl(32, 60%, 58%);
+  /* Secondary hue reserved for data/plot use only (charts), never for UI chrome or gradients */
+  --data-2: hsl(174, 60%, 55%);
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --container: 1180px;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 0.25s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bg);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 1px 1px, hsl(30 6% 24% / 0.35) 1px, transparent 0);
+  background-size: 28px 28px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+p {
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+}
+
+img, svg {
+  max-width: 100%;
+  display: block;
+}
+
+.container {
+  max-width: var(--container);
+  width: 92%;
+  margin: 0 auto;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 2000;
+  background: var(--accent);
+  color: hsl(30, 20%, 8%);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: top var(--dur) var(--ease);
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Section rhythm */
+.section {
+  padding: 7rem 0;
+  position: relative;
+}
+.section-head {
+  margin-bottom: 3rem;
+  max-width: 640px;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.eyebrow::before {
+  content: '';
+  width: 1.25rem;
+  height: 1px;
+  background: var(--accent);
+}
+.section-title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  letter-spacing: -0.02em;
+}
+.section-lede {
+  margin-top: 0.85rem;
+  font-size: 1.05rem;
+  max-width: 60ch;
+}
+
+/* Surfaces — flat card, not heavy glassmorphism */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.card-hover:hover,
+.card-hover:focus-within {
+  border-color: var(--border-strong);
+  transform: translateY(-3px);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+.btn-primary {
+  background: var(--accent);
+  color: hsl(30, 20%, 8%);
+}
+.btn-primary:hover {
+  background: var(--accent-strong);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent-dim);
+  background: hsl(32 60% 58% / 0.1);
+  border: 1px solid hsl(32 60% 58% / 0.25);
+  padding: 0.3rem 0.7rem;
+  border-radius: 99px;
+}
+
+/* A single, CSS-only entrance for the hero — no scroll-reveal system.
+   Content must never depend on JS/scroll timing to become visible. */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-copy,
+.hero-media {
+  animation: fade-in-up 0.6s var(--ease) both;
+}
+.hero-media {
+  animation-delay: 0.1s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 4.5rem 0;
+  }
+}

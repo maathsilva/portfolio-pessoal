@@ -1,0 +1,59 @@
+---
+import ProjectCard from './ProjectCard.astro';
+import { projects } from '../data/projects';
+
+const featured = projects.filter((p) => p.featured);
+const rest = projects.filter((p) => !p.featured);
+---
+
+<section id="projetos" class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Projetos</span>
+      <h2 class="section-title">Cases com problema, solução e resultado</h2>
+      <p class="section-lede">
+        Os três primeiros têm métrica de impacto medida em produção. Os demais mostram como
+        resolvo problemas de dados de ponta a ponta, do desenho técnico ao código.
+      </p>
+    </div>
+
+    <div class="featured-grid">
+      {featured.map((project) => (
+        <ProjectCard project={project} featured />
+      ))}
+    </div>
+
+    <div class="rest-grid">
+      {rest.map((project) => (
+        <ProjectCard project={project} />
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  .rest-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 960px) {
+    .featured-grid,
+    .rest-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .featured-grid,
+    .rest-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

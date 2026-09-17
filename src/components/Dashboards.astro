@@ -1,0 +1,58 @@
+---
+import { Image } from 'astro:assets';
+import { dashboards } from '../data/site';
+import { getImage } from '../lib/images';
+---
+
+<section id="dashboards" class="section dashboards-section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Business Intelligence</span>
+      <h2 class="section-title">Dashboards</h2>
+      <p class="section-lede">Indicadores construídos em Power BI para decisão de negócio.</p>
+    </div>
+
+    <div class="dash-scroller">
+      {dashboards.map((dash) => {
+        const img = getImage(dash.file);
+        return (
+          <figure class="dash-card card">
+            <Image src={img} alt={`Captura de tela: ${dash.title}`} width={640} loading="lazy" />
+            <figcaption>{dash.title}</figcaption>
+          </figure>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .dashboards-section {
+    overflow: hidden;
+  }
+  .dash-scroller {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .dash-card {
+    flex: 0 0 min(85%, 560px);
+    scroll-snap-align: start;
+    overflow: hidden;
+  }
+  .dash-card :global(img) {
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .dash-card figcaption {
+    padding: 1.15rem 1.35rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+</style>

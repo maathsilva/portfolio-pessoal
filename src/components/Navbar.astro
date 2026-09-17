@@ -1,0 +1,166 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+const isHome = Astro.url.pathname === '/';
+const base = isHome ? '' : '/';
+
+const links = [
+  { href: `${base}#sobre`, label: 'Sobre' },
+  { href: `${base}#experiencia`, label: 'Experiência' },
+  { href: `${base}#projetos`, label: 'Projetos' },
+  { href: `${base}#contato`, label: 'Contato' },
+];
+---
+
+<header class="header">
+  <nav class="navbar container" aria-label="Navegação principal">
+    <a href="/" class="logo">
+      Matheus<span class="accent">.</span>Silva
+    </a>
+
+    <ul class="nav-menu" data-menu>
+      {links.map((link) => (
+        <li><a href={link.href} class="nav-link">{link.label}</a></li>
+      ))}
+      <li class="nav-icons">
+        <a href={site.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub de Matheus Silva">
+          <Icon name="github" size={20} />
+        </a>
+        <a href={site.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn de Matheus Silva">
+          <Icon name="linkedin" size={20} />
+        </a>
+      </li>
+    </ul>
+
+    <button
+      type="button"
+      class="menu-toggle"
+      data-menu-toggle
+      aria-expanded="false"
+      aria-controls="nav-menu"
+      aria-label="Abrir menu de navegação"
+    >
+      <span class="icon-open"><Icon name="menu" size={24} /></span>
+      <span class="icon-close"><Icon name="x" size={24} /></span>
+    </button>
+  </nav>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 1.1rem 0;
+    background: hsl(30 3% 6% / 0.75);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 2.25rem;
+  }
+  .nav-link {
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.3rem 0;
+    position: relative;
+  }
+  .nav-link[aria-current='true'],
+  .nav-link:hover {
+    color: var(--text);
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background: var(--accent);
+    transition: width var(--dur) var(--ease);
+  }
+  .nav-link[aria-current='true']::after,
+  .nav-link:hover::after {
+    width: 100%;
+  }
+  .nav-icons {
+    display: flex;
+    gap: 1rem;
+    color: var(--muted);
+  }
+  .nav-icons a:hover {
+    color: var(--accent);
+  }
+
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0.4rem;
+  }
+  .menu-toggle .icon-close {
+    display: none;
+  }
+  .menu-toggle[aria-expanded='true'] .icon-open {
+    display: none;
+  }
+  .menu-toggle[aria-expanded='true'] .icon-close {
+    display: block;
+  }
+
+  @media (max-width: 860px) {
+    .menu-toggle {
+      display: block;
+      z-index: 1001;
+    }
+    .nav-menu {
+      position: fixed;
+      top: 68px;
+      right: 0;
+      left: 0;
+      height: calc(100vh - 68px);
+      height: calc(100dvh - 68px);
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 0;
+      padding: 2rem 6%;
+      background: var(--bg);
+      transform: translateX(100%);
+      transition: transform var(--dur) var(--ease);
+    }
+    .nav-menu.is-open {
+      transform: translateX(0);
+    }
+    .nav-menu li {
+      width: 100%;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-link {
+      display: block;
+      padding: 1.1rem 0;
+      font-size: 1.1rem;
+    }
+    .nav-icons {
+      padding: 1.5rem 0;
+      border-bottom: none !important;
+    }
+  }
+</style>
