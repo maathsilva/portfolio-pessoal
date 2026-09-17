@@ -1,26 +1,8 @@
 ---
-import Icon from './Icon.astro';
-import { site } from '../data/site';
-
 const year = new Date().getFullYear();
-const waLink = `https://wa.me/${site.phone.replace('+', '')}?text=${encodeURIComponent(site.whatsappMessage)}`;
 ---
 
 <footer class="footer">
-  <div class="container footer-grid">
-    <div class="footer-brand">
-      <p class="footer-name">Matheus Silva</p>
-    </div>
-
-    <nav class="footer-links" aria-label="Links de contato">
-      <a href={`mailto:${site.email}`}><Icon name="mail" size={18} /> E-mail</a>
-      <a href={site.linkedin} target="_blank" rel="noopener noreferrer"><Icon name="linkedin" size={18} /> LinkedIn</a>
-      <a href={site.github} target="_blank" rel="noopener noreferrer"><Icon name="github" size={18} /> GitHub</a>
-      <a href={waLink} target="_blank" rel="noopener noreferrer"><Icon name="message-circle" size={18} /> WhatsApp</a>
-      <a href={site.resumeUrl} target="_blank" rel="noopener noreferrer"><Icon name="download" size={18} /> Currículo</a>
-    </nav>
-  </div>
-
   <div class="container footer-bottom">
     <p>© {year} Matheus Silva. Todos os direitos reservados.</p>
   </div>
@@ -29,41 +11,10 @@ const waLink = `https://wa.me/${site.phone.replace('+', '')}?text=${encodeURICom
 <style>
   .footer {
     border-top: 1px solid var(--border);
-    padding: 3.5rem 0 2rem;
-  }
-  .footer-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .footer-name {
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    color: var(--text);
-    font-weight: 700;
-  }
-  .footer-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem 1.75rem;
-  }
-  .footer-links a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--muted);
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-  .footer-links a:hover {
-    color: var(--accent);
+    padding: 2.5rem 0;
   }
   .footer-bottom {
-    padding-top: 1.5rem;
+    text-align: center;
     font-size: 0.85rem;
     color: var(--muted-2);
   }
