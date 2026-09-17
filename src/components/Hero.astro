@@ -7,7 +7,7 @@ import { site } from '../data/site';
   <div class="container hero-grid">
     <div class="hero-copy">
       <p class="hero-tag mono">
-        <span class="dot" aria-hidden="true"></span>
+        <span class="hero-tag-prefix">Eu sou</span>
         <span class="role-type" data-typewriter data-words={JSON.stringify(site.roles)}>{site.role}</span><span class="hero-cursor" aria-hidden="true">_</span>
       </p>
       <h1>
@@ -57,29 +57,29 @@ import { site } from '../data/site';
   .hero-tag {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
-    font-size: 0.9rem;
-    color: var(--accent);
-    background: hsl(32 60% 58% / 0.1);
-    border: 1px solid hsl(32 60% 58% / 0.25);
-    padding: 0.4rem 0.9rem;
+    gap: 0.45rem;
+    font-size: 0.95rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 0.55rem 1.1rem;
     border-radius: 99px;
     margin-bottom: 1.5rem;
   }
-  .hero-tag .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    flex-shrink: 0;
+  .hero-tag-prefix {
+    color: var(--muted);
+    font-weight: 400;
   }
   .role-type {
     display: inline-block;
     white-space: nowrap;
     vertical-align: bottom;
     min-width: 1ch;
+    color: var(--accent);
+    font-weight: 600;
   }
   .hero-cursor {
+    color: var(--accent);
+    font-weight: 600;
     animation: blink 1.1s steps(1) infinite;
   }
   @keyframes blink {
