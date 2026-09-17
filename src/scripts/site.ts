@@ -46,7 +46,61 @@ function initActiveNav() {
   sections.forEach((section) => observer.observe(section));
 }
 
+function initTypewriter() {
+  const el = document.querySelector<HTMLElement>('[data-typewriter]');
+  if (!el) return;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) return; // keep the static, server-rendered word
+
+  let words: string[] = [];
+  try {
+    words = JSON.parse(el.dataset.words ?? '[]');
+  } catch {
+    return;
+  }
+  if (words.length < 2) return;
+
+  const TYPE_SPEED = 70;
+  const DELETE_SPEED = 40;
+  const HOLD_TIME = 2000;
+
+  let wordIndex = 0;
+  let charIndex = words[0].length;
+  let deleting = true; // word 0 is already fully rendered server-side; go straight to deleting it
+
+  function tick() {
+    const currentWord = words[wordIndex];
+
+    if (!deleting) {
+      charIndex++;
+      if (charIndex > currentWord.length) {
+        deleting = true;
+        setTimeout(tick, HOLD_TIME);
+        return;
+      }
+      el!.textContent = currentWord.slice(0, charIndex);
+      setTimeout(tick, TYPE_SPEED);
+      return;
+    }
+
+    charIndex--;
+    el!.textContent = currentWord.slice(0, Math.max(charIndex, 0));
+    if (charIndex <= 0) {
+      deleting = false;
+      wordIndex = (wordIndex + 1) % words.length;
+      charIndex = 0;
+      setTimeout(tick, 300);
+      return;
+    }
+    setTimeout(tick, DELETE_SPEED);
+  }
+
+  setTimeout(tick, HOLD_TIME);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initActiveNav();
+  initTypewriter();
 });

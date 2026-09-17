@@ -84,6 +84,7 @@ export const certifications: Certification[] = [
   { title: 'Formação Python', institution: 'Alura', year: '2024' },
   { title: 'Formação SQL', institution: 'Alura', year: '2024' },
   { title: 'Formação Power BI', institution: 'Alura', year: '2024' },
+  { title: 'Formação Excel', institution: 'Alura', year: '2024' },
   { title: 'Formação Modelagem de Dados', institution: 'Alura', year: '2024' },
   { title: 'Formação Databricks', institution: 'Alura', year: '2024' },
 ];

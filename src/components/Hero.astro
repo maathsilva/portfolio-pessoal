@@ -1,8 +1,6 @@
 ---
 import Icon from './Icon.astro';
 import { site } from '../data/site';
-
-const roleChars = site.role.length;
 ---
 
 <section id="home" class="hero">
@@ -10,7 +8,7 @@ const roleChars = site.role.length;
     <div class="hero-copy">
       <p class="hero-tag mono">
         <span class="dot" aria-hidden="true"></span>
-        <span class="role-type" style={`--rc:${roleChars}`}>{site.role}</span><span class="hero-cursor" aria-hidden="true">_</span>
+        <span class="role-type" data-typewriter data-words={JSON.stringify(site.roles)}>{site.role}</span><span class="hero-cursor" aria-hidden="true">_</span>
       </p>
       <h1>
         Transformo processos manuais em <span class="accent">pipelines confiáveis</span>.
@@ -77,15 +75,9 @@ const roleChars = site.role.length;
   }
   .role-type {
     display: inline-block;
-    overflow: hidden;
     white-space: nowrap;
     vertical-align: bottom;
-    width: calc(var(--rc) * 1ch);
-    animation: typing 1s steps(var(--rc), end) 1 both;
-  }
-  @keyframes typing {
-    from { width: 0; }
-    to { width: calc(var(--rc) * 1ch); }
+    min-width: 1ch;
   }
   .hero-cursor {
     animation: blink 1.1s steps(1) infinite;

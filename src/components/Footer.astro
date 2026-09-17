@@ -23,7 +23,6 @@ const waLink = `https://wa.me/${site.phone.replace('+', '')}?text=${encodeURICom
 
   <div class="container footer-bottom">
     <p>© {year} Matheus Silva. Todos os direitos reservados.</p>
-    <p class="mono footer-signature">construído com Astro · sem frameworks de UI</p>
   </div>
 </footer>
 
@@ -64,15 +63,8 @@ const waLink = `https://wa.me/${site.phone.replace('+', '')}?text=${encodeURICom
     color: var(--accent);
   }
   .footer-bottom {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    justify-content: space-between;
     padding-top: 1.5rem;
     font-size: 0.85rem;
     color: var(--muted-2);
-  }
-  .footer-signature {
-    font-size: 0.78rem;
   }
 </style>

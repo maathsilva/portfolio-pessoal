@@ -1,6 +1,15 @@
 export const site = {
   name: 'Matheus Silva',
   role: 'Analista de Dados',
+  roles: [
+    'Analista de Dados',
+    'Cientista de Dados',
+    'Engenheiro de Software',
+    'Engenheiro de Dados',
+    'Especialista em IA',
+    'Engenheiro de Machine Learning',
+    'Desenvolvedor Python',
+  ],
   tagline: 'ETL, automação e governança de dados',
   description:
     'Analista de Dados com experiência em ETL, automação de processos, governança e BI. Construo pipelines, dashboards e ferramentas que reduzem esforço manual e sustentam decisões de negócio.',
