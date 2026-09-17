@@ -2,6 +2,7 @@ export const site = {
   name: 'Matheus Silva',
   role: 'Analista de Dados',
   roles: [
+    'Matheus Silva',
     'Analista de Dados',
     'Cientista de Dados',
     'Engenheiro de Software',
