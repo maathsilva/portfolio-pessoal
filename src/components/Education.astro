@@ -13,7 +13,14 @@ import Icon from './Icon.astro';
     <div class="education-grid">
       {education.map((item) => (
         <div class="edu-card card card-hover">
-          <span class="mono edu-period">{item.period}</span>
+          <div class="edu-top">
+            <span class="mono edu-period">{item.period}</span>
+            {item.completed && (
+              <span class="edu-status mono">
+                <Icon name="check" size={13} /> Concluído
+              </span>
+            )}
+          </div>
           <h3>{item.title}</h3>
           <p class="edu-institution">{item.institution}</p>
           <p class="edu-desc">{item.description}</p>
@@ -44,6 +51,26 @@ import Icon from './Icon.astro';
   }
   .edu-card {
     padding: 1.75rem;
+  }
+  .edu-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .edu-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    color: var(--text);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+  }
+  .edu-status :global(svg) {
+    color: var(--accent);
   }
   .edu-period {
     font-size: 0.78rem;

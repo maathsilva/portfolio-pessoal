@@ -51,6 +51,7 @@ export interface Education {
   title: string;
   institution: string;
   description: string;
+  completed: boolean;
 }
 
 export const education: Education[] = [
@@ -59,18 +60,21 @@ export const education: Education[] = [
     title: 'Pós-graduação Lato Sensu — Ciência de Dados',
     institution: 'Universidade São Judas Tadeu',
     description: 'Análise, modelagem e aplicação de dados para negócios.',
+    completed: true,
   },
   {
     period: '2025',
     title: 'Pós-graduação Lato Sensu — Inteligência Artificial',
     institution: 'Universidade São Judas Tadeu',
     description: 'Machine learning, deep learning e aplicações práticas de sistemas inteligentes.',
+    completed: true,
   },
   {
     period: '2020 — 2024',
     title: 'Bacharelado — Engenharia de Software',
     institution: 'Universidade Cidade de São Paulo',
     description: 'Desenvolvimento de software, arquitetura de sistemas e boas práticas de engenharia.',
+    completed: true,
   },
 ];
 
