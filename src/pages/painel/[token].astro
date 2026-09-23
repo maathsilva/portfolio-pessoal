@@ -324,7 +324,7 @@ const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
             <div class="feed-scroll">
               <table>
                 <thead>
-                  <tr><th>Quando</th><th>Página</th><th>Vaga</th><th>Origem</th><th>Local</th><th>Dispositivo</th></tr>
+                  <tr><th>Quando</th><th>Página</th><th>Origem</th><th>Local</th><th>Dispositivo</th></tr>
                 </thead>
                 <tbody>
                   {data.recent.map((v) => {
@@ -335,7 +335,6 @@ const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
                       <tr>
                         <td>{formatTime(v.created_at)}</td>
                         <td>{v.path}</td>
-                        <td>{v.ref ?? '—'}</td>
                         <td>{own ? 'interno' : (host ?? 'Direto')}</td>
                         <td>{place || '—'}</td>
                         <td>{[DEVICE_NAMES[v.device ?? ''], v.browser].filter(Boolean).join(' · ') || '—'}</td>

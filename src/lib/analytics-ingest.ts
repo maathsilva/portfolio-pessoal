@@ -15,8 +15,6 @@ import { contactAlert, sendEmail } from './notify';
 type Cookies = { has(name: string): boolean };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const REF = /^[a-z0-9][a-z0-9_-]{0,39}$/;
-const UTM = /^[\w .+-]{1,60}$/;
 const LANG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8}){0,2}$/;
 const TZ = /^[A-Za-z][A-Za-z0-9_+-]*(\/[A-Za-z0-9_+-]+){0,2}$/;
 const EVENT = /^(curriculo|whatsapp|email|github|linkedin|secao:projetos|projeto:[a-z0-9-]{1,60})$/;
@@ -101,10 +99,6 @@ export async function handleView(request: Request, cookies: Cookies): Promise<vo
       referrer: cleanReferrer(body.referrer),
       view_id: pick(body.vid, UUID, 36),
       session_id: pick(body.sid, UUID, 36),
-      ref: pick(body.ref, REF, 40, true),
-      utm_source: pick(body.utm_source, UTM, 60),
-      utm_medium: pick(body.utm_medium, UTM, 60),
-      utm_campaign: pick(body.utm_campaign, UTM, 60),
       country: geo.country,
       region: geo.region,
       city: geo.city,
@@ -135,7 +129,6 @@ export async function handleEvent(request: Request, cookies: Cookies): Promise<v
     if (rateLimited(`e:${ipHash}`, 60, HOUR)) return;
 
     const path = cleanPath(body.path) ?? '/';
-    const ref = pick(body.ref, REF, 40, true);
     const sb = getSupabaseAdmin();
 
     // Alert at most once per visitor+action per hour, so a double click never spams the inbox.
@@ -150,7 +143,6 @@ export async function handleEvent(request: Request, cookies: Cookies): Promise<v
       ip_hash: ipHash,
       name,
       path,
-      ref,
       session_id: pick(body.sid, UUID, 36),
     });
     if (error) {

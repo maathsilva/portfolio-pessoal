@@ -4,8 +4,6 @@
 const HOSTS = new Set(['matheussilvabaptista.online', 'www.matheussilvabaptista.online']);
 const URLS = { view: '/api/v', event: '/api/e', pulse: '/api/p' };
 
-type Campaign = { ref?: string; utm_source?: string; utm_medium?: string; utm_campaign?: string };
-
 function enabled(): boolean {
   try {
     const nav = navigator as Navigator & { globalPrivacyControl?: boolean };
@@ -31,8 +29,8 @@ function uuid(): string {
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
 }
 
-// sessionStorage lives only as long as the tab: it groups one visit and remembers
-// the campaign tag, and is never used to recognise a person across visits.
+// sessionStorage lives only as long as the tab: it just groups one visit and is
+// never used to recognise a person across visits.
 const ss = {
   get(k: string): string | null {
     try {
@@ -49,26 +47,6 @@ const ss = {
     }
   },
 };
-
-function loadCampaign(): Campaign {
-  const params = new URLSearchParams(location.search);
-  const fresh: Campaign = {};
-  const ref = params.get('ref');
-  if (ref) fresh.ref = ref.trim().toLowerCase().slice(0, 40);
-  for (const k of ['utm_source', 'utm_medium', 'utm_campaign'] as const) {
-    const v = params.get(k);
-    if (v) fresh[k] = v.slice(0, 60);
-  }
-  if (Object.keys(fresh).length) {
-    ss.set('campaign', JSON.stringify(fresh));
-    return fresh;
-  }
-  try {
-    return JSON.parse(ss.get('campaign') ?? '{}') as Campaign;
-  } catch {
-    return {};
-  }
-}
 
 function post(url: string, payload: unknown): void {
   const body = JSON.stringify(payload);
@@ -88,7 +66,6 @@ function start(): void {
     sid = uuid();
     ss.set('sid', sid);
   }
-  const campaign = loadCampaign();
   const vid = uuid();
 
   post(URLS.view, {
@@ -96,13 +73,12 @@ function start(): void {
     sid,
     path: location.pathname,
     referrer: document.referrer,
-    ...campaign,
     tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
     lang: navigator.language,
     vw: window.innerWidth,
   });
 
-  const event = (name: string) => post(URLS.event, { name, sid, path: location.pathname, ref: campaign.ref });
+  const event = (name: string) => post(URLS.event, { name, sid, path: location.pathname });
 
   // ---- contact / project clicks (data-cta on contact buttons, data-track on project cards)
   const onClick = (e: MouseEvent) => {

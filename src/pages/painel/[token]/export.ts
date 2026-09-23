@@ -10,17 +10,17 @@ const DATASETS = {
   visitas: {
     table: 'page_views',
     columns: [
-      'created_at', 'path', 'ref', 'utm_source', 'utm_medium', 'utm_campaign', 'referrer', 'country', 'region', 'city',
+      'created_at', 'path', 'referrer', 'country', 'region', 'city',
       'timezone', 'local_hour', 'language', 'device', 'browser', 'os', 'viewport_w', 'seconds', 'max_scroll', 'lcp_ms', 'cls', 'inp_ms',
     ],
   },
-  eventos: { table: 'events', columns: ['created_at', 'name', 'path', 'ref'] },
+  eventos: { table: 'events', columns: ['created_at', 'name', 'path'] },
 } as const;
 
 const PAGE_SIZE = 1000; // Supabase returns at most 1000 rows per request
 const MAX_ROWS = 20000;
 
-// Values such as path/ref come from visitors: neutralise spreadsheet formulas (CSV injection).
+// Values such as path come from visitors: neutralise spreadsheet formulas (CSV injection).
 function cell(value: unknown): string {
   if (value === null || value === undefined) return '';
   let s = String(value);

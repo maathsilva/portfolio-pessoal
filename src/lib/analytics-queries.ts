@@ -58,7 +58,6 @@ export interface Vitals {
 export interface RecentVisit {
   created_at: string;
   path: string;
-  ref: string | null;
   referrer: string | null;
   country: string | null;
   region: string | null;
