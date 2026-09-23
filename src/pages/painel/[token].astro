@@ -1,6 +1,7 @@
 ---
 import '../../styles/global.css';
 import { getDashboardData, type DashboardData, type Ranked } from '../../lib/analytics-queries';
+import { IGNORE_COOKIE } from '../../lib/analytics-server';
 import {
   isValidToken,
   isValidPassword,
@@ -24,6 +25,15 @@ if (Astro.url.searchParams.has('sair')) {
   return Astro.redirect(Astro.url.pathname, 303);
 }
 
+const ignoreOpts = {
+  httpOnly: true,
+  secure: import.meta.env.PROD,
+  sameSite: 'lax' as const,
+  path: '/',
+  maxAge: 60 * 60 * 24 * 365,
+};
+const setIgnoreCookie = () => Astro.cookies.set(IGNORE_COOKIE, '1', ignoreOpts);
+
 let authed = hasValidSession(Astro.cookies.get(PANEL_COOKIE)?.value);
 let wrongPassword = false;
 
@@ -37,10 +47,18 @@ if (!authed && Astro.request.method === 'POST') {
       path: '/painel',
       maxAge: 60 * 60 * 12,
     });
+    setIgnoreCookie();
     return Astro.redirect(Astro.url.pathname, 303);
   }
   wrongPassword = true;
 }
+
+if (authed && Astro.url.searchParams.has('ignorar')) {
+  if (Astro.url.searchParams.get('ignorar') === '0') Astro.cookies.delete(IGNORE_COOKIE, { path: '/' });
+  else setIgnoreCookie();
+  return Astro.redirect(Astro.url.pathname, 303);
+}
+const ignoring = Astro.cookies.has(IGNORE_COOKIE);
 
 const DAYS = 30;
 let data: DashboardData | null = null;
@@ -176,6 +194,10 @@ const chartMeta = JSON.stringify({ W, H, M, yMax, series: series.map((s) => [dm(
               Atualizado em {time.format(new Date())} ·
               <a href={Astro.url.pathname}>recarregar</a> ·
               <a href={`${Astro.url.pathname}?sair`}>sair</a>
+            </p>
+            <p class="painel-meta">
+              Suas visitas neste navegador: <strong>{ignoring ? 'ignoradas' : 'sendo contadas'}</strong> ·
+              <a href={`${Astro.url.pathname}?ignorar=${ignoring ? '0' : '1'}`}>{ignoring ? 'voltar a contar' : 'ignorar'}</a>
             </p>
           </header>
 

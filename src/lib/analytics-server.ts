@@ -23,3 +23,18 @@ export function getDevice(request: Request): 'mobile' | 'desktop' {
   const ua = request.headers.get('user-agent') ?? '';
   return /Mobi|Android|iPhone|iPad/i.test(ua) ? 'mobile' : 'desktop';
 }
+
+export const IGNORE_COOKIE = 'ignorar_visitas';
+
+const BOT_PATTERN =
+  /bot|crawl|spider|slurp|preview|headless|lighthouse|pagespeed|monitor|uptime|curl|wget|python|httpx|axios|node-fetch|go-http|java\/|scrapy|facebookexternalhit|whatsapp|telegram|discord|embedly/i;
+
+export function isBot(request: Request): boolean {
+  const ua = request.headers.get('user-agent') ?? '';
+  return !ua || BOT_PATTERN.test(ua);
+}
+
+// Skip bots and the site owner's own browser (cookie set from the private panel).
+export function shouldSkipTracking(request: Request, cookies: { has(name: string): boolean }): boolean {
+  return cookies.has(IGNORE_COOKIE) || isBot(request);
+}

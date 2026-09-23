@@ -1,10 +1,11 @@
 import type { APIRoute } from 'astro';
 import { getSupabaseAdmin } from '../../lib/supabase';
-import { hashIp, getClientIp, getCountry, getDevice } from '../../lib/analytics-server';
+import { hashIp, getClientIp, getCountry, getDevice, shouldSkipTracking } from '../../lib/analytics-server';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
+  if (shouldSkipTracking(request, cookies)) return new Response(null, { status: 204 });
   try {
     const body = await request.json();
     const path = typeof body.path === 'string' ? body.path.slice(0, 200) : '/';

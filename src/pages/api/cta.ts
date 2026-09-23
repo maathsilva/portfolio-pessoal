@@ -1,12 +1,13 @@
 import type { APIRoute } from 'astro';
 import { getSupabaseAdmin } from '../../lib/supabase';
-import { hashIp, getClientIp } from '../../lib/analytics-server';
+import { hashIp, getClientIp, shouldSkipTracking } from '../../lib/analytics-server';
 
 export const prerender = false;
 
 const ALLOWED_CTAS = new Set(['curriculo', 'whatsapp', 'github', 'linkedin', 'email']);
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
+  if (shouldSkipTracking(request, cookies)) return new Response(null, { status: 204 });
   try {
     const body = await request.json();
     const cta = typeof body.cta === 'string' ? body.cta : '';
