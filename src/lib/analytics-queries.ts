@@ -35,14 +35,6 @@ export interface Ranked {
   hits: number;
   visitors: number;
 }
-export interface Campaign {
-  ref: string;
-  visitors: number;
-  pageviews: number;
-  contact_clicks: number;
-  avg_seconds: number | null;
-  last_seen: string;
-}
 export interface ProjectRow {
   slug: string;
   clicks: number;
@@ -85,7 +77,6 @@ export interface DashboardData {
   series: SeriesPoint[];
   tops: Record<TopDimension, Ranked[]>;
   contacts: Ranked[];
-  campaigns: Campaign[];
   projects: ProjectRow[];
   sectionVisitors: number;
   engagement: EngagementRow[];
@@ -117,11 +108,10 @@ export async function getDashboardData(days: Period): Promise<DashboardData> {
   const errors: string[] = [];
   const p_days = days;
 
-  const [overview, series, contacts, campaigns, projects, section, engagement, vitals, recent, ...tops] = await Promise.all([
+  const [overview, series, contacts, projects, section, engagement, vitals, recent, ...tops] = await Promise.all([
     call<any[]>(sb, errors, 'Resumo', 'stats_overview', { p_days }),
     call<any[]>(sb, errors, 'Gráfico', 'stats_series', { p_days }),
     call<any[]>(sb, errors, 'Contatos', 'stats_events', { p_days, p_names: CONTACT_EVENTS }),
-    call<any[]>(sb, errors, 'Campanhas', 'stats_campaigns', { p_days }),
     call<any[]>(sb, errors, 'Projetos', 'stats_projects', { p_days }),
     call<number>(sb, errors, 'Funil de projetos', 'stats_section_visitors', { p_days }),
     call<any[]>(sb, errors, 'Engajamento', 'stats_engagement', { p_days, p_limit: 8 }),
@@ -153,14 +143,6 @@ export async function getDashboardData(days: Period): Promise<DashboardData> {
     series: (series ?? []).map((r) => ({ bucket: String(r.bucket), pageviews: n(r.pageviews), unique_visitors: n(r.unique_visitors) })),
     tops: Object.fromEntries(TOP_DIMENSIONS.map((dim, i) => [dim, rankedRows(tops[i])])) as Record<TopDimension, Ranked[]>,
     contacts: rankedRows(contacts),
-    campaigns: (campaigns ?? []).map((r) => ({
-      ref: String(r.ref),
-      visitors: n(r.visitors),
-      pageviews: n(r.pageviews),
-      contact_clicks: n(r.contact_clicks),
-      avg_seconds: nn(r.avg_seconds),
-      last_seen: String(r.last_seen),
-    })),
     projects: (projects ?? []).map((r) => ({
       slug: String(r.slug),
       clicks: n(r.clicks),

@@ -27,8 +27,7 @@
 .painel-gate label {
   font-weight: 600;
 }
-.painel-gate input,
-.linkgen input {
+.painel-gate input {
   background: var(--bg);
   color: var(--text);
   border: 1px solid var(--border-strong);
@@ -375,26 +374,6 @@
   margin-top: 0.5rem;
 }
 
-/* ---- link generator ---- */
-.linkgen {
-  display: grid;
-  grid-template-columns: minmax(0, 220px) minmax(0, 1fr) auto;
-  gap: 0.5rem;
-  margin-top: 0.9rem;
-  align-items: center;
-}
-.linkgen input[readonly] {
-  color: var(--muted);
-}
-.linkgen .btn {
-  padding: 0.6rem 1rem;
-}
-.linkgen-hint {
-  font-size: 0.78rem;
-  color: var(--muted-2);
-  margin-top: 0.4rem;
-}
-
 /* ---- web vitals ---- */
 .vital-rating {
   font-weight: 600;
@@ -409,8 +388,5 @@
   }
   .tile-value.hero-figure {
     font-size: 2.8rem;
-  }
-  .linkgen {
-    grid-template-columns: 1fr;
   }
 }

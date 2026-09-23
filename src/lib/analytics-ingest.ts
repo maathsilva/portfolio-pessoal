@@ -163,7 +163,7 @@ export async function handleEvent(request: Request, cookies: Cookies): Promise<v
       const geo = getGeo(request);
       const { browser, os } = parseUserAgent(ua);
       const job = sendEmail(
-        contactAlert({ name, ref, path, country: geo.country, region: geo.region, city: geo.city, device: getDevice(ua), browser, os })
+        contactAlert({ name, path, country: geo.country, region: geo.region, city: geo.city, device: getDevice(ua), browser, os })
       ).catch(() => false);
       try {
         waitUntil(job);

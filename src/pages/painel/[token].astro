@@ -235,42 +235,6 @@ const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
             </section>
           )}
 
-          <section class="card panel-section" aria-labelledby="camp-title">
-            <h2 id="camp-title">Links com ?ref=</h2>
-            <p class="section-sub">
-              Quando você envia o portfólio com <code>?ref=nome</code> no endereço, os acessos por esse link aparecem aqui. Visitas que chegam por outros caminhos (perfil, busca, currículo) não são ligadas a um link.
-            </p>
-            {data.campaigns.length === 0 ? (
-              <p class="empty">Nenhum link com ?ref= foi acessado em {periodLabel}.</p>
-            ) : (
-              <div class="feed-scroll">
-                <table>
-                  <thead>
-                    <tr><th>Link</th><th>Visitantes</th><th>Pageviews</th><th>Contatos</th><th>Tempo médio</th><th>Última visita</th></tr>
-                  </thead>
-                  <tbody>
-                    {data.campaigns.map((c) => (
-                      <tr>
-                        <td>{c.ref}</td>
-                        <td>{fmt(c.visitors)}</td>
-                        <td>{fmt(c.pageviews)}</td>
-                        <td>{fmt(c.contact_clicks)}</td>
-                        <td>{duration(c.avg_seconds)}</td>
-                        <td>{formatTime(c.last_seen)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            <div class="linkgen" data-linkgen data-base={site.siteUrl}>
-              <input type="text" data-ref placeholder="nome-do-link" maxlength="40" aria-label="Nome do link" autocomplete="off" />
-              <input type="text" data-out readonly aria-label="Link gerado" value={`${site.siteUrl}/`} />
-              <button type="button" class="btn btn-secondary" data-copy>Copiar link</button>
-            </div>
-            <p class="linkgen-hint">Letras minúsculas, números, hífen e underline. Ex.: empresa-x.</p>
-          </section>
-
           <section class="card panel-section" aria-labelledby="proj-title">
             <h2 id="proj-title">Projetos: qual case atrai mais</h2>
             <p class="section-sub">
@@ -387,29 +351,3 @@ const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
     </main>
   </body>
 </html>
-
-<script>
-  const gen = document.querySelector<HTMLElement>('[data-linkgen]');
-  if (gen) {
-    const input = gen.querySelector<HTMLInputElement>('[data-ref]')!;
-    const out = gen.querySelector<HTMLInputElement>('[data-out]')!;
-    const copy = gen.querySelector<HTMLButtonElement>('[data-copy]')!;
-    const base = gen.dataset.base ?? '';
-    const clean = (v: string) => v.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').replace(/-{2,}/g, '-').replace(/^[-_]+/, '').slice(0, 40);
-    input.addEventListener('input', () => {
-      const ref = clean(input.value);
-      out.value = ref ? `${base}/?ref=${ref}` : `${base}/`;
-    });
-    copy.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(out.value);
-      } catch {
-        out.select();
-        document.execCommand('copy');
-      }
-      const label = copy.textContent;
-      copy.textContent = 'Copiado!';
-      setTimeout(() => (copy.textContent = label), 1500);
-    });
-  }
-</script>

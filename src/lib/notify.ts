@@ -62,7 +62,6 @@ const plain = (title: string, rows: [string, string][]): string =>
 // ------------------------------------------------------------ contact alert
 export interface ContactAlertContext {
   name: string;
-  ref: string | null;
   path: string;
   country: string | null;
   region: string | null;
@@ -89,13 +88,12 @@ export function contactAlert(ctx: ContactAlertContext): EmailMessage {
 
   const rows: [string, string][] = [
     ['Ação', action],
-    ['Vaga / link', ctx.ref ?? '— (sem ?ref=)'],
     ['Página', ctx.path],
     ['Local', place],
     ['Dispositivo', `${ctx.device === 'mobile' ? 'Celular' : 'Computador'} · ${ctx.browser} · ${ctx.os}`],
     ['Quando', when],
   ];
-  const subject = `${action}${ctx.ref ? ` — ${ctx.ref}` : ''} (${place})`;
+  const subject = `${action} (${place})`;
   return { subject, html: wrap(action, rows), text: plain(action, rows) };
 }
 
@@ -105,7 +103,6 @@ export interface WeeklyDigest {
   visitors_prev: number;
   pageviews: number;
   contact_clicks: number;
-  top_ref: string | null;
   top_project: string | null;
   top_source: string | null;
 }
@@ -121,7 +118,6 @@ export function digestEmail(d: WeeklyDigest): EmailMessage {
     ['Visitantes únicos', `${d.visitors} (${change})`],
     ['Pageviews', String(d.pageviews)],
     ['Contatos diretos (currículo, WhatsApp, e-mail)', String(d.contact_clicks)],
-    ['Vaga com mais visitantes', d.top_ref ?? '—'],
     ['Principal origem', d.top_source ?? 'Direto'],
     ['Projeto mais clicado', d.top_project ?? '—'],
   ];
