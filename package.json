@@ -8,13 +8,21 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "db:migrate": "node scripts/migrate.mjs",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/vercel": "^11.0.11",
+    "@supabase/supabase-js": "^2.117.1",
     "astro": "^7.3.3"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@types/node": "^26.6.2",
+    "pg": "^8.23.0",
     "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "path-to-regexp": "^6.3.0"
   }
 }

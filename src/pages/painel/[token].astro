@@ -1,0 +1,650 @@
+---
+import '../../styles/global.css';
+import { getDashboardData, type DashboardData, type Ranked } from '../../lib/analytics-queries';
+import {
+  isValidToken,
+  isValidPassword,
+  hasValidSession,
+  sessionCookieValue,
+  PANEL_COOKIE,
+} from '../../lib/panel-auth';
+
+export const prerender = false;
+
+const { token } = Astro.params;
+if (!isValidToken(token)) {
+  return new Response('Not found', { status: 404 });
+}
+
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+Astro.response.headers.set('Cache-Control', 'no-store');
+
+if (Astro.url.searchParams.has('sair')) {
+  Astro.cookies.delete(PANEL_COOKIE, { path: '/painel' });
+  return Astro.redirect(Astro.url.pathname, 303);
+}
+
+let authed = hasValidSession(Astro.cookies.get(PANEL_COOKIE)?.value);
+let wrongPassword = false;
+
+if (!authed && Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (isValidPassword(String(form.get('password') ?? ''))) {
+    Astro.cookies.set(PANEL_COOKIE, sessionCookieValue(), {
+      httpOnly: true,
+      secure: import.meta.env.PROD,
+      sameSite: 'lax',
+      path: '/painel',
+      maxAge: 60 * 60 * 12,
+    });
+    return Astro.redirect(Astro.url.pathname, 303);
+  }
+  wrongPassword = true;
+}
+
+const DAYS = 30;
+let data: DashboardData | null = null;
+let loadError: string | null = null;
+if (authed) {
+  try {
+    data = await getDashboardData(DAYS);
+  } catch (e) {
+    loadError = e instanceof Error ? e.message : 'Erro desconhecido';
+  }
+}
+
+const nf = new Intl.NumberFormat('pt-BR');
+const fmt = (n: number) => nf.format(n);
+
+// ---- line chart geometry (server-rendered SVG) ----
+const W = 760;
+const H = 300;
+const M = { l: 48, r: 20, t: 20, b: 32 };
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const days = Array.from({ length: DAYS }, (_, i) => iso(new Date(Date.now() - (DAYS - 1 - i) * 864e5)));
+const byDay = new Map((data?.daily ?? []).map((d) => [d.day, d]));
+const series = days.map((day) => ({
+  day,
+  p: byDay.get(day)?.pageviews ?? 0,
+  u: byDay.get(day)?.unique_visitors ?? 0,
+}));
+
+function niceMax(v: number) {
+  if (v <= 4) return 4;
+  const pow = Math.pow(10, Math.floor(Math.log10(v / 4)));
+  const step = [1, 2, 5, 10].map((m) => m * pow).find((s) => s * 4 >= v) ?? 10 * pow;
+  return step * 4;
+}
+const yMax = niceMax(Math.max(...series.map((s) => Math.max(s.p, s.u)), 1));
+const plotW = W - M.l - M.r;
+const plotH = H - M.t - M.b;
+const xAt = (i: number) => M.l + (i * plotW) / (DAYS - 1);
+const yAt = (v: number) => M.t + plotH - (v / yMax) * plotH;
+const line = (key: 'p' | 'u') => series.map((s, i) => `${i ? 'L' : 'M'}${xAt(i).toFixed(1)},${yAt(s[key]).toFixed(1)}`).join(' ');
+const areaP = `${line('p')} L${xAt(DAYS - 1).toFixed(1)},${yAt(0)} L${xAt(0).toFixed(1)},${yAt(0)} Z`;
+const yTicks = [0, 1, 2, 3, 4].map((k) => (yMax / 4) * k);
+const xLabelIdx = [0, 7, 14, 21, DAYS - 1];
+const dm = (day: string) => `${day.slice(8, 10)}/${day.slice(5, 7)}`;
+
+// ---- display helpers ----
+const ctaNames: Record<string, string> = {
+  curriculo: 'Currículo',
+  whatsapp: 'WhatsApp',
+  github: 'GitHub',
+  linkedin: 'LinkedIn',
+  email: 'E-mail',
+};
+const deviceNames: Record<string, string> = { mobile: 'Celular', desktop: 'Computador' };
+let regionNames: Intl.DisplayNames | null = null;
+try {
+  regionNames = new Intl.DisplayNames(['pt-BR'], { type: 'region' });
+} catch {}
+const countryName = (c: string | null) => {
+  if (!c || c === 'Desconhecido') return 'Desconhecido';
+  try {
+    return regionNames?.of(c) ?? c;
+  } catch {
+    return c;
+  }
+};
+const time = new Intl.DateTimeFormat('pt-BR', {
+  dateStyle: 'short',
+  timeStyle: 'short',
+  timeZone: 'America/Sao_Paulo',
+});
+
+const relabel = (rows: Ranked[], map: (l: string) => string): Ranked[] =>
+  rows.map((r) => ({ ...r, label: map(r.label) }));
+
+const rankings = data
+  ? [
+      { title: 'Páginas mais vistas', rows: data.paths },
+      { title: 'Origem do tráfego', rows: relabel(data.referrers, (l) => (l === '(direto)' ? 'Direto' : l)) },
+      { title: 'Cliques em contatos', rows: relabel(data.ctas, (l) => ctaNames[l] ?? l) },
+      { title: 'Países', rows: relabel(data.countries, countryName) },
+      { title: 'Dispositivos', rows: relabel(data.devices, (l) => deviceNames[l] ?? l) },
+    ]
+  : [];
+
+const returnRate =
+  data && data.overview.unique_total > 0
+    ? Math.round((data.overview.returning_visitors / data.overview.unique_total) * 100)
+    : 0;
+
+const tiles = data
+  ? [
+      { label: 'Visitantes únicos hoje', value: fmt(data.overview.unique_today) },
+      { label: 'Últimos 7 dias', value: fmt(data.overview.unique_7d) },
+      { label: 'Últimos 30 dias', value: fmt(data.overview.unique_30d) },
+      { label: 'Total de pageviews', value: fmt(data.overview.total_pageviews) },
+      { label: 'Taxa de retorno', value: `${returnRate}%`, hint: `${fmt(data.overview.returning_visitors)} voltaram` },
+    ]
+  : [];
+
+const chartMeta = JSON.stringify({ W, H, M, yMax, series: series.map((s) => [dm(s.day), s.p, s.u]) });
+---
+
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Painel</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <main class="painel">
+      {!authed && (
+        <form method="post" class="painel-gate card">
+          <label for="password">Senha</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" autofocus required />
+          {wrongPassword && <p class="painel-error" role="alert">Senha incorreta.</p>}
+          <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+      )}
+
+      {authed && loadError && (
+        <p class="painel-error" role="alert">Não foi possível carregar os dados: {loadError}</p>
+      )}
+
+      {authed && data && (
+        <>
+          <header class="painel-head">
+            <h1>Painel</h1>
+            <p class="painel-meta">
+              Atualizado em {time.format(new Date())} ·
+              <a href={Astro.url.pathname}>recarregar</a> ·
+              <a href={`${Astro.url.pathname}?sair`}>sair</a>
+            </p>
+          </header>
+
+          {data.overview.total_pageviews === 0 && (
+            <p class="painel-note">Ainda sem visitas registradas — os números aparecem assim que o site receber acessos.</p>
+          )}
+
+          <section class="painel-tiles" aria-label="Resumo">
+            <div class="tile hero card">
+              <p class="tile-label">Visitantes únicos (total)</p>
+              <p class="tile-value hero-figure">{fmt(data.overview.unique_total)}</p>
+              <p class="tile-hint">sem contar IPs repetidos</p>
+            </div>
+            {tiles.map((t) => (
+              <div class="tile card">
+                <p class="tile-label">{t.label}</p>
+                <p class="tile-value">{t.value}</p>
+                {t.hint && <p class="tile-hint">{t.hint}</p>}
+              </div>
+            ))}
+          </section>
+
+          <section class="card painel-chart" aria-labelledby="chart-title">
+            <div class="chart-head">
+              <h2 id="chart-title">Visitas nos últimos {DAYS} dias</h2>
+              <ul class="legend" aria-label="Legenda">
+                <li><span class="key key-p"></span>Pageviews</li>
+                <li><span class="key key-u"></span>Visitantes únicos</li>
+              </ul>
+            </div>
+            <div class="chart-wrap" id="chart-wrap" tabindex="0" aria-label="Gráfico de visitas por dia. Use as setas para navegar entre os dias.">
+              <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Gráfico de linhas: pageviews e visitantes únicos por dia" id="chart-svg">
+                {yTicks.map((t) => (
+                  <g>
+                    <line x1={M.l} x2={W - M.r} y1={yAt(t)} y2={yAt(t)} class="grid" />
+                    <text x={M.l - 8} y={yAt(t) + 4} text-anchor="end" class="axis">{fmt(t)}</text>
+                  </g>
+                ))}
+                {xLabelIdx.map((i) => (
+                  <text x={xAt(i)} y={H - 10} text-anchor={i === 0 ? 'start' : i === DAYS - 1 ? 'end' : 'middle'} class="axis">{dm(series[i].day)}</text>
+                ))}
+                <path d={areaP} class="area-p" />
+                <path d={line('p')} class="line-p" />
+                <path d={line('u')} class="line-u" />
+                <circle cx={xAt(DAYS - 1)} cy={yAt(series[DAYS - 1].p)} r="4" class="dot dot-p" />
+                <circle cx={xAt(DAYS - 1)} cy={yAt(series[DAYS - 1].u)} r="4" class="dot dot-u" />
+                <line id="cross" y1={M.t} y2={M.t + plotH} class="cross" x1="0" x2="0" visibility="hidden" />
+                <circle id="hover-p" r="4" class="dot dot-p" visibility="hidden" />
+                <circle id="hover-u" r="4" class="dot dot-u" visibility="hidden" />
+              </svg>
+              <div id="tip" class="tip" role="status" hidden>
+                <p class="tip-day"></p>
+                <p class="tip-row"><span class="key key-p"></span><strong class="tip-p"></strong> pageviews</p>
+                <p class="tip-row"><span class="key key-u"></span><strong class="tip-u"></strong> visitantes únicos</p>
+              </div>
+            </div>
+            <details class="table-view">
+              <summary>Ver como tabela</summary>
+              <table>
+                <thead><tr><th>Dia</th><th>Pageviews</th><th>Únicos</th></tr></thead>
+                <tbody>
+                  {series.map((s) => (
+                    <tr><td>{dm(s.day)}</td><td>{fmt(s.p)}</td><td>{fmt(s.u)}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+            <script type="application/json" id="chart-data" set:html={chartMeta}></script>
+          </section>
+
+          <section class="painel-rankings">
+            {rankings.map((r) => {
+              const max = Math.max(...r.rows.map((x) => x.count), 1);
+              return (
+                <div class="card ranking">
+                  <h2>{r.title}</h2>
+                  {r.rows.length === 0 && <p class="empty">Sem dados ainda.</p>}
+                  <ul>
+                    {r.rows.map((row) => (
+                      <li title={`${row.label}: ${fmt(row.count)}`}>
+                        <span class="rank-label">{row.label}</span>
+                        <span class="rank-bar">
+                          <span class="bar" style={`width:${Math.max((row.count / max) * 82, 2)}%`}></span>
+                          <span class="rank-val">{fmt(row.count)}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </section>
+
+          <section class="card painel-feed" aria-labelledby="feed-title">
+            <h2 id="feed-title">Últimos acessos</h2>
+            <div class="feed-scroll">
+              <table>
+                <thead>
+                  <tr><th>Quando</th><th>Página</th><th>Origem</th><th>País</th><th>Dispositivo</th></tr>
+                </thead>
+                <tbody>
+                  {data.recent.map((v) => {
+                    const host = v.referrer?.match(/^https?:\/\/(?:www\.)?([^/?#]+)/)?.[1];
+                    const own = host?.includes('matheussilvabaptista');
+                    return (
+                      <tr>
+                        <td>{time.format(new Date(v.created_at))}</td>
+                        <td>{v.path}</td>
+                        <td>{own ? 'interno' : (host ?? 'Direto')}</td>
+                        <td>{countryName(v.country)}</td>
+                        <td>{deviceNames[v.device ?? ''] ?? '—'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
+      )}
+    </main>
+
+    {authed && data && (
+      <script is:inline>
+        (function () {
+          var meta = JSON.parse(document.getElementById('chart-data').textContent);
+          var wrap = document.getElementById('chart-wrap');
+          var svg = document.getElementById('chart-svg');
+          var cross = document.getElementById('cross');
+          var hp = document.getElementById('hover-p');
+          var hu = document.getElementById('hover-u');
+          var tip = document.getElementById('tip');
+          var n = meta.series.length;
+          var plotW = meta.W - meta.M.l - meta.M.r;
+          var plotH = meta.H - meta.M.t - meta.M.b;
+          function x(i) { return meta.M.l + (i * plotW) / (n - 1); }
+          function y(v) { return meta.M.t + plotH - (v / meta.yMax) * plotH; }
+          function show(i) {
+            i = Math.max(0, Math.min(n - 1, i));
+            var s = meta.series[i];
+            var px = x(i);
+            cross.setAttribute('x1', px); cross.setAttribute('x2', px);
+            hp.setAttribute('cx', px); hp.setAttribute('cy', y(s[1]));
+            hu.setAttribute('cx', px); hu.setAttribute('cy', y(s[2]));
+            [cross, hp, hu].forEach(function (el) { el.setAttribute('visibility', 'visible'); });
+            tip.querySelector('.tip-day').textContent = s[0];
+            tip.querySelector('.tip-p').textContent = s[1].toLocaleString('pt-BR');
+            tip.querySelector('.tip-u').textContent = s[2].toLocaleString('pt-BR');
+            tip.hidden = false;
+            var ratio = svg.clientWidth / meta.W;
+            var left = px * ratio;
+            var flip = left > svg.clientWidth * 0.6;
+            tip.style.left = (flip ? left - tip.offsetWidth - 12 : left + 12) + 'px';
+            tip.style.top = '12px';
+            wrap.dataset.i = i;
+          }
+          function hide() {
+            [cross, hp, hu].forEach(function (el) { el.setAttribute('visibility', 'hidden'); });
+            tip.hidden = true;
+          }
+          function fromPointer(e) {
+            var r = svg.getBoundingClientRect();
+            var vx = ((e.clientX - r.left) / r.width) * meta.W;
+            return Math.round(((vx - meta.M.l) / plotW) * (n - 1));
+          }
+          svg.addEventListener('pointermove', function (e) { show(fromPointer(e)); });
+          svg.addEventListener('pointerleave', hide);
+          wrap.addEventListener('keydown', function (e) {
+            var i = Number(wrap.dataset.i || n - 1);
+            if (e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
+            if (e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
+            if (e.key === 'Escape') hide();
+          });
+          wrap.addEventListener('blur', hide);
+        })();
+      </script>
+    )}
+  </body>
+</html>
+
+<style is:global>
+  .painel {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+  .painel-gate {
+    max-width: 340px;
+    margin: 20vh auto 0;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .painel-gate label {
+    font-weight: 600;
+  }
+  .painel-gate input {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 0.7rem 0.9rem;
+    font: inherit;
+  }
+  .painel-error {
+    color: hsl(4 80% 68%);
+    font-size: 0.9rem;
+  }
+  .painel-note {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  .painel-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .painel-head h1 {
+    font-size: 1.6rem;
+  }
+  .painel-meta {
+    font-size: 0.85rem;
+    color: var(--muted-2);
+  }
+  .painel-meta a {
+    color: var(--muted);
+    text-decoration: underline;
+  }
+  .painel-tiles {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .tile {
+    padding: 1.1rem 1.25rem;
+  }
+  .tile.hero {
+    grid-column: 1 / -1;
+    padding: 1.5rem;
+  }
+  .tile-label {
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .tile-value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.9rem;
+    color: var(--text);
+    line-height: 1.2;
+    margin-top: 0.25rem;
+  }
+  .tile-value.hero-figure {
+    font-size: 3.4rem;
+  }
+  .tile-hint {
+    font-size: 0.78rem;
+    color: var(--muted-2);
+    margin-top: 0.15rem;
+  }
+  .painel-chart,
+  .painel-feed {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .painel .card:hover {
+    transform: none;
+  }
+  .chart-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .painel h2 {
+    font-size: 1rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+  }
+  .legend {
+    display: flex;
+    gap: 1.25rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .legend li,
+  .tip-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .key {
+    display: inline-block;
+    width: 14px;
+    height: 2px;
+    border-radius: 2px;
+  }
+  .key-p {
+    background: #d77709;
+  }
+  .key-u {
+    background: #12a597;
+  }
+  .chart-wrap {
+    position: relative;
+    outline-offset: 4px;
+  }
+  .chart-wrap svg {
+    width: 100%;
+    height: auto;
+    touch-action: pan-y;
+  }
+  .grid {
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+  .axis {
+    fill: var(--muted-2);
+    font-size: 11px;
+    font-family: var(--font-sans);
+  }
+  .line-p,
+  .line-u {
+    fill: none;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  .line-p {
+    stroke: #d77709;
+  }
+  .line-u {
+    stroke: #12a597;
+  }
+  .area-p {
+    fill: #d77709;
+    fill-opacity: 0.1;
+  }
+  .dot {
+    stroke: var(--card);
+    stroke-width: 2;
+  }
+  .dot-p {
+    fill: #d77709;
+  }
+  .dot-u {
+    fill: #12a597;
+  }
+  .cross {
+    stroke: var(--border-strong);
+    stroke-width: 1;
+  }
+  .tip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    white-space: nowrap;
+    z-index: 2;
+  }
+  .tip p {
+    margin: 0;
+  }
+  .tip-day {
+    color: var(--muted-2);
+    margin-bottom: 0.25rem !important;
+  }
+  .tip strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .painel-rankings {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .ranking {
+    padding: 1.25rem 1.5rem;
+  }
+  .ranking ul {
+    margin-top: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .ranking li {
+    display: grid;
+    grid-template-columns: minmax(90px, 40%) 1fr;
+    gap: 0.75rem;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+  .rank-label {
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rank-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+  .bar {
+    display: block;
+    height: 10px;
+    background: #d77709;
+    border-radius: 0 4px 4px 0;
+  }
+  .rank-val {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .empty {
+    color: var(--muted-2);
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+  }
+  .table-view {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .table-view summary {
+    cursor: pointer;
+  }
+  .painel table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .painel th,
+  .painel td {
+    text-align: left;
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .painel th {
+    color: var(--muted-2);
+    font-weight: 500;
+  }
+  .feed-scroll {
+    overflow-x: auto;
+    margin-top: 0.75rem;
+  }
+  @media (max-width: 860px) {
+    .painel-tiles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .painel-rankings {
+      grid-template-columns: 1fr;
+    }
+    .tile-value.hero-figure {
+      font-size: 2.8rem;
+    }
+  }
+</style>
