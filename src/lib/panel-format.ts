@@ -69,3 +69,12 @@ export type Rating = 'Bom' | 'Atenção' | 'Ruim';
 // Thresholds are Google's published Core Web Vitals bands.
 export const rate = (value: number | null, good: number, poor: number): Rating | null =>
   value === null ? null : value <= good ? 'Bom' : value <= poor ? 'Atenção' : 'Ruim';
+
+// "12 min depois", "3 h depois", "2 d depois" between two ISO timestamps.
+export function delay(fromIso: string, toIso: string): string {
+  const minutes = Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / 60000);
+  if (minutes < 0) return 'antes do envio';
+  if (minutes < 60) return `${minutes} min depois`;
+  const hours = Math.round(minutes / 60);
+  return hours < 48 ? `${hours} h depois` : `${Math.round(hours / 24)} d depois`;
+}

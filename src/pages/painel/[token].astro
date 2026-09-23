@@ -20,6 +20,7 @@ import {
   CTA_NAMES,
   DEVICE_NAMES,
   countryName,
+  delay,
   duration,
   fmt,
   formatTime,
@@ -30,6 +31,7 @@ import {
   timeAgo,
 } from '../../lib/panel-format';
 import { site } from '../../data/site';
+import { PLATFORM_LABELS, STATUSES, type Platform } from '../../lib/job-parse';
 
 export const prerender = false;
 
@@ -133,6 +135,9 @@ const vitalRows = vitals
     ]
   : [];
 
+const appRefs = new Set((data?.applications ?? []).map((a) => a.ref));
+const otherCampaigns = (data?.campaigns ?? []).filter((c) => !appRefs.has(c.ref));
+
 const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
 ---
 
@@ -235,38 +240,103 @@ const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
             </section>
           )}
 
-          <section class="card panel-section" aria-labelledby="camp-title">
-            <h2 id="camp-title">Vagas e campanhas (links com ?ref=)</h2>
-            <p class="section-sub">Mande cada candidatura com um link diferente e veja quem abriu, quando e se chamou você.</p>
-            {data.campaigns.length === 0 ? (
-              <p class="empty">Nenhum link com ?ref= foi acessado em {periodLabel}.</p>
+          <section class="card panel-section" id="candidaturas" aria-labelledby="camp-title">
+            <h2 id="camp-title">Candidaturas</h2>
+            <p class="section-sub">Cole o link da vaga: o painel preenche empresa e cargo, cria o link ?ref= e mostra se abriram o seu portfólio.</p>
+
+            <form class="appform" data-appform novalidate>
+              <div class="appform-row">
+                <input type="url" data-app-url placeholder="Cole aqui o link da vaga (LinkedIn, Gupy, ...)" aria-label="Link da vaga" autocomplete="off" />
+                <button type="button" class="btn btn-secondary" data-app-fetch>Buscar dados</button>
+              </div>
+              <div class="appform-fields" data-app-fields hidden>
+                <label>Empresa<input type="text" data-app-company maxlength="80" /></label>
+                <label>Cargo<input type="text" data-app-title maxlength="120" /></label>
+                <label>Plataforma
+                  <select data-app-platform>
+                    {Object.entries(PLATFORM_LABELS).map(([value, label]) => <option value={value}>{label}</option>)}
+                  </select>
+                </label>
+                <label>Enviada em<input type="datetime-local" data-app-when /></label>
+                <label class="appform-wide">Nome do link (?ref=)<input type="text" data-app-ref maxlength="40" /></label>
+                <p class="linkgen-hint appform-wide" data-app-note></p>
+                <div class="appform-actions appform-wide">
+                  <button type="button" class="btn btn-primary" data-app-save>Salvar candidatura</button>
+                  <button type="button" class="btn btn-secondary" data-app-cancel>Cancelar</button>
+                </div>
+              </div>
+              <p class="appform-msg" data-app-msg role="status"></p>
+            </form>
+
+            {data.applications.length === 0 ? (
+              <p class="empty">Nenhuma candidatura salva ainda.</p>
             ) : (
               <div class="feed-scroll">
-                <table>
+                <table class="apps">
                   <thead>
-                    <tr><th>Vaga / link</th><th>Visitantes</th><th>Pageviews</th><th>Contatos</th><th>Tempo médio</th><th>Última visita</th></tr>
+                    <tr><th>Vaga</th><th>Plataforma</th><th>Enviada em</th><th>Status</th><th>Abriram o portfólio?</th><th>Primeira visita</th><th>Contatos</th><th></th></tr>
                   </thead>
                   <tbody>
-                    {data.campaigns.map((c) => (
-                      <tr>
-                        <td>{c.ref}</td>
-                        <td>{fmt(c.visitors)}</td>
-                        <td>{fmt(c.pageviews)}</td>
-                        <td>{fmt(c.contact_clicks)}</td>
-                        <td>{duration(c.avg_seconds)}</td>
-                        <td>{formatTime(c.last_seen)}</td>
+                    {data.applications.map((a) => (
+                      <tr data-app-id={a.id}>
+                        <td>
+                          <a href={a.job_url} target="_blank" rel="noopener noreferrer">{a.company}</a>
+                          <span class="cell-sub">{a.title}</span>
+                        </td>
+                        <td>{PLATFORM_LABELS[a.platform as Platform] ?? a.platform}</td>
+                        <td>{formatTime(a.applied_at)}</td>
+                        <td>
+                          <select data-app-status aria-label={`Status da candidatura em ${a.company}`}>
+                            {STATUSES.map((s) => <option value={s} selected={s === a.status}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+                          </select>
+                        </td>
+                        <td>{a.visitors > 0 ? `Sim: ${fmt(a.visitors)} ${a.visitors === 1 ? 'visitante' : 'visitantes'}, ${fmt(a.pageviews)} ${a.pageviews === 1 ? 'página' : 'páginas'}` : 'Ainda não'}</td>
+                        <td>{a.first_visit_at ? `${formatTime(a.first_visit_at)} (${delay(a.applied_at, a.first_visit_at)})` : '—'}</td>
+                        <td>{fmt(a.contact_clicks)}</td>
+                        <td class="app-actions">
+                          <button type="button" class="btn btn-secondary btn-sm" data-copy-link={`${site.siteUrl}/?ref=${a.ref}`}>Copiar link</button>
+                          <button type="button" class="btn btn-secondary btn-sm" data-app-delete aria-label={`Excluir candidatura em ${a.company}`}>Excluir</button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             )}
-            <div class="linkgen" data-linkgen data-base={site.siteUrl}>
-              <input type="text" data-ref placeholder="nome-da-vaga" maxlength="40" aria-label="Nome da vaga ou empresa" autocomplete="off" />
-              <input type="text" data-out readonly aria-label="Link gerado" value={`${site.siteUrl}/`} />
-              <button type="button" class="btn btn-secondary" data-copy>Copiar link</button>
-            </div>
-            <p class="linkgen-hint">Letras minúsculas, números, hífen e underline. Ex.: empresa-x.</p>
+
+            {otherCampaigns.length > 0 && (
+              <>
+                <h2 class="subsection">Outros links com ?ref= (sem candidatura salva)</h2>
+                <div class="feed-scroll">
+                  <table>
+                    <thead>
+                      <tr><th>Link</th><th>Visitantes</th><th>Pageviews</th><th>Contatos</th><th>Tempo médio</th><th>Última visita</th></tr>
+                    </thead>
+                    <tbody>
+                      {otherCampaigns.map((c) => (
+                        <tr>
+                          <td>{c.ref}</td>
+                          <td>{fmt(c.visitors)}</td>
+                          <td>{fmt(c.pageviews)}</td>
+                          <td>{fmt(c.contact_clicks)}</td>
+                          <td>{duration(c.avg_seconds)}</td>
+                          <td>{formatTime(c.last_seen)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+
+            <details class="table-view">
+              <summary>Gerar um link avulso (sem candidatura)</summary>
+              <div class="linkgen" data-linkgen data-base={site.siteUrl}>
+                <input type="text" data-ref placeholder="nome-do-link" maxlength="40" aria-label="Nome do link" autocomplete="off" />
+                <input type="text" data-out readonly aria-label="Link gerado" value={`${site.siteUrl}/`} />
+                <button type="button" class="btn btn-secondary" data-copy>Copiar link</button>
+              </div>
+            </details>
           </section>
 
           <section class="card panel-section" aria-labelledby="proj-title">
@@ -387,27 +457,173 @@ const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
 </html>
 
 <script>
+  const api = `${location.pathname.replace(/\/$/, '')}/candidaturas`;
+  const call = async (payload: Record<string, unknown>) => {
+    try {
+      const res = await fetch(api, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
+      return (await res.json()) as { ok: boolean; error?: string; [k: string]: any };
+    } catch {
+      return { ok: false, error: 'Sem conexão. Tente novamente.' };
+    }
+  };
+  const copyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  const flash = (btn: HTMLElement, label: string) => {
+    const original = btn.textContent;
+    btn.textContent = label;
+    setTimeout(() => (btn.textContent = original), 1500);
+  };
+
+  // ---------------------------------------------------------------- applications
+  const form = document.querySelector<HTMLElement>('[data-appform]');
+  if (form) {
+    const $ = <T extends HTMLElement>(sel: string) => form.querySelector<T>(sel)!;
+    const url = $<HTMLInputElement>('[data-app-url]');
+    const fetchBtn = $<HTMLButtonElement>('[data-app-fetch]');
+    const fields = $<HTMLElement>('[data-app-fields]');
+    const company = $<HTMLInputElement>('[data-app-company]');
+    const title = $<HTMLInputElement>('[data-app-title]');
+    const platform = $<HTMLSelectElement>('[data-app-platform]');
+    const when = $<HTMLInputElement>('[data-app-when]');
+    const ref = $<HTMLInputElement>('[data-app-ref]');
+    const note = $<HTMLElement>('[data-app-note]');
+    const msg = $<HTMLElement>('[data-app-msg]');
+    const saveBtn = $<HTMLButtonElement>('[data-app-save]');
+    let resolvedUrl = '';
+
+    const cleanRef = (v: string) => v.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').replace(/-{2,}/g, '-').replace(/^[-_]+/, '').slice(0, 40);
+    const nowLocal = () => {
+      const d = new Date();
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      return d.toISOString().slice(0, 16);
+    };
+    const say = (text: string, error = false) => {
+      msg.textContent = text;
+      msg.classList.toggle('painel-error', error);
+    };
+    const reset = () => {
+      fields.hidden = true;
+      url.value = '';
+      resolvedUrl = '';
+      say('');
+    };
+
+    const lookup = async () => {
+      const link = url.value.trim();
+      if (!link) return say('Cole o link da vaga.', true);
+      fetchBtn.disabled = true;
+      fetchBtn.textContent = 'Buscando…';
+      say('');
+      const res = await call({ action: 'resolve', url: link });
+      fetchBtn.disabled = false;
+      fetchBtn.textContent = 'Buscar dados';
+      if (!res.ok) return say(res.error ?? 'Não foi possível ler esse link.', true);
+      const job = res.job;
+      resolvedUrl = job.url;
+      company.value = job.company;
+      title.value = job.title;
+      platform.value = job.platform;
+      ref.value = res.ref;
+      when.value = nowLocal();
+      note.textContent = res.duplicate
+        ? `Você já salvou esta vaga (${res.duplicate.company}, link ?ref=${res.duplicate.ref}). Salvar de novo cria outra candidatura.`
+        : (job.note ?? 'Confira os dados e salve.');
+      fields.hidden = false;
+      (job.company ? (job.title ? saveBtn : title) : company).focus();
+    };
+
+    fetchBtn.addEventListener('click', lookup);
+    url.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        lookup();
+      }
+    });
+    url.addEventListener('paste', () => setTimeout(() => /^https?:\/\//i.test(url.value.trim()) && lookup(), 0));
+    ref.addEventListener('input', () => {
+      const cleaned = cleanRef(ref.value);
+      if (cleaned !== ref.value) ref.value = cleaned;
+    });
+    $<HTMLButtonElement>('[data-app-cancel]').addEventListener('click', reset);
+
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      const res = await call({
+        action: 'save',
+        job_url: resolvedUrl || url.value.trim(),
+        company: company.value,
+        title: title.value,
+        platform: platform.value,
+        ref: ref.value,
+        applied_at: when.value ? new Date(when.value).toISOString() : undefined,
+      });
+      saveBtn.disabled = false;
+      if (!res.ok) return say(res.error ?? 'Não foi possível salvar.', true);
+      const link = `${document.querySelector<HTMLElement>('[data-linkgen]')?.dataset.base ?? location.origin}/?ref=${res.ref}`;
+      await copyText(link);
+      say(`Salvo! O link já foi copiado: ${link}`);
+      fields.hidden = true;
+      setTimeout(() => {
+        location.hash = 'candidaturas';
+        location.reload();
+      }, 900);
+    });
+  }
+
+  // ---------------------------------------------------------------- table actions
+  document.addEventListener('change', async (e) => {
+    const select = (e.target as HTMLElement).closest<HTMLSelectElement>('[data-app-status]');
+    if (!select) return;
+    const id = Number(select.closest('tr')?.getAttribute('data-app-id'));
+    select.disabled = true;
+    const res = await call({ action: 'status', id, status: select.value });
+    select.disabled = false;
+    if (!res.ok) alert(res.error ?? 'Não foi possível atualizar o status.');
+  });
+
+  document.addEventListener('click', async (e) => {
+    const target = e.target as HTMLElement;
+    const copy = target.closest<HTMLElement>('[data-copy-link]');
+    if (copy) {
+      await copyText(copy.dataset.copyLink ?? '');
+      return flash(copy, 'Copiado!');
+    }
+    const del = target.closest<HTMLElement>('[data-app-delete]');
+    if (del) {
+      const row = del.closest('tr')!;
+      const name = row.querySelector('a')?.textContent ?? 'esta candidatura';
+      if (!confirm(`Excluir a candidatura em ${name}? O histórico de visitas do link continua no painel.`)) return;
+      const res = await call({ action: 'delete', id: Number(row.getAttribute('data-app-id')) });
+      if (res.ok) row.remove();
+      else alert(res.error ?? 'Não foi possível excluir.');
+    }
+  });
+
+  // ---------------------------------------------------------------- one-off link generator
   const gen = document.querySelector<HTMLElement>('[data-linkgen]');
   if (gen) {
     const input = gen.querySelector<HTMLInputElement>('[data-ref]')!;
     const out = gen.querySelector<HTMLInputElement>('[data-out]')!;
-    const copy = gen.querySelector<HTMLButtonElement>('[data-copy]')!;
+    const copyBtn = gen.querySelector<HTMLButtonElement>('[data-copy]')!;
     const base = gen.dataset.base ?? '';
     const clean = (v: string) => v.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').replace(/-{2,}/g, '-').replace(/^[-_]+/, '').slice(0, 40);
     input.addEventListener('input', () => {
-      const ref = clean(input.value);
-      out.value = ref ? `${base}/?ref=${ref}` : `${base}/`;
+      const r = clean(input.value);
+      out.value = r ? `${base}/?ref=${r}` : `${base}/`;
     });
-    copy.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(out.value);
-      } catch {
-        out.select();
-        document.execCommand('copy');
-      }
-      const label = copy.textContent;
-      copy.textContent = 'Copiado!';
-      setTimeout(() => (copy.textContent = label), 1500);
+    copyBtn.addEventListener('click', async () => {
+      await copyText(out.value);
+      flash(copyBtn, 'Copiado!');
     });
   }
 </script>
