@@ -1,0 +1,132 @@
+---
+import { fmt } from '../../lib/panel-format';
+
+interface Props {
+  labels: string[];
+  pageviews: number[];
+  uniques: number[];
+}
+
+const { labels, pageviews, uniques } = Astro.props;
+const n = labels.length;
+
+const W = 760;
+const H = 300;
+const M = { l: 48, r: 20, t: 20, b: 32 };
+const plotW = W - M.l - M.r;
+const plotH = H - M.t - M.b;
+
+function niceMax(v: number) {
+  if (v <= 4) return 4;
+  const pow = Math.pow(10, Math.floor(Math.log10(v / 4)));
+  const step = [1, 2, 5, 10].map((m) => m * pow).find((s) => s * 4 >= v) ?? 10 * pow;
+  return step * 4;
+}
+const yMax = niceMax(Math.max(...pageviews, ...uniques, 1));
+const xAt = (i: number) => (n <= 1 ? M.l + plotW / 2 : M.l + (i * plotW) / (n - 1));
+const yAt = (v: number) => M.t + plotH - (v / yMax) * plotH;
+const path = (values: number[]) => values.map((v, i) => `${i ? 'L' : 'M'}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(' ');
+const area = n > 1 ? `${path(pageviews)} L${xAt(n - 1).toFixed(1)},${yAt(0)} L${xAt(0).toFixed(1)},${yAt(0)} Z` : '';
+const yTicks = [0, 1, 2, 3, 4].map((k) => (yMax / 4) * k);
+
+// At most five evenly spaced x labels, whatever the period.
+const xLabelIdx = n <= 5 ? labels.map((_, i) => i) : [0, 1, 2, 3, 4].map((k) => Math.round((k * (n - 1)) / 4));
+const anchor = (i: number) => (i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle');
+
+const data = JSON.stringify({ W, H, M, yMax, n, labels, pageviews, uniques });
+---
+
+<div class="chart-wrap" data-line-chart={data} tabindex="0" aria-label="Gráfico de visitas. Use as setas do teclado para navegar entre os pontos.">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Gráfico de linhas: pageviews e visitantes únicos">
+    {yTicks.map((t) => (
+      <g>
+        <line x1={M.l} x2={W - M.r} y1={yAt(t)} y2={yAt(t)} class="grid" />
+        <text x={M.l - 8} y={yAt(t) + 4} text-anchor="end" class="axis">{fmt(t)}</text>
+      </g>
+    ))}
+    {xLabelIdx.map((i) => (
+      <text x={xAt(i)} y={H - 10} text-anchor={anchor(i)} class="axis">{labels[i]}</text>
+    ))}
+    {area && <path d={area} class="area-p" />}
+    <path d={path(pageviews)} class="line-p" />
+    <path d={path(uniques)} class="line-u" />
+    <circle cx={xAt(n - 1)} cy={yAt(pageviews[n - 1] ?? 0)} r="4" class="dot dot-p" />
+    <circle cx={xAt(n - 1)} cy={yAt(uniques[n - 1] ?? 0)} r="4" class="dot dot-u" />
+    <line data-cross y1={M.t} y2={M.t + plotH} class="cross" x1="0" x2="0" visibility="hidden" />
+    <circle data-hover-p r="4" class="dot dot-p" visibility="hidden" />
+    <circle data-hover-u r="4" class="dot dot-u" visibility="hidden" />
+  </svg>
+  <div class="tip" data-tip role="status" hidden>
+    <p class="tip-day"></p>
+    <p class="tip-row"><span class="key key-p"></span><strong data-p></strong> pageviews</p>
+    <p class="tip-row"><span class="key key-u"></span><strong data-u></strong> visitantes únicos</p>
+  </div>
+</div>
+
+<details class="table-view">
+  <summary>Ver como tabela</summary>
+  <div class="feed-scroll">
+    <table>
+      <thead><tr><th>Período</th><th>Pageviews</th><th>Únicos</th></tr></thead>
+      <tbody>
+        {labels.map((label, i) => (
+          <tr><td>{label}</td><td>{fmt(pageviews[i])}</td><td>{fmt(uniques[i])}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-line-chart]').forEach((wrap) => {
+    const meta = JSON.parse(wrap.dataset.lineChart ?? '{}');
+    const svg = wrap.querySelector('svg')!;
+    const cross = wrap.querySelector('[data-cross]')!;
+    const hp = wrap.querySelector('[data-hover-p]')!;
+    const hu = wrap.querySelector('[data-hover-u]')!;
+    const tip = wrap.querySelector<HTMLElement>('[data-tip]')!;
+    const plotW = meta.W - meta.M.l - meta.M.r;
+    const plotH = meta.H - meta.M.t - meta.M.b;
+    const x = (i: number) => (meta.n <= 1 ? meta.M.l + plotW / 2 : meta.M.l + (i * plotW) / (meta.n - 1));
+    const y = (v: number) => meta.M.t + plotH - (v / meta.yMax) * plotH;
+    let current = meta.n - 1;
+
+    const show = (i: number) => {
+      i = Math.max(0, Math.min(meta.n - 1, i));
+      current = i;
+      const px = x(i);
+      cross.setAttribute('x1', String(px));
+      cross.setAttribute('x2', String(px));
+      hp.setAttribute('cx', String(px));
+      hp.setAttribute('cy', String(y(meta.pageviews[i])));
+      hu.setAttribute('cx', String(px));
+      hu.setAttribute('cy', String(y(meta.uniques[i])));
+      [cross, hp, hu].forEach((el) => el.setAttribute('visibility', 'visible'));
+      tip.querySelector('.tip-day')!.textContent = meta.labels[i];
+      tip.querySelector('[data-p]')!.textContent = Number(meta.pageviews[i]).toLocaleString('pt-BR');
+      tip.querySelector('[data-u]')!.textContent = Number(meta.uniques[i]).toLocaleString('pt-BR');
+      tip.hidden = false;
+      const left = px * (svg.clientWidth / meta.W);
+      const flip = left > svg.clientWidth * 0.6;
+      tip.style.left = `${flip ? left - tip.offsetWidth - 12 : left + 12}px`;
+      tip.style.top = '12px';
+    };
+    const hide = () => {
+      [cross, hp, hu].forEach((el) => el.setAttribute('visibility', 'hidden'));
+      tip.hidden = true;
+    };
+
+    svg.addEventListener('pointermove', (e) => {
+      const r = svg.getBoundingClientRect();
+      const vx = ((e.clientX - r.left) / r.width) * meta.W;
+      show(meta.n <= 1 ? 0 : Math.round(((vx - meta.M.l) / plotW) * (meta.n - 1)));
+    });
+    svg.addEventListener('pointerleave', hide);
+    wrap.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); }
+      if (e.key === 'Escape') hide();
+    });
+    wrap.addEventListener('blur', hide);
+  });
+</script>

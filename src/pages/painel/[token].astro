@@ -1,14 +1,35 @@
 ---
 import '../../styles/global.css';
-import { getDashboardData, type DashboardData, type Ranked } from '../../lib/analytics-queries';
-import { IGNORE_COOKIE } from '../../lib/analytics-server';
+import '../../styles/panel.css';
+import LineChart from '../../components/panel/LineChart.astro';
+import ColumnChart from '../../components/panel/ColumnChart.astro';
+import Ranking from '../../components/panel/Ranking.astro';
+import { getDashboardData, parsePeriod, PERIODS, type DashboardData } from '../../lib/analytics-queries';
+import { IGNORE_COOKIE, getClientIp, hashIp } from '../../lib/analytics-server';
 import {
-  isValidToken,
-  isValidPassword,
-  hasValidSession,
-  sessionCookieValue,
+  LOCKOUT_MESSAGE,
   PANEL_COOKIE,
+  hasValidSession,
+  isValidPassword,
+  isValidToken,
+  loginLockedOut,
+  recordFailedLogin,
+  sessionCookieValue,
 } from '../../lib/panel-auth';
+import {
+  CTA_NAMES,
+  DEVICE_NAMES,
+  countryName,
+  duration,
+  fmt,
+  formatTime,
+  languageName,
+  originName,
+  projectName,
+  rate,
+  timeAgo,
+} from '../../lib/panel-format';
+import { site } from '../../data/site';
 
 export const prerender = false;
 
@@ -20,146 +41,99 @@ if (!isValidToken(token)) {
 Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
 Astro.response.headers.set('Cache-Control', 'no-store');
 
+const base = Astro.url.pathname;
+
 if (Astro.url.searchParams.has('sair')) {
   Astro.cookies.delete(PANEL_COOKIE, { path: '/painel' });
-  return Astro.redirect(Astro.url.pathname, 303);
+  return Astro.redirect(base, 303);
 }
 
-const ignoreOpts = {
-  httpOnly: true,
-  secure: import.meta.env.PROD,
-  sameSite: 'lax' as const,
-  path: '/',
-  maxAge: 60 * 60 * 24 * 365,
-};
-const setIgnoreCookie = () => Astro.cookies.set(IGNORE_COOKIE, '1', ignoreOpts);
+const cookieBase = { httpOnly: true, secure: import.meta.env.PROD, sameSite: 'lax' as const };
+const setIgnoreCookie = () => Astro.cookies.set(IGNORE_COOKIE, '1', { ...cookieBase, path: '/', maxAge: 60 * 60 * 24 * 365 });
 
 let authed = hasValidSession(Astro.cookies.get(PANEL_COOKIE)?.value);
 let wrongPassword = false;
+let lockedOut = false;
+let unavailable = false;
 
 if (!authed && Astro.request.method === 'POST') {
-  const form = await Astro.request.formData();
-  if (isValidPassword(String(form.get('password') ?? ''))) {
-    Astro.cookies.set(PANEL_COOKIE, sessionCookieValue(), {
-      httpOnly: true,
-      secure: import.meta.env.PROD,
-      sameSite: 'lax',
-      path: '/painel',
-      maxAge: 60 * 60 * 12,
-    });
-    setIgnoreCookie();
-    return Astro.redirect(Astro.url.pathname, 303);
+  try {
+    const ipHash = hashIp(getClientIp(Astro.request));
+    if (await loginLockedOut(ipHash)) {
+      lockedOut = true;
+      Astro.response.status = 429;
+    } else {
+      const form = await Astro.request.formData().catch(() => null);
+      if (form && isValidPassword(String(form.get('password') ?? ''))) {
+        Astro.cookies.set(PANEL_COOKIE, sessionCookieValue(), { ...cookieBase, path: '/painel', maxAge: 60 * 60 * 12 });
+        setIgnoreCookie();
+        return Astro.redirect(base, 303);
+      }
+      await recordFailedLogin(ipHash);
+      wrongPassword = true;
+    }
+  } catch {
+    // Fail closed: if the attempt counter is unreachable, nobody gets in.
+    unavailable = true;
+    Astro.response.status = 503;
   }
-  wrongPassword = true;
 }
 
 if (authed && Astro.url.searchParams.has('ignorar')) {
   if (Astro.url.searchParams.get('ignorar') === '0') Astro.cookies.delete(IGNORE_COOKIE, { path: '/' });
   else setIgnoreCookie();
-  return Astro.redirect(Astro.url.pathname, 303);
+  return Astro.redirect(base, 303);
 }
 const ignoring = Astro.cookies.has(IGNORE_COOKIE);
 
-const DAYS = 30;
+const period = parsePeriod(Astro.url.searchParams.get('p'));
+const periodLabel = PERIODS.find((p) => p.value === period)!.label.toLowerCase();
+
 let data: DashboardData | null = null;
 let loadError: string | null = null;
 if (authed) {
   try {
-    data = await getDashboardData(DAYS);
+    data = await getDashboardData(period);
   } catch (e) {
     loadError = e instanceof Error ? e.message : 'Erro desconhecido';
   }
 }
 
-const nf = new Intl.NumberFormat('pt-BR');
-const fmt = (n: number) => nf.format(n);
+const o = data?.overview ?? null;
 
-// ---- line chart geometry (server-rendered SVG) ----
-const W = 760;
-const H = 300;
-const M = { l: 48, r: 20, t: 20, b: 32 };
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-const days = Array.from({ length: DAYS }, (_, i) => iso(new Date(Date.now() - (DAYS - 1 - i) * 864e5)));
-const byDay = new Map((data?.daily ?? []).map((d) => [d.day, d]));
-const series = days.map((day) => ({
-  day,
-  p: byDay.get(day)?.pageviews ?? 0,
-  u: byDay.get(day)?.unique_visitors ?? 0,
-}));
+const perSession = o?.pages_per_session ?? null;
+const tiles = o
+  ? [
+      { label: 'Pageviews', value: fmt(o.pageviews), hint: perSession ? `${String(perSession).replace('.', ',')} ${perSession <= 1 ? 'página' : 'páginas'} por sessão` : undefined },
+      { label: 'Visitantes novos', value: fmt(o.new_visitors), hint: 'primeira visita no período' },
+      { label: 'Visitantes recorrentes', value: fmt(o.returning_visitors), hint: 'já tinham visitado antes' },
+      { label: 'Contatos diretos', value: fmt(o.contact_clicks), hint: 'currículo, WhatsApp e e-mail' },
+      { label: 'Tempo médio na página', value: duration(o.avg_seconds), hint: 'tempo ativo, com a aba visível' },
+      { label: 'Leram até o fim', value: o.deep_scroll_pct === null ? '—' : `${o.deep_scroll_pct}%`, hint: 'rolaram ao menos 75% da página' },
+    ]
+  : [];
 
-function niceMax(v: number) {
-  if (v <= 4) return 4;
-  const pow = Math.pow(10, Math.floor(Math.log10(v / 4)));
-  const step = [1, 2, 5, 10].map((m) => m * pow).find((s) => s * 4 >= v) ?? 10 * pow;
-  return step * 4;
-}
-const yMax = niceMax(Math.max(...series.map((s) => Math.max(s.p, s.u)), 1));
-const plotW = W - M.l - M.r;
-const plotH = H - M.t - M.b;
-const xAt = (i: number) => M.l + (i * plotW) / (DAYS - 1);
-const yAt = (v: number) => M.t + plotH - (v / yMax) * plotH;
-const line = (key: 'p' | 'u') => series.map((s, i) => `${i ? 'L' : 'M'}${xAt(i).toFixed(1)},${yAt(s[key]).toFixed(1)}`).join(' ');
-const areaP = `${line('p')} L${xAt(DAYS - 1).toFixed(1)},${yAt(0)} L${xAt(0).toFixed(1)},${yAt(0)} Z`;
-const yTicks = [0, 1, 2, 3, 4].map((k) => (yMax / 4) * k);
-const xLabelIdx = [0, 7, 14, 21, DAYS - 1];
-const dm = (day: string) => `${day.slice(8, 10)}/${day.slice(5, 7)}`;
+const visitorRows = (dim: keyof DashboardData['tops'], map: (l: string) => string = (l) => l) =>
+  (data?.tops[dim] ?? []).map((r) => ({ label: map(r.label), value: r.visitors, hint: `${fmt(r.hits)} acessos` }));
 
-// ---- display helpers ----
-const ctaNames: Record<string, string> = {
-  curriculo: 'Currículo',
-  whatsapp: 'WhatsApp',
-  github: 'GitHub',
-  linkedin: 'LinkedIn',
-  email: 'E-mail',
-};
-const deviceNames: Record<string, string> = { mobile: 'Celular', desktop: 'Computador' };
-let regionNames: Intl.DisplayNames | null = null;
-try {
-  regionNames = new Intl.DisplayNames(['pt-BR'], { type: 'region' });
-} catch {}
-const countryName = (c: string | null) => {
-  if (!c || c === 'Desconhecido') return 'Desconhecido';
-  try {
-    return regionNames?.of(c) ?? c;
-  } catch {
-    return c;
-  }
-};
-const time = new Intl.DateTimeFormat('pt-BR', {
-  dateStyle: 'short',
-  timeStyle: 'short',
-  timeZone: 'America/Sao_Paulo',
+const hourItems = Array.from({ length: 24 }, (_, h) => {
+  const label = `${String(h).padStart(2, '0')}h`;
+  return { label, value: data?.tops.local_hour.find((r) => r.label === label)?.hits ?? 0 };
 });
 
-const relabel = (rows: Ranked[], map: (l: string) => string): Ranked[] =>
-  rows.map((r) => ({ ...r, label: map(r.label) }));
+const sectionVisitors = data?.sectionVisitors ?? 0;
+const clickRate = (visitors: number) => (sectionVisitors > 0 ? `${Math.min(100, Math.round((visitors / sectionVisitors) * 100))}%` : '—');
 
-const rankings = data
+const vitals = data?.vitals;
+const vitalRows = vitals
   ? [
-      { title: 'Páginas mais vistas', rows: data.paths },
-      { title: 'Origem do tráfego', rows: relabel(data.referrers, (l) => (l === '(direto)' ? 'Direto' : l)) },
-      { title: 'Cliques em contatos', rows: relabel(data.ctas, (l) => ctaNames[l] ?? l) },
-      { title: 'Países', rows: relabel(data.countries, countryName) },
-      { title: 'Dispositivos', rows: relabel(data.devices, (l) => deviceNames[l] ?? l) },
+      { name: 'LCP (carregamento)', value: vitals.lcp_p75 === null ? '—' : `${(vitals.lcp_p75 / 1000).toFixed(1).replace('.', ',')} s`, rating: rate(vitals.lcp_p75, 2500, 4000) },
+      { name: 'CLS (estabilidade visual)', value: vitals.cls_p75 === null ? '—' : vitals.cls_p75.toFixed(2).replace('.', ','), rating: rate(vitals.cls_p75, 0.1, 0.25) },
+      { name: 'INP (resposta a cliques)', value: vitals.inp_p75 === null ? '—' : `${Math.round(vitals.inp_p75)} ms`, rating: rate(vitals.inp_p75, 200, 500) },
     ]
   : [];
 
-const returnRate =
-  data && data.overview.unique_total > 0
-    ? Math.round((data.overview.returning_visitors / data.overview.unique_total) * 100)
-    : 0;
-
-const tiles = data
-  ? [
-      { label: 'Visitantes únicos hoje', value: fmt(data.overview.unique_today) },
-      { label: 'Últimos 7 dias', value: fmt(data.overview.unique_7d) },
-      { label: 'Últimos 30 dias', value: fmt(data.overview.unique_30d) },
-      { label: 'Total de pageviews', value: fmt(data.overview.total_pageviews) },
-      { label: 'Taxa de retorno', value: `${returnRate}%`, hint: `${fmt(data.overview.returning_visitors)} voltaram` },
-    ]
-  : [];
-
-const chartMeta = JSON.stringify({ W, H, M, yMax, series: series.map((s) => [dm(s.day), s.p, s.u]) });
+const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
 ---
 
 <!doctype html>
@@ -176,139 +150,229 @@ const chartMeta = JSON.stringify({ W, H, M, yMax, series: series.map((s) => [dm(
       {!authed && (
         <form method="post" class="painel-gate card">
           <label for="password">Senha</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" autofocus required />
+          <input id="password" name="password" type="password" autocomplete="current-password" autofocus required disabled={lockedOut} />
           {wrongPassword && <p class="painel-error" role="alert">Senha incorreta.</p>}
-          <button type="submit" class="btn btn-primary">Entrar</button>
+          {lockedOut && <p class="painel-error" role="alert">{LOCKOUT_MESSAGE}</p>}
+          {unavailable && <p class="painel-error" role="alert">Serviço indisponível no momento. Tente novamente em instantes.</p>}
+          <button type="submit" class="btn btn-primary" disabled={lockedOut}>Entrar</button>
         </form>
       )}
 
-      {authed && loadError && (
-        <p class="painel-error" role="alert">Não foi possível carregar os dados: {loadError}</p>
-      )}
+      {authed && loadError && <p class="painel-error" role="alert">Não foi possível carregar os dados: {loadError}</p>}
 
       {authed && data && (
         <>
           <header class="painel-head">
             <h1>Painel</h1>
             <p class="painel-meta">
-              Atualizado em {time.format(new Date())} ·
-              <a href={Astro.url.pathname}>recarregar</a> ·
-              <a href={`${Astro.url.pathname}?sair`}>sair</a>
-            </p>
-            <p class="painel-meta">
-              Suas visitas neste navegador: <strong>{ignoring ? 'ignoradas' : 'sendo contadas'}</strong> ·
-              <a href={`${Astro.url.pathname}?ignorar=${ignoring ? '0' : '1'}`}>{ignoring ? 'voltar a contar' : 'ignorar'}</a>
+              Atualizado em {formatTime(new Date())} · último acesso registrado: {timeAgo(o?.last_view_at ?? null)} ·
+              <a href={`${base}?p=${period}`}>recarregar</a> · <a href={`${base}?sair`}>sair</a>
             </p>
           </header>
 
-          {data.overview.total_pageviews === 0 && (
-            <p class="painel-note">Ainda sem visitas registradas — os números aparecem assim que o site receber acessos.</p>
+          <div class="filters">
+            <nav class="filter-group" aria-label="Período">
+              {PERIODS.map((p) => (
+                <a href={`${base}?p=${p.value}`} aria-current={p.value === period ? 'true' : undefined}>{p.label}</a>
+              ))}
+            </nav>
+            <p class="painel-meta">
+              Suas visitas neste navegador: <strong>{ignoring ? 'ignoradas' : 'sendo contadas'}</strong> ·
+              <a href={`${base}?ignorar=${ignoring ? '0' : '1'}`}>{ignoring ? 'voltar a contar' : 'ignorar'}</a>
+            </p>
+            <p class="export-links">
+              Exportar CSV: <a href={exportUrl('visitas')}>visitas</a> · <a href={exportUrl('eventos')}>eventos</a>
+            </p>
+          </div>
+
+          {data.databaseDown && (
+            <div class="painel-banner" role="alert">
+              <strong>Não foi possível falar com o banco de dados.</strong> Se o site ficou uma semana sem visitas, o Supabase pode ter
+              pausado o projeto gratuito: abra o painel do Supabase e clique em <em>Restore</em>.
+            </div>
+          )}
+          {!data.databaseDown && data.errors.length > 0 && (
+            <div class="painel-banner" role="alert">
+              <strong>Algumas seções não carregaram:</strong> {data.errors.join(' · ')}
+            </div>
           )}
 
-          <section class="painel-tiles" aria-label="Resumo">
-            <div class="tile hero card">
-              <p class="tile-label">Visitantes únicos (total)</p>
-              <p class="tile-value hero-figure">{fmt(data.overview.unique_total)}</p>
-              <p class="tile-hint">sem contar IPs repetidos</p>
-            </div>
-            {tiles.map((t) => (
-              <div class="tile card">
-                <p class="tile-label">{t.label}</p>
-                <p class="tile-value">{t.value}</p>
-                {t.hint && <p class="tile-hint">{t.hint}</p>}
+          {o && o.pageviews === 0 && (
+            <p class="painel-note">Nenhuma visita registrada em {periodLabel}. Os números aparecem assim que o site receber acessos.</p>
+          )}
+
+          {o && (
+            <section class="painel-tiles" aria-label="Resumo">
+              <div class="tile hero card">
+                <p class="tile-label">Visitantes únicos ({periodLabel})</p>
+                <p class="tile-value hero-figure">{fmt(o.unique_visitors)}</p>
+                <p class="tile-hint">sem contar IPs repetidos · {fmt(o.unique_all_time)} no histórico completo</p>
               </div>
-            ))}
+              {tiles.map((t) => (
+                <div class="tile card">
+                  <p class="tile-label">{t.label}</p>
+                  <p class="tile-value">{t.value}</p>
+                  {t.hint && <p class="tile-hint">{t.hint}</p>}
+                </div>
+              ))}
+            </section>
+          )}
+
+          {data.series.length > 0 && (
+            <section class="card panel-section" aria-labelledby="chart-title">
+              <div class="chart-head">
+                <h2 id="chart-title">Visitas — {periodLabel}</h2>
+                <ul class="legend" aria-label="Legenda">
+                  <li><span class="key key-p"></span>Pageviews</li>
+                  <li><span class="key key-u"></span>Visitantes únicos</li>
+                </ul>
+              </div>
+              <LineChart
+                labels={data.series.map((s) => s.bucket)}
+                pageviews={data.series.map((s) => s.pageviews)}
+                uniques={data.series.map((s) => s.unique_visitors)}
+              />
+            </section>
+          )}
+
+          <section class="card panel-section" aria-labelledby="camp-title">
+            <h2 id="camp-title">Vagas e campanhas (links com ?ref=)</h2>
+            <p class="section-sub">Mande cada candidatura com um link diferente e veja quem abriu, quando e se chamou você.</p>
+            {data.campaigns.length === 0 ? (
+              <p class="empty">Nenhum link com ?ref= foi acessado em {periodLabel}.</p>
+            ) : (
+              <div class="feed-scroll">
+                <table>
+                  <thead>
+                    <tr><th>Vaga / link</th><th>Visitantes</th><th>Pageviews</th><th>Contatos</th><th>Tempo médio</th><th>Última visita</th></tr>
+                  </thead>
+                  <tbody>
+                    {data.campaigns.map((c) => (
+                      <tr>
+                        <td>{c.ref}</td>
+                        <td>{fmt(c.visitors)}</td>
+                        <td>{fmt(c.pageviews)}</td>
+                        <td>{fmt(c.contact_clicks)}</td>
+                        <td>{duration(c.avg_seconds)}</td>
+                        <td>{formatTime(c.last_seen)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <div class="linkgen" data-linkgen data-base={site.siteUrl}>
+              <input type="text" data-ref placeholder="nome-da-vaga" maxlength="40" aria-label="Nome da vaga ou empresa" autocomplete="off" />
+              <input type="text" data-out readonly aria-label="Link gerado" value={`${site.siteUrl}/`} />
+              <button type="button" class="btn btn-secondary" data-copy>Copiar link</button>
+            </div>
+            <p class="linkgen-hint">Letras minúsculas, números, hífen e underline. Ex.: empresa-x.</p>
           </section>
 
-          <section class="card painel-chart" aria-labelledby="chart-title">
-            <div class="chart-head">
-              <h2 id="chart-title">Visitas nos últimos {DAYS} dias</h2>
-              <ul class="legend" aria-label="Legenda">
-                <li><span class="key key-p"></span>Pageviews</li>
-                <li><span class="key key-u"></span>Visitantes únicos</li>
-              </ul>
-            </div>
-            <div class="chart-wrap" id="chart-wrap" tabindex="0" aria-label="Gráfico de visitas por dia. Use as setas para navegar entre os dias.">
-              <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Gráfico de linhas: pageviews e visitantes únicos por dia" id="chart-svg">
-                {yTicks.map((t) => (
-                  <g>
-                    <line x1={M.l} x2={W - M.r} y1={yAt(t)} y2={yAt(t)} class="grid" />
-                    <text x={M.l - 8} y={yAt(t) + 4} text-anchor="end" class="axis">{fmt(t)}</text>
-                  </g>
-                ))}
-                {xLabelIdx.map((i) => (
-                  <text x={xAt(i)} y={H - 10} text-anchor={i === 0 ? 'start' : i === DAYS - 1 ? 'end' : 'middle'} class="axis">{dm(series[i].day)}</text>
-                ))}
-                <path d={areaP} class="area-p" />
-                <path d={line('p')} class="line-p" />
-                <path d={line('u')} class="line-u" />
-                <circle cx={xAt(DAYS - 1)} cy={yAt(series[DAYS - 1].p)} r="4" class="dot dot-p" />
-                <circle cx={xAt(DAYS - 1)} cy={yAt(series[DAYS - 1].u)} r="4" class="dot dot-u" />
-                <line id="cross" y1={M.t} y2={M.t + plotH} class="cross" x1="0" x2="0" visibility="hidden" />
-                <circle id="hover-p" r="4" class="dot dot-p" visibility="hidden" />
-                <circle id="hover-u" r="4" class="dot dot-u" visibility="hidden" />
-              </svg>
-              <div id="tip" class="tip" role="status" hidden>
-                <p class="tip-day"></p>
-                <p class="tip-row"><span class="key key-p"></span><strong class="tip-p"></strong> pageviews</p>
-                <p class="tip-row"><span class="key key-u"></span><strong class="tip-u"></strong> visitantes únicos</p>
+          <section class="card panel-section" aria-labelledby="proj-title">
+            <h2 id="proj-title">Projetos: qual case atrai mais</h2>
+            <p class="section-sub">
+              Taxa de clique = visitantes que abriram o card ÷ visitantes que viram a seção de projetos ({fmt(sectionVisitors)} em {periodLabel}).
+            </p>
+            {data.projects.length === 0 ? (
+              <p class="empty">Sem cliques em projetos em {periodLabel}.</p>
+            ) : (
+              <div class="feed-scroll">
+                <table>
+                  <thead>
+                    <tr><th>Projeto</th><th>Cliques no card</th><th>Taxa de clique</th><th>Acessos à página</th><th>Tempo médio na página</th></tr>
+                  </thead>
+                  <tbody>
+                    {data.projects.map((p) => (
+                      <tr>
+                        <td>{projectName(p.slug)}</td>
+                        <td>{fmt(p.clicks)}</td>
+                        <td>{clickRate(p.click_visitors)}</td>
+                        <td>{fmt(p.page_views)}</td>
+                        <td>{duration(p.avg_seconds)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-            <details class="table-view">
-              <summary>Ver como tabela</summary>
+            )}
+          </section>
+
+          <section class="painel-rankings" aria-label="Rankings">
+            <Ranking title="Páginas mais vistas" unit="acessos" rows={data.tops.path.map((r) => ({ label: r.label, value: r.hits, hint: `${fmt(r.visitors)} visitantes` }))} />
+            <Ranking title="Origem do tráfego" unit="visitantes" rows={visitorRows('referrer', originName)} />
+            <Ranking title="Cliques em contatos e perfis" unit="cliques" rows={data.contacts.map((r) => ({ label: CTA_NAMES[r.label] ?? r.label, value: r.hits }))} />
+            <Ranking title="Cidades" unit="visitantes" rows={visitorRows('city')} />
+            <Ranking title="Países" unit="visitantes" rows={visitorRows('country', countryName)} />
+            <Ranking title="Dispositivos" unit="visitantes" rows={visitorRows('device', (l) => DEVICE_NAMES[l] ?? l)} />
+            <Ranking title="Navegadores" unit="visitantes" rows={visitorRows('browser')} />
+            <Ranking title="Sistemas operacionais" unit="visitantes" rows={visitorRows('os')} />
+            <Ranking title="Idiomas" unit="visitantes" rows={visitorRows('language', languageName)} />
+          </section>
+
+          <section class="card panel-section" aria-labelledby="hour-title">
+            <h2 id="hour-title">Horário local do visitante</h2>
+            <p class="section-sub">Acessos por hora do dia no fuso de quem visitou: picos em horário comercial sugerem recrutadores.</p>
+            <ColumnChart items={hourItems} unit="acessos" ariaLabel="Acessos por hora do dia" />
+          </section>
+
+          <section class="card panel-section" aria-labelledby="eng-title">
+            <h2 id="eng-title">Engajamento e desempenho</h2>
+            {data.engagement.length === 0 ? (
+              <p class="empty">Sem dados de engajamento em {periodLabel}.</p>
+            ) : (
+              <div class="feed-scroll">
+                <table>
+                  <thead>
+                    <tr><th>Página</th><th>Acessos</th><th>Tempo médio</th><th>Rolagem média</th><th>Chegaram a 75%</th></tr>
+                  </thead>
+                  <tbody>
+                    {data.engagement.map((e) => (
+                      <tr>
+                        <td>{e.path}</td>
+                        <td>{fmt(e.views)}</td>
+                        <td>{duration(e.avg_seconds)}</td>
+                        <td>{e.avg_scroll === null ? '—' : `${e.avg_scroll}%`}</td>
+                        <td>{e.deep_pct === null ? '—' : `${e.deep_pct}%`}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <h2 style="margin-top:1.25rem">Web Vitals reais (percentil 75, {fmt(vitals?.samples ?? 0)} medições)</h2>
+            <div class="feed-scroll">
               <table>
-                <thead><tr><th>Dia</th><th>Pageviews</th><th>Únicos</th></tr></thead>
+                <thead><tr><th>Métrica</th><th>Valor</th><th>Avaliação</th></tr></thead>
                 <tbody>
-                  {series.map((s) => (
-                    <tr><td>{dm(s.day)}</td><td>{fmt(s.p)}</td><td>{fmt(s.u)}</td></tr>
+                  {vitalRows.map((v) => (
+                    <tr><td>{v.name}</td><td>{v.value}</td><td class="vital-rating">{v.rating ?? '—'}</td></tr>
                   ))}
                 </tbody>
               </table>
-            </details>
-            <script type="application/json" id="chart-data" set:html={chartMeta}></script>
+            </div>
           </section>
 
-          <section class="painel-rankings">
-            {rankings.map((r) => {
-              const max = Math.max(...r.rows.map((x) => x.count), 1);
-              return (
-                <div class="card ranking">
-                  <h2>{r.title}</h2>
-                  {r.rows.length === 0 && <p class="empty">Sem dados ainda.</p>}
-                  <ul>
-                    {r.rows.map((row) => (
-                      <li title={`${row.label}: ${fmt(row.count)}`}>
-                        <span class="rank-label">{row.label}</span>
-                        <span class="rank-bar">
-                          <span class="bar" style={`width:${Math.max((row.count / max) * 82, 2)}%`}></span>
-                          <span class="rank-val">{fmt(row.count)}</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </section>
-
-          <section class="card painel-feed" aria-labelledby="feed-title">
+          <section class="card panel-section" aria-labelledby="feed-title">
             <h2 id="feed-title">Últimos acessos</h2>
             <div class="feed-scroll">
               <table>
                 <thead>
-                  <tr><th>Quando</th><th>Página</th><th>Origem</th><th>País</th><th>Dispositivo</th></tr>
+                  <tr><th>Quando</th><th>Página</th><th>Vaga</th><th>Origem</th><th>Local</th><th>Dispositivo</th></tr>
                 </thead>
                 <tbody>
                   {data.recent.map((v) => {
                     const host = v.referrer?.match(/^https?:\/\/(?:www\.)?([^/?#]+)/)?.[1];
                     const own = host?.includes('matheussilvabaptista');
+                    const place = [v.city, v.region, v.country && countryName(v.country)].filter(Boolean).join(', ');
                     return (
                       <tr>
-                        <td>{time.format(new Date(v.created_at))}</td>
+                        <td>{formatTime(v.created_at)}</td>
                         <td>{v.path}</td>
+                        <td>{v.ref ?? '—'}</td>
                         <td>{own ? 'interno' : (host ?? 'Direto')}</td>
-                        <td>{countryName(v.country)}</td>
-                        <td>{deviceNames[v.device ?? ''] ?? '—'}</td>
+                        <td>{place || '—'}</td>
+                        <td>{[DEVICE_NAMES[v.device ?? ''], v.browser].filter(Boolean).join(' · ') || '—'}</td>
                       </tr>
                     );
                   })}
@@ -319,354 +383,31 @@ const chartMeta = JSON.stringify({ W, H, M, yMax, series: series.map((s) => [dm(
         </>
       )}
     </main>
-
-    {authed && data && (
-      <script is:inline>
-        (function () {
-          var meta = JSON.parse(document.getElementById('chart-data').textContent);
-          var wrap = document.getElementById('chart-wrap');
-          var svg = document.getElementById('chart-svg');
-          var cross = document.getElementById('cross');
-          var hp = document.getElementById('hover-p');
-          var hu = document.getElementById('hover-u');
-          var tip = document.getElementById('tip');
-          var n = meta.series.length;
-          var plotW = meta.W - meta.M.l - meta.M.r;
-          var plotH = meta.H - meta.M.t - meta.M.b;
-          function x(i) { return meta.M.l + (i * plotW) / (n - 1); }
-          function y(v) { return meta.M.t + plotH - (v / meta.yMax) * plotH; }
-          function show(i) {
-            i = Math.max(0, Math.min(n - 1, i));
-            var s = meta.series[i];
-            var px = x(i);
-            cross.setAttribute('x1', px); cross.setAttribute('x2', px);
-            hp.setAttribute('cx', px); hp.setAttribute('cy', y(s[1]));
-            hu.setAttribute('cx', px); hu.setAttribute('cy', y(s[2]));
-            [cross, hp, hu].forEach(function (el) { el.setAttribute('visibility', 'visible'); });
-            tip.querySelector('.tip-day').textContent = s[0];
-            tip.querySelector('.tip-p').textContent = s[1].toLocaleString('pt-BR');
-            tip.querySelector('.tip-u').textContent = s[2].toLocaleString('pt-BR');
-            tip.hidden = false;
-            var ratio = svg.clientWidth / meta.W;
-            var left = px * ratio;
-            var flip = left > svg.clientWidth * 0.6;
-            tip.style.left = (flip ? left - tip.offsetWidth - 12 : left + 12) + 'px';
-            tip.style.top = '12px';
-            wrap.dataset.i = i;
-          }
-          function hide() {
-            [cross, hp, hu].forEach(function (el) { el.setAttribute('visibility', 'hidden'); });
-            tip.hidden = true;
-          }
-          function fromPointer(e) {
-            var r = svg.getBoundingClientRect();
-            var vx = ((e.clientX - r.left) / r.width) * meta.W;
-            return Math.round(((vx - meta.M.l) / plotW) * (n - 1));
-          }
-          svg.addEventListener('pointermove', function (e) { show(fromPointer(e)); });
-          svg.addEventListener('pointerleave', hide);
-          wrap.addEventListener('keydown', function (e) {
-            var i = Number(wrap.dataset.i || n - 1);
-            if (e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
-            if (e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
-            if (e.key === 'Escape') hide();
-          });
-          wrap.addEventListener('blur', hide);
-        })();
-      </script>
-    )}
   </body>
 </html>
 
-<style is:global>
-  .painel {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 2rem 1rem 4rem;
+<script>
+  const gen = document.querySelector<HTMLElement>('[data-linkgen]');
+  if (gen) {
+    const input = gen.querySelector<HTMLInputElement>('[data-ref]')!;
+    const out = gen.querySelector<HTMLInputElement>('[data-out]')!;
+    const copy = gen.querySelector<HTMLButtonElement>('[data-copy]')!;
+    const base = gen.dataset.base ?? '';
+    const clean = (v: string) => v.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').replace(/-{2,}/g, '-').replace(/^[-_]+/, '').slice(0, 40);
+    input.addEventListener('input', () => {
+      const ref = clean(input.value);
+      out.value = ref ? `${base}/?ref=${ref}` : `${base}/`;
+    });
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(out.value);
+      } catch {
+        out.select();
+        document.execCommand('copy');
+      }
+      const label = copy.textContent;
+      copy.textContent = 'Copiado!';
+      setTimeout(() => (copy.textContent = label), 1500);
+    });
   }
-  .painel-gate {
-    max-width: 340px;
-    margin: 20vh auto 0;
-    padding: 1.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-  }
-  .painel-gate label {
-    font-weight: 600;
-  }
-  .painel-gate input {
-    background: var(--bg);
-    color: var(--text);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    padding: 0.7rem 0.9rem;
-    font: inherit;
-  }
-  .painel-error {
-    color: hsl(4 80% 68%);
-    font-size: 0.9rem;
-  }
-  .painel-note {
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-  }
-  .painel-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .painel-head h1 {
-    font-size: 1.6rem;
-  }
-  .painel-meta {
-    font-size: 0.85rem;
-    color: var(--muted-2);
-  }
-  .painel-meta a {
-    color: var(--muted);
-    text-decoration: underline;
-  }
-  .painel-tiles {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  .tile {
-    padding: 1.1rem 1.25rem;
-  }
-  .tile.hero {
-    grid-column: 1 / -1;
-    padding: 1.5rem;
-  }
-  .tile-label {
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
-  .tile-value {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1.9rem;
-    color: var(--text);
-    line-height: 1.2;
-    margin-top: 0.25rem;
-  }
-  .tile-value.hero-figure {
-    font-size: 3.4rem;
-  }
-  .tile-hint {
-    font-size: 0.78rem;
-    color: var(--muted-2);
-    margin-top: 0.15rem;
-  }
-  .painel-chart,
-  .painel-feed {
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1rem;
-  }
-  .painel .card:hover {
-    transform: none;
-  }
-  .chart-head {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-  }
-  .painel h2 {
-    font-size: 1rem;
-    font-family: var(--font-sans);
-    font-weight: 600;
-  }
-  .legend {
-    display: flex;
-    gap: 1.25rem;
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
-  .legend li,
-  .tip-row {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-  }
-  .key {
-    display: inline-block;
-    width: 14px;
-    height: 2px;
-    border-radius: 2px;
-  }
-  .key-p {
-    background: #d77709;
-  }
-  .key-u {
-    background: #12a597;
-  }
-  .chart-wrap {
-    position: relative;
-    outline-offset: 4px;
-  }
-  .chart-wrap svg {
-    width: 100%;
-    height: auto;
-    touch-action: pan-y;
-  }
-  .grid {
-    stroke: var(--border);
-    stroke-width: 1;
-  }
-  .axis {
-    fill: var(--muted-2);
-    font-size: 11px;
-    font-family: var(--font-sans);
-  }
-  .line-p,
-  .line-u {
-    fill: none;
-    stroke-width: 2;
-    stroke-linejoin: round;
-    stroke-linecap: round;
-  }
-  .line-p {
-    stroke: #d77709;
-  }
-  .line-u {
-    stroke: #12a597;
-  }
-  .area-p {
-    fill: #d77709;
-    fill-opacity: 0.1;
-  }
-  .dot {
-    stroke: var(--card);
-    stroke-width: 2;
-  }
-  .dot-p {
-    fill: #d77709;
-  }
-  .dot-u {
-    fill: #12a597;
-  }
-  .cross {
-    stroke: var(--border-strong);
-    stroke-width: 1;
-  }
-  .tip {
-    position: absolute;
-    pointer-events: none;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    padding: 0.55rem 0.75rem;
-    font-size: 0.82rem;
-    color: var(--muted);
-    white-space: nowrap;
-    z-index: 2;
-  }
-  .tip p {
-    margin: 0;
-  }
-  .tip-day {
-    color: var(--muted-2);
-    margin-bottom: 0.25rem !important;
-  }
-  .tip strong {
-    color: var(--text);
-    font-weight: 600;
-  }
-  .painel-rankings {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  .ranking {
-    padding: 1.25rem 1.5rem;
-  }
-  .ranking ul {
-    margin-top: 0.9rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-  .ranking li {
-    display: grid;
-    grid-template-columns: minmax(90px, 40%) 1fr;
-    gap: 0.75rem;
-    align-items: center;
-    font-size: 0.85rem;
-  }
-  .rank-label {
-    color: var(--text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .rank-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-width: 0;
-  }
-  .bar {
-    display: block;
-    height: 10px;
-    background: #d77709;
-    border-radius: 0 4px 4px 0;
-  }
-  .rank-val {
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
-  .empty {
-    color: var(--muted-2);
-    font-size: 0.85rem;
-    margin-top: 0.75rem;
-  }
-  .table-view {
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
-    color: var(--muted);
-  }
-  .table-view summary {
-    cursor: pointer;
-  }
-  .painel table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-  }
-  .painel th,
-  .painel td {
-    text-align: left;
-    padding: 0.45rem 0.6rem;
-    border-bottom: 1px solid var(--border);
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
-  .painel th {
-    color: var(--muted-2);
-    font-weight: 500;
-  }
-  .feed-scroll {
-    overflow-x: auto;
-    margin-top: 0.75rem;
-  }
-  @media (max-width: 860px) {
-    .painel-tiles {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .painel-rankings {
-      grid-template-columns: 1fr;
-    }
-    .tile-value.hero-figure {
-      font-size: 2.8rem;
-    }
-  }
-</style>
+</script>

@@ -14,7 +14,7 @@ const cover = getImage(project.cover);
 const topResult = project.results[0];
 ---
 
-<a href={`/projetos/${project.slug}`} class={`project-card card card-hover ${featured ? 'is-featured' : ''}`}>
+<a href={`/projetos/${project.slug}`} data-track={`projeto:${project.slug}`} class={`project-card card card-hover ${featured ? 'is-featured' : ''}`}>
   <div class="project-media">
     <Image
       src={cover}

@@ -1,0 +1,28 @@
+---
+import { fmt } from '../../lib/panel-format';
+
+interface Props {
+  title: string;
+  rows: { label: string; value: number; hint?: string }[];
+  unit: string;
+}
+
+const { title, rows, unit } = Astro.props;
+const max = Math.max(...rows.map((r) => r.value), 1);
+---
+
+<div class="card ranking">
+  <h2>{title}</h2>
+  {rows.length === 0 && <p class="empty">Sem dados ainda.</p>}
+  <ul>
+    {rows.map((row) => (
+      <li title={`${row.label}: ${fmt(row.value)} ${unit}${row.hint ? ` (${row.hint})` : ''}`}>
+        <span class="rank-label">{row.label}</span>
+        <span class="rank-bar">
+          <span class="bar" style={`width:${Math.max((row.value / max) * 82, 2)}%`}></span>
+          <span class="rank-val">{fmt(row.value)}</span>
+        </span>
+      </li>
+    ))}
+  </ul>
+</div>

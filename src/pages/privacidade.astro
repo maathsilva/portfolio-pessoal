@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title={`Privacidade | ${site.name}`}
+  description="Como este site mede o uso do portfólio, o que é coletado, por quanto tempo é guardado e como pedir a exclusão."
+  path="/privacidade"
+>
+  <article class="privacy container">
+    <p class="eyebrow">Privacidade</p>
+    <h1>Como este site mede o uso</h1>
+    <p class="lede">
+      Eu uso um sistema próprio e simples de estatísticas para entender se o portfólio está funcionando: quantas pessoas
+      visitam, de onde vêm e quais projetos chamam mais atenção. Sem anúncios e sem venda de dados.
+    </p>
+
+    <h2>O que é coletado</h2>
+    <ul>
+      <li>Página visitada e site de origem (sem parâmetros de busca da URL de origem).</li>
+      <li>Parâmetros de campanha do link, como <code>?ref=</code> e <code>utm_*</code>, quando você chega por um link que eu enviei.</li>
+      <li>País, estado e cidade aproximados, deduzidos do seu IP pela hospedagem no momento da visita.</li>
+      <li>Fuso horário, idioma, navegador, sistema operacional, tipo de dispositivo (celular ou computador) e largura da tela.</li>
+      <li>Tempo de permanência, até onde a página foi rolada e métricas de desempenho de carregamento.</li>
+      <li>Cliques nos botões de contato (currículo, WhatsApp, e-mail, GitHub e LinkedIn) e nos cards de projetos.</li>
+    </ul>
+
+    <h2>O que não é coletado</h2>
+    <ul>
+      <li>Seu endereço de IP <strong>não é armazenado</strong>. Guardo apenas um código irreversível, gerado com uma chave secreta, usado só para contar visitantes únicos.</li>
+      <li>Não há cookies de rastreamento nem identificação da sua pessoa entre visitas. Uso o armazenamento temporário da aba do navegador, que some ao fechá-la, apenas para agrupar a sua visita e lembrar o link de campanha.</li>
+      <li>Não coleto nome, e-mail ou qualquer dado que você não envie por conta própria (por exemplo, ao me chamar no WhatsApp ou por e-mail).</li>
+      <li>Se o seu navegador enviar o sinal <em>Não Rastrear</em> (Do Not Track) ou <em>Global Privacy Control</em>, nada é coletado.</li>
+    </ul>
+
+    <h2>Por quanto tempo e onde</h2>
+    <p>
+      Os registros são apagados automaticamente após <strong>12 meses</strong>. Ficam guardados no Supabase (banco de dados) e o
+      site é hospedado na Vercel. Quando alguém baixa o currículo ou me chama, posso receber um aviso por e-mail (enviado via
+      Resend) com dados gerais como a cidade aproximada e o tipo de dispositivo.
+    </p>
+
+    <h2>Seus direitos</h2>
+    <p>
+      Como o IP não é guardado, não consigo identificar registros individuais. Ainda assim, se tiver qualquer dúvida ou quiser
+      exercer seus direitos previstos na LGPD, escreva para <a href={`mailto:${site.email}`}>{site.email}</a>.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .privacy {
+    max-width: 760px;
+    padding: 4rem 0 5rem;
+  }
+  .privacy h1 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    margin: 0.5rem 0 1rem;
+  }
+  .privacy h2 {
+    font-size: 1.2rem;
+    margin: 2.25rem 0 0.75rem;
+    color: var(--accent);
+  }
+  .privacy .lede {
+    font-size: 1.1rem;
+  }
+  .privacy p,
+  .privacy li {
+    color: var(--muted);
+    line-height: 1.75;
+  }
+  .privacy ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding-left: 1.2rem;
+    list-style: disc;
+  }
+  .privacy a {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .privacy code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--text);
+  }
+</style>

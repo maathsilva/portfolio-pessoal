@@ -1,0 +1,88 @@
+---
+import { fmt } from '../../lib/panel-format';
+
+interface Props {
+  items: { label: string; value: number }[];
+  unit: string;
+  ariaLabel: string;
+}
+
+const { items, unit, ariaLabel } = Astro.props;
+const n = items.length;
+
+const W = 760;
+const H = 200;
+const M = { l: 36, r: 8, t: 12, b: 26 };
+const plotW = W - M.l - M.r;
+const plotH = H - M.t - M.b;
+const max = Math.max(...items.map((i) => i.value), 1);
+const yMax = max <= 4 ? 4 : Math.ceil(max / 4) * 4;
+const slot = plotW / n;
+const bw = Math.min(24, slot * 0.6);
+const yAt = (v: number) => M.t + plotH - (v / yMax) * plotH;
+const ticks = [0, yMax / 2, yMax];
+
+// 4px rounded data end, square at the baseline.
+function bar(x: number, h: number) {
+  const r = Math.min(4, h);
+  const top = M.t + plotH - h;
+  return `M${x},${M.t + plotH} V${top + r} Q${x},${top} ${x + r},${top} H${x + bw - r} Q${x + bw},${top} ${x + bw},${top + r} V${M.t + plotH} Z`;
+}
+---
+
+<div class="chart-wrap col-chart" data-col-chart>
+  <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label={ariaLabel}>
+    {ticks.map((t) => (
+      <g>
+        <line x1={M.l} x2={W - M.r} y1={yAt(t)} y2={yAt(t)} class="grid" />
+        <text x={M.l - 8} y={yAt(t) + 4} text-anchor="end" class="axis">{fmt(t)}</text>
+      </g>
+    ))}
+    {items.map((item, i) => {
+      const x0 = M.l + i * slot;
+      const h = (item.value / yMax) * plotH;
+      const tip = `${item.label} · ${fmt(item.value)} ${unit}`;
+      return (
+        <g class="col-group" data-tip-text={tip} tabindex="0" role="img" aria-label={tip}>
+          <rect x={x0} y={M.t} width={slot} height={plotH} fill="transparent" />
+          {item.value > 0 && <path d={bar(x0 + (slot - bw) / 2, h)} class="col" />}
+          {i % 3 === 0 && <text x={x0 + slot / 2} y={H - 8} text-anchor="middle" class="axis">{item.label}</text>}
+        </g>
+      );
+    })}
+  </svg>
+  <div class="tip" data-col-tip role="status" hidden></div>
+</div>
+
+<details class="table-view">
+  <summary>Ver como tabela</summary>
+  <div class="feed-scroll">
+    <table>
+      <thead><tr><th>Horário</th><th>{unit}</th></tr></thead>
+      <tbody>
+        {items.map((item) => <tr><td>{item.label}</td><td>{fmt(item.value)}</td></tr>)}
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-col-chart]').forEach((wrap) => {
+    const tip = wrap.querySelector<HTMLElement>('[data-col-tip]')!;
+    const place = (g: Element) => {
+      const wrapBox = wrap.getBoundingClientRect();
+      const box = g.getBoundingClientRect();
+      tip.textContent = g.getAttribute('data-tip-text');
+      tip.hidden = false;
+      const left = box.left - wrapBox.left + box.width / 2 - tip.offsetWidth / 2;
+      tip.style.left = `${Math.max(0, Math.min(left, wrapBox.width - tip.offsetWidth))}px`;
+      tip.style.top = '0px';
+    };
+    wrap.querySelectorAll('.col-group').forEach((g) => {
+      g.addEventListener('pointerenter', () => place(g));
+      g.addEventListener('focus', () => place(g));
+      g.addEventListener('pointerleave', () => (tip.hidden = true));
+      g.addEventListener('blur', () => (tip.hidden = true));
+    });
+  });
+</script>

@@ -99,31 +99,8 @@ function initTypewriter() {
   setTimeout(tick, HOLD_TIME);
 }
 
-function initAnalytics() {
-  // Never pollute real stats while developing/testing locally.
-  if (import.meta.env.DEV) return;
-
-  const send = (url: string, payload: unknown) => {
-    const body = JSON.stringify(payload);
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(url, body);
-    } else {
-      fetch(url, { method: 'POST', body, keepalive: true }).catch(() => {});
-    }
-  };
-
-  send('/api/track', { path: location.pathname, referrer: document.referrer });
-
-  document.querySelectorAll<HTMLElement>('[data-cta]').forEach((el) => {
-    el.addEventListener('click', () => {
-      send('/api/cta', { cta: el.dataset.cta });
-    });
-  });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initActiveNav();
   initTypewriter();
-  initAnalytics();
 });
