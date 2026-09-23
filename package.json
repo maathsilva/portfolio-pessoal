@@ -9,8 +9,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "db:migrate": "node scripts/migrate.mjs",
-    "astro": "astro",
-    "test": "node tests/job-parse.test.mjs"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/vercel": "^11.0.11",

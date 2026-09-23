@@ -76,23 +76,6 @@ export interface RecentVisit {
   os: string | null;
 }
 
-export interface Application {
-  id: number;
-  company: string;
-  title: string;
-  platform: string;
-  job_url: string;
-  ref: string;
-  status: string;
-  applied_at: string;
-  visitors: number;
-  pageviews: number;
-  contact_clicks: number;
-  first_visit_at: string | null;
-  last_visit_at: string | null;
-  avg_seconds: number | null;
-}
-
 export const TOP_DIMENSIONS = ['path', 'referrer', 'city', 'country', 'device', 'browser', 'os', 'language', 'local_hour'] as const;
 export type TopDimension = (typeof TOP_DIMENSIONS)[number];
 export const CONTACT_EVENTS = ['curriculo', 'whatsapp', 'email', 'github', 'linkedin'];
@@ -103,7 +86,6 @@ export interface DashboardData {
   tops: Record<TopDimension, Ranked[]>;
   contacts: Ranked[];
   campaigns: Campaign[];
-  applications: Application[];
   projects: ProjectRow[];
   sectionVisitors: number;
   engagement: EngagementRow[];
@@ -135,12 +117,11 @@ export async function getDashboardData(days: Period): Promise<DashboardData> {
   const errors: string[] = [];
   const p_days = days;
 
-  const [overview, series, contacts, campaigns, applications, projects, section, engagement, vitals, recent, ...tops] = await Promise.all([
+  const [overview, series, contacts, campaigns, projects, section, engagement, vitals, recent, ...tops] = await Promise.all([
     call<any[]>(sb, errors, 'Resumo', 'stats_overview', { p_days }),
     call<any[]>(sb, errors, 'Gráfico', 'stats_series', { p_days }),
     call<any[]>(sb, errors, 'Contatos', 'stats_events', { p_days, p_names: CONTACT_EVENTS }),
     call<any[]>(sb, errors, 'Campanhas', 'stats_campaigns', { p_days }),
-    call<any[]>(sb, errors, 'Candidaturas', 'stats_applications', {}),
     call<any[]>(sb, errors, 'Projetos', 'stats_projects', { p_days }),
     call<number>(sb, errors, 'Funil de projetos', 'stats_section_visitors', { p_days }),
     call<any[]>(sb, errors, 'Engajamento', 'stats_engagement', { p_days, p_limit: 8 }),
@@ -179,22 +160,6 @@ export async function getDashboardData(days: Period): Promise<DashboardData> {
       contact_clicks: n(r.contact_clicks),
       avg_seconds: nn(r.avg_seconds),
       last_seen: String(r.last_seen),
-    })),
-    applications: (applications ?? []).map((r) => ({
-      id: n(r.id),
-      company: String(r.company),
-      title: String(r.title),
-      platform: String(r.platform),
-      job_url: String(r.job_url),
-      ref: String(r.ref),
-      status: String(r.status),
-      applied_at: String(r.applied_at),
-      visitors: n(r.visitors),
-      pageviews: n(r.pageviews),
-      contact_clicks: n(r.contact_clicks),
-      first_visit_at: r.first_visit_at ?? null,
-      last_visit_at: r.last_visit_at ?? null,
-      avg_seconds: nn(r.avg_seconds),
     })),
     projects: (projects ?? []).map((r) => ({
       slug: String(r.slug),
