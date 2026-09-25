@@ -87,13 +87,15 @@ if (authed && Astro.url.searchParams.has('ignorar')) {
 const ignoring = Astro.cookies.has(IGNORE_COOKIE);
 
 const period = parsePeriod(Astro.url.searchParams.get('p'));
+const showBots = Astro.url.searchParams.get('robos') === '1';
+const botQuery = showBots ? '&robos=1' : '';
 const periodLabel = PERIODS.find((p) => p.value === period)!.label.toLowerCase();
 
 let data: DashboardData | null = null;
 let loadError: string | null = null;
 if (authed) {
   try {
-    data = await getDashboardData(period);
+    data = await getDashboardData(period, !showBots);
   } catch (e) {
     loadError = e instanceof Error ? e.message : 'Erro desconhecido';
   }
@@ -134,6 +136,7 @@ const vitalRows = vitals
   : [];
 
 const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
+const botToggleHref = `${base}?p=${period}${showBots ? '' : '&robos=1'}`;
 ---
 
 <!doctype html>
@@ -166,19 +169,24 @@ const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
             <h1>Painel</h1>
             <p class="painel-meta">
               Atualizado em {formatTime(new Date())} · último acesso registrado: {timeAgo(o?.last_view_at ?? null)} ·
-              <a href={`${base}?p=${period}`}>recarregar</a> · <a href={`${base}?sair`}>sair</a>
+              <a href={`${base}?p=${period}${botQuery}`}>recarregar</a> · <a href={`${base}?sair`}>sair</a>
             </p>
           </header>
 
           <div class="filters">
             <nav class="filter-group" aria-label="Período">
               {PERIODS.map((p) => (
-                <a href={`${base}?p=${p.value}`} aria-current={p.value === period ? 'true' : undefined}>{p.label}</a>
+                <a href={`${base}?p=${p.value}${botQuery}`} aria-current={p.value === period ? 'true' : undefined}>{p.label}</a>
               ))}
             </nav>
             <p class="painel-meta">
               Suas visitas neste navegador: <strong>{ignoring ? 'ignoradas' : 'sendo contadas'}</strong> ·
               <a href={`${base}?ignorar=${ignoring ? '0' : '1'}`}>{ignoring ? 'voltar a contar' : 'ignorar'}</a>
+            </p>
+            <p class="painel-meta">
+              Prováveis robôs em {periodLabel}: <strong>{fmt(data.botCount)}</strong>
+              {showBots ? 'mostrados (marcados)' : 'ocultos das contagens'} ·
+              <a href={botToggleHref}>{showBots ? 'ocultar' : 'mostrar'}</a>
             </p>
             <p class="export-links">
               Exportar CSV: <a href={exportUrl('visitas')}>visitas</a> · <a href={exportUrl('eventos')}>eventos</a>
@@ -324,7 +332,7 @@ const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
             <div class="feed-scroll">
               <table>
                 <thead>
-                  <tr><th>Quando</th><th>Página</th><th>Origem</th><th>Local</th><th>Dispositivo</th></tr>
+                  <tr><th>Quando</th><th>Página</th><th>Origem</th><th>Local</th><th>Dispositivo</th>{showBots && <th>Marcação</th>}</tr>
                 </thead>
                 <tbody>
                   {data.recent.map((v) => {
@@ -332,12 +340,13 @@ const exportUrl = (tipo: string) => `${base}/export?tipo=${tipo}&p=${period}`;
                     const own = host?.includes('matheussilvabaptista');
                     const place = [v.city, v.region, v.country && countryName(v.country)].filter(Boolean).join(', ');
                     return (
-                      <tr>
+                      <tr class={v.probable_bot ? 'is-bot' : undefined}>
                         <td>{formatTime(v.created_at)}</td>
                         <td>{v.path}</td>
                         <td>{own ? 'interno' : (host ?? 'Direto')}</td>
                         <td>{place || '—'}</td>
                         <td>{[DEVICE_NAMES[v.device ?? ''], v.browser].filter(Boolean).join(' · ') || '—'}</td>
+                        {showBots && <td class={v.probable_bot ? 'bot-flag' : undefined}>{v.probable_bot ? `Provável robô: ${v.bot_reasons}` : '—'}</td>}
                       </tr>
                     );
                   })}

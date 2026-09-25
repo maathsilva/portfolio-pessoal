@@ -374,6 +374,16 @@
   margin-top: 0.5rem;
 }
 
+/* ---- probable bots ---- */
+.painel tr.is-bot td {
+  opacity: 0.6;
+}
+.painel td.bot-flag {
+  color: hsl(4 80% 68%);
+  white-space: normal;
+  min-width: 14rem;
+}
+
 /* ---- web vitals ---- */
 .vital-rating {
   font-weight: 600;

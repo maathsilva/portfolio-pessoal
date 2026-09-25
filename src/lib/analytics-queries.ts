@@ -65,6 +65,8 @@ export interface RecentVisit {
   device: string | null;
   browser: string | null;
   os: string | null;
+  probable_bot: boolean;
+  bot_reasons: string | null;
 }
 
 export const TOP_DIMENSIONS = ['path', 'referrer', 'city', 'country', 'device', 'browser', 'os', 'language', 'local_hour'] as const;
@@ -81,6 +83,8 @@ export interface DashboardData {
   engagement: EngagementRow[];
   vitals: Vitals | null;
   recent: RecentVisit[];
+  /** Visits currently classified as probable bots in this period (hidden or not). */
+  botCount: number;
   /** Human-readable problems; the panel still renders whatever did load. */
   errors: string[];
   /** True when nothing at all could be read (e.g. the Supabase project is paused). */
@@ -102,22 +106,24 @@ async function call<T>(sb: SupabaseClient, errors: string[], label: string, fn: 
 const rankedRows = (rows: any[] | null): Ranked[] =>
   (rows ?? []).map((r) => ({ label: String(r.label), hits: n(r.hits), visitors: n(r.visitors) }));
 
-export async function getDashboardData(days: Period): Promise<DashboardData> {
+export async function getDashboardData(days: Period, hideBots = true): Promise<DashboardData> {
   const sb = getSupabaseAdmin();
   const errors: string[] = [];
   const p_days = days;
+  const p_hide_bots = hideBots;
 
-  const [overview, series, contacts, projects, section, engagement, vitals, recent, ...tops] = await Promise.all([
-    call<any[]>(sb, errors, 'Resumo', 'stats_overview', { p_days }),
-    call<any[]>(sb, errors, 'Gráfico', 'stats_series', { p_days }),
-    call<any[]>(sb, errors, 'Contatos', 'stats_events', { p_days, p_names: CONTACT_EVENTS }),
-    call<any[]>(sb, errors, 'Projetos', 'stats_projects', { p_days }),
-    call<number>(sb, errors, 'Funil de projetos', 'stats_section_visitors', { p_days }),
-    call<any[]>(sb, errors, 'Engajamento', 'stats_engagement', { p_days, p_limit: 8 }),
-    call<any[]>(sb, errors, 'Web Vitals', 'stats_vitals', { p_days }),
-    call<any[]>(sb, errors, 'Últimos acessos', 'stats_recent', { p_limit: 30 }),
+  const [overview, series, contacts, projects, section, engagement, vitals, recent, botCount, ...tops] = await Promise.all([
+    call<any[]>(sb, errors, 'Resumo', 'stats_overview', { p_days, p_hide_bots }),
+    call<any[]>(sb, errors, 'Gráfico', 'stats_series', { p_days, p_hide_bots }),
+    call<any[]>(sb, errors, 'Contatos', 'stats_events', { p_days, p_names: CONTACT_EVENTS, p_hide_bots }),
+    call<any[]>(sb, errors, 'Projetos', 'stats_projects', { p_days, p_hide_bots }),
+    call<number>(sb, errors, 'Funil de projetos', 'stats_section_visitors', { p_days, p_hide_bots }),
+    call<any[]>(sb, errors, 'Engajamento', 'stats_engagement', { p_days, p_limit: 8, p_hide_bots }),
+    call<any[]>(sb, errors, 'Web Vitals', 'stats_vitals', { p_days, p_hide_bots }),
+    call<any[]>(sb, errors, 'Últimos acessos', 'stats_recent', { p_limit: 30, p_hide_bots }),
+    call<number>(sb, errors, 'Robôs prováveis', 'stats_bot_count', { p_days }),
     ...TOP_DIMENSIONS.map((dim) =>
-      call<any[]>(sb, errors, `Ranking (${dim})`, 'stats_top', { p_days, p_dim: dim, p_limit: dim === 'local_hour' ? 24 : 8 })
+      call<any[]>(sb, errors, `Ranking (${dim})`, 'stats_top', { p_days, p_dim: dim, p_limit: dim === 'local_hour' ? 24 : 8, p_hide_bots })
     ),
   ]);
 
@@ -159,6 +165,7 @@ export async function getDashboardData(days: Period): Promise<DashboardData> {
     })),
     vitals: v ? { samples: n(v.samples), lcp_p75: nn(v.lcp_p75), cls_p75: nn(v.cls_p75), inp_p75: nn(v.inp_p75) } : null,
     recent: (recent ?? []) as RecentVisit[],
+    botCount: n(botCount),
     errors,
     databaseDown: !o && !series,
   };

@@ -5,13 +5,13 @@ import { parsePeriod } from '../../../lib/analytics-queries';
 
 export const prerender = false;
 
-// The hashed IP is deliberately not exported.
+// The hashed IP is deliberately not exported. Probable bots are exported too (flagged), never dropped.
 const DATASETS = {
   visitas: {
-    table: 'page_views',
+    table: 'visits',
     columns: [
       'created_at', 'path', 'referrer', 'country', 'region', 'city',
-      'timezone', 'local_hour', 'language', 'device', 'browser', 'os', 'viewport_w', 'seconds', 'max_scroll', 'lcp_ms', 'cls', 'inp_ms',
+      'timezone', 'local_hour', 'language', 'device', 'browser', 'os', 'viewport_w', 'seconds', 'max_scroll', 'lcp_ms', 'cls', 'inp_ms', 'probable_bot', 'bot_reasons',
     ],
   },
   eventos: { table: 'events', columns: ['created_at', 'name', 'path'] },
@@ -45,7 +45,7 @@ export const GET: APIRoute = async ({ params, cookies, url }) => {
   for (let from = 0; from < MAX_ROWS; from += PAGE_SIZE) {
     const { data, error } = await sb
       .from(table)
-      .select(columns.join(','))
+      .select(columns.map((c) => (c === 'bot_reasons' ? 'bot_reasons:reasons' : c)).join(','))
       .gte('created_at', start.data as string)
       .order('created_at', { ascending: false })
       .order('id', { ascending: false })
