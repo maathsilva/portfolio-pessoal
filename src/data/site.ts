@@ -49,4 +49,9 @@ export const dashboards = [
     title: 'Dashboard de Vendas — Authentic Feet',
     context: 'Desenvolvido para a Authentic Feet (Grupo AFEET), outra loja de streetwear em que atuei.',
   },
+  {
+    file: 'dashboard-5.png',
+    title: 'Painel de Crédito Consignado — Capital Consig',
+    context: 'Desenvolvido para a Capital Consig, no mesmo domínio de crédito consignado dos projetos Zion, Mordomo e Nero.',
+  },
 ];
