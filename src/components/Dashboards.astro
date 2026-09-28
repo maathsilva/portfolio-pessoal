@@ -9,7 +9,7 @@ import { getImage } from '../lib/images';
     <div class="section-head">
       <span class="eyebrow">Visualização de Dados</span>
       <h2 class="section-title">Dashboards</h2>
-      <p class="section-lede">Indicadores construídos em Power BI para decisão de negócio.</p>
+      <p class="section-lede">Interfaces de dashboard que desenvolvi em HTML, CSS e JavaScript, aplicadas a contextos reais dos negócios em que atuei.</p>
     </div>
 
     <div class="dash-scroller">
@@ -18,7 +18,10 @@ import { getImage } from '../lib/images';
         return (
           <figure class="dash-card card">
             <Image src={img} alt={`Captura de tela: ${dash.title}`} width={640} loading="lazy" />
-            <figcaption>{dash.title}</figcaption>
+            <figcaption>
+              <span class="dash-title">{dash.title}</span>
+              <span class="dash-context">{dash.context}</span>
+            </figcaption>
           </figure>
         );
       })}
@@ -51,8 +54,17 @@ import { getImage } from '../lib/images';
   }
   .dash-card figcaption {
     padding: 1.15rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .dash-title {
     font-family: var(--font-display);
     font-size: 1.05rem;
     font-weight: 600;
+  }
+  .dash-context {
+    font-size: 0.85rem;
+    color: var(--muted);
   }
 </style>

@@ -29,7 +29,19 @@ export const site = {
 };
 
 export const dashboards = [
-  { file: 'dashboard-1.png', title: 'Dashboard de Agência de Viagens' },
-  { file: 'dashboard-2.png', title: 'Dashboard Financeiro' },
-  { file: 'dashboard-3.png', title: 'Dashboard de Vendas' },
+  {
+    file: 'dashboard-1.png',
+    title: 'Dashboard de Agência de Viagens',
+    context: 'Desenvolvido para um teste prático da CVC.',
+  },
+  {
+    file: 'dashboard-2.png',
+    title: 'Dashboard Financeiro',
+    context: 'Protótipo para o domínio de crédito consignado, o mesmo em que atuei na Capital Consig.',
+  },
+  {
+    file: 'dashboard-3.png',
+    title: 'Dashboard de Vendas',
+    context: 'Desenvolvido para a Artwalk (Grupo AFEET), loja de streetwear onde liderei a equipe de vendas.',
+  },
 ];
