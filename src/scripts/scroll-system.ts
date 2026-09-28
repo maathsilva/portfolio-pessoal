@@ -1,4 +1,4 @@
-import { mountDataNetwork, type DataNetworkHandle } from './data-network';
+import { mountDataNetwork } from './data-network';
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -156,72 +156,6 @@ function initHeroNetwork() {
   mountDataNetwork(canvas, { interactive: true, areaPerParticle: 8000, maxParticles: 110, baseSpeed: 0.1 });
 }
 
-/** The "entering the system" transition: as the section scrolls through the
- * viewport, its canvas intensifies and a radial vignette brightens, then both
- * hand off to the next section. Everything here is derived from one scroll
- * progress number, recomputed only while the section is near the viewport. */
-function initSystemTransition() {
-  const section = document.querySelector<HTMLElement>('[data-system-transition]');
-  const canvas = section?.querySelector<HTMLCanvasElement>('[data-transition-network]');
-  if (!section || !canvas) return;
-
-  let network: DataNetworkHandle | null = null;
-  let ticking = false;
-
-  const progressFor = () => {
-    const rect = section.getBoundingClientRect();
-    const total = rect.height - window.innerHeight;
-    if (total <= 0) return 1;
-    const raw = -rect.top / total;
-    return Math.max(0, Math.min(1, raw));
-  };
-
-  const update = () => {
-    const p = progressFor();
-    // Peaks near the middle of the section, easing back down at the very end
-    // so it can hand off cleanly to the section that follows.
-    const curve = p < 0.7 ? p / 0.7 : 1 - (p - 0.7) / 0.3;
-    section.style.setProperty('--progress', curve.toFixed(3));
-    network?.setIntensity(curve);
-    ticking = false;
-  };
-
-  const onScroll = () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(update);
-  };
-
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries[0]?.isIntersecting;
-        if (visible) {
-          if (!network && !reducedMotion()) {
-            network = mountDataNetwork(canvas, {
-              interactive: false,
-              areaPerParticle: 6000,
-              maxParticles: 140,
-              linkDistance: 170,
-              baseSpeed: 0.22,
-            });
-          }
-          window.addEventListener('scroll', onScroll, { passive: true });
-          update();
-        } else {
-          window.removeEventListener('scroll', onScroll);
-        }
-      },
-      { rootMargin: '15% 0px 15% 0px' }
-    );
-    io.observe(section);
-  }
-
-  if (reducedMotion()) {
-    section.style.setProperty('--progress', '1');
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initActiveNav();
@@ -229,5 +163,4 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavbarScroll();
   initReveal();
   initHeroNetwork();
-  initSystemTransition();
 });
