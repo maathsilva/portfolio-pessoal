@@ -14,7 +14,7 @@ const [firstName, ...restName] = site.name.toUpperCase().split(' ');
       </p>
 
       <h1 class="hero-name">
-        <span class="hero-name-line">{firstName}</span>
+        <span class="hero-name-line hero-name-outline">{firstName}</span>
         <span class="hero-name-line accent">{restName.join(' ')}</span>
       </h1>
 
@@ -43,11 +43,6 @@ const [firstName, ...restName] = site.name.toUpperCase().split(' ');
       </dl>
     </div>
   </div>
-
-  <a href="#sobre" class="hero-scroll mono" aria-label="Rolar para ver mais">
-    <span>Role para saber mais</span>
-    <span class="hero-scroll-line" aria-hidden="true"></span>
-  </a>
 </section>
 
 <style>
@@ -114,6 +109,22 @@ const [firstName, ...restName] = site.name.toUpperCase().split(' ');
     letter-spacing: -0.03em;
     margin-bottom: 1.1rem;
   }
+  /* The first line is hollow — the data network reads through the letterforms,
+     like looking into the system — while the second line grounds it in solid
+     accent blue. A plain two-line bold name read as generic; this doesn't. */
+  .hero-name-outline {
+    color: var(--text);
+  }
+  @supports (-webkit-text-stroke: 1px black) or (text-stroke: 1px black) {
+    .hero-name-outline {
+      color: transparent;
+      -webkit-text-stroke: 1.5px var(--text);
+      text-stroke: 1.5px var(--text);
+    }
+  }
+  .hero-name .accent {
+    text-shadow: 0 0 56px rgb(var(--accent-rgb) / 0.45);
+  }
   .hero-lede {
     font-size: clamp(1.05rem, 1.8vw, 1.3rem);
     color: var(--text);
@@ -154,43 +165,11 @@ const [firstName, ...restName] = site.name.toUpperCase().split(' ');
     line-height: 1.4;
   }
 
-  .hero-scroll {
-    position: relative;
-    z-index: 1;
-    margin-top: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted-2);
-    transition: color var(--dur) var(--ease);
-    flex-shrink: 0;
-  }
-  .hero-scroll:hover {
-    color: var(--accent);
-  }
-  .hero-scroll-line {
-    width: 1px;
-    height: 2.5rem;
-    background: linear-gradient(to bottom, var(--accent), transparent);
-    animation: scroll-cue 1.8s var(--ease) infinite;
-  }
-  @keyframes scroll-cue {
-    0%, 100% { opacity: 0.3; transform: scaleY(0.6); transform-origin: top; }
-    50% { opacity: 1; transform: scaleY(1); transform-origin: top; }
-  }
-
   @media (max-width: 480px) {
     .hero-stats {
       grid-template-columns: 1fr;
       gap: 1rem;
       text-align: left;
-    }
-    .hero-scroll {
-      display: none;
     }
   }
 </style>
