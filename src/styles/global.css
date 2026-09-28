@@ -53,10 +53,12 @@ html {
 body {
   font-family: var(--font-sans);
   color: var(--text);
-  background: var(--bg);
+  /* No background here on purpose: html carries it (painted at the very
+     bottom of the root stacking context), so it doesn't cover the fixed
+     negative-z-index layers below (dot-grid, glow, data network) — a plain
+     in-flow background on body paints *above* those per CSS2.1 §E.2. */
   line-height: 1.7;
   overflow-x: hidden;
-  position: relative;
 }
 
 /* A faint, fixed data-grid + ambient glow behind everything — the sense of
@@ -87,6 +89,18 @@ body::after {
     transparent 70%
   );
   filter: blur(10px);
+}
+
+/* The data network — one canvas, fixed behind the whole site (mounted in
+   BaseLayout, animated by scroll-system.ts), so the "moving data" feeling
+   persists on every section instead of stopping after the hero. */
+#bg-network {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100vw;
+  height: 100vh;
+  opacity: 0.6;
 }
 
 h1, h2, h3, h4, h5, h6 {

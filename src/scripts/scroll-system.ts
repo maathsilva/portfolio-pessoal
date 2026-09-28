@@ -149,11 +149,13 @@ function initReveal() {
   document.querySelectorAll('[data-reveal]').forEach((el) => observer.observe(el));
 }
 
-/** Hero's ambient data network — always mounted when the canvas exists. */
-function initHeroNetwork() {
-  const canvas = document.querySelector<HTMLCanvasElement>('[data-hero-network]');
+/** The ambient data network — fixed behind the whole page (see BaseLayout.astro
+ * and #bg-network in global.css), so it keeps moving on every section, not
+ * just the hero. One canvas, mounted once per page load. */
+function initBackgroundNetwork() {
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-bg-network]');
   if (!canvas) return;
-  mountDataNetwork(canvas, { interactive: true, areaPerParticle: 8000, maxParticles: 110, baseSpeed: 0.1 });
+  mountDataNetwork(canvas, { interactive: true, areaPerParticle: 9000, maxParticles: 110, baseSpeed: 0.09 });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -162,5 +164,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initTypewriter();
   initNavbarScroll();
   initReveal();
-  initHeroNetwork();
+  initBackgroundNetwork();
 });
