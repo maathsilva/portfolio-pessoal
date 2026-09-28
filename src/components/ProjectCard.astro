@@ -149,6 +149,7 @@ const num = String(index + 1).padStart(2, '0');
   .module-body {
     display: grid;
     grid-template-columns: 280px 1fr;
+    align-items: start;
     gap: 2rem;
     padding: 0 1.6rem 2rem;
     border-top: 1px solid var(--border);
@@ -158,6 +159,8 @@ const num = String(index + 1).padStart(2, '0');
     border-radius: var(--radius-sm);
     overflow: hidden;
     border: 1px solid var(--border);
+    position: sticky;
+    top: 6rem;
   }
   .module-media :global(img) {
     width: 100%;
@@ -244,6 +247,9 @@ const num = String(index + 1).padStart(2, '0');
     }
     .module-body {
       grid-template-columns: 1fr;
+    }
+    .module-media {
+      position: static;
     }
     .detail-cols {
       grid-template-columns: 1fr;

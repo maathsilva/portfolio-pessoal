@@ -7,7 +7,6 @@
   --bg: hsl(222, 32%, 4%);
   --bg-elevated: hsl(222, 30%, 6%);
   --card: hsl(220, 28%, 7%);
-  --card-2: hsl(220, 26%, 9%);
   --border: hsl(217 35% 60% / 0.14);
   --border-strong: hsl(217 45% 65% / 0.32);
 
@@ -16,14 +15,14 @@
   --muted-2: hsl(215, 14%, 46%);
 
   /* Signature energy — electric blue, standing in for the "data flowing" current.
-     A cyan is kept in reserve for rare, small highlights (traveling data points),
-     never for UI chrome, so the system still reads as one accent, not a gradient pair. */
+     (The data-network canvas draws its own cyan highlight for traveling
+     packets as a hardcoded rgb literal, not through a token — canvas can't
+     read CSS custom properties without an extra getComputedStyle call per
+     frame, so src/scripts/data-network.ts just hardcodes the same value.) */
   --accent: hsl(217, 91%, 60%);
   --accent-strong: hsl(213, 96%, 70%);
   --accent-dim: hsl(217, 55%, 58%);
   --accent-rgb: 59, 130, 246;
-  --cyan: hsl(189, 92%, 58%);
-  --cyan-rgb: 34, 211, 238;
   --on-accent: hsl(222, 45%, 6%);
 
   --font-sans: 'Inter', system-ui, sans-serif;
