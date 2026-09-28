@@ -1,0 +1,237 @@
+---
+// A real network, not a logo wall: nodes are the technologies from
+// projects.ts, and an edge exists wherever two of them were actually used
+// together on the same project. Layout is a deterministic circular
+// arrangement (no physics sim, nothing random) so it renders identically
+// every time and never jumps around.
+import { projects } from '../data/projects';
+
+const normalize = (tag: string) => (tag.includes('PowerCenter') ? 'PowerCenter' : tag);
+
+type Edge = { a: number; b: number; projects: string[] };
+
+const nodeIndex = new Map<string, number>();
+const nodes: { label: string; projects: Set<string> }[] = [];
+const edgeMap = new Map<string, Edge>();
+
+for (const project of projects) {
+  const tags = Array.from(new Set(project.tags.map(normalize)));
+  const ids = tags.map((tag) => {
+    if (!nodeIndex.has(tag)) {
+      nodeIndex.set(tag, nodes.length);
+      nodes.push({ label: tag, projects: new Set() });
+    }
+    const id = nodeIndex.get(tag)!;
+    nodes[id].projects.add(project.title);
+    return id;
+  });
+  for (let i = 0; i < ids.length; i++) {
+    for (let j = i + 1; j < ids.length; j++) {
+      const [a, b] = ids[i] < ids[j] ? [ids[i], ids[j]] : [ids[j], ids[i]];
+      const key = `${a}-${b}`;
+      const existing = edgeMap.get(key);
+      if (existing) existing.projects.push(project.title);
+      else edgeMap.set(key, { a, b, projects: [project.title] });
+    }
+  }
+}
+
+const edges = Array.from(edgeMap.values());
+const degree = nodes.map((_, i) => edges.filter((e) => e.a === i || e.b === i).length);
+const maxDegree = Math.max(...degree, 1);
+
+const N = nodes.length;
+const CX = 50;
+const CY = 50;
+const R = 38;
+const angleFor = (i: number) => -90 + (i * 360) / N;
+const rad = (deg: number) => (deg * Math.PI) / 180;
+const pos = (i: number) => {
+  const a = rad(angleFor(i));
+  return { x: CX + R * Math.cos(a), y: CY + R * Math.sin(a) };
+};
+
+const points = nodes.map((_, i) => pos(i));
+const labelPos = nodes.map((_, i) => {
+  const a = rad(angleFor(i));
+  const lr = R + 9;
+  const angleDeg = angleFor(i);
+  const side = angleDeg > -90 && angleDeg < 90 ? 'start' : 'end';
+  return { x: CX + lr * Math.cos(a), y: CY + lr * Math.sin(a), side };
+});
+
+const paths = edges.map((e) => {
+  const p1 = points[e.a];
+  const p2 = points[e.b];
+  const mx = (p1.x + p2.x) / 2;
+  const my = (p1.y + p2.y) / 2;
+  // Pull the midpoint toward the center so edges read as arcs, not chords
+  // flattening the circle — the classic "network" curvature.
+  const qx = CX + (mx - CX) * 0.35;
+  const qy = CY + (my - CY) * 0.35;
+  return `M ${p1.x.toFixed(2)},${p1.y.toFixed(2)} Q ${qx.toFixed(2)},${qy.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
+});
+---
+
+<section id="tecnologias" class="section tech-section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Stack</span>
+      <h2 class="section-title">Uma rede, não uma lista de logos</h2>
+      <p class="section-lede">
+        Cada linha é uma conexão real: duas tecnologias usadas juntas em um dos meus projetos.
+        Passe o mouse ou use Tab para explorar.
+      </p>
+    </div>
+
+    <div class="tech-network">
+      <svg viewBox="0 0 100 100" class="tech-svg" aria-hidden="true">
+        {paths.map((d, i) => (
+          <path
+            d={d}
+            class="tech-edge"
+            data-edge={`${edges[i].a} ${edges[i].b}`}
+          />
+        ))}
+        {points.map((p, i) => (
+          <circle
+            cx={p.x}
+            cy={p.y}
+            r={2 + (degree[i] / maxDegree) * 2.2}
+            class="tech-node-dot"
+            data-node={i}
+          />
+        ))}
+      </svg>
+
+      <ul class="tech-labels" role="list">
+        {nodes.map((node, i) => (
+          <li
+            class="tech-label"
+            style={`left:${labelPos[i].x}%; top:${labelPos[i].y}%; text-align:${labelPos[i].side === 'start' ? 'left' : 'right'}; transform: translate(${labelPos[i].side === 'start' ? '0' : '-100%'}, -50%);`}
+          >
+            <button type="button" class="tech-label-btn mono" data-node-btn={i} aria-describedby={`tech-desc-${i}`}>
+              {node.label}
+            </button>
+            <span id={`tech-desc-${i}`} class="visually-hidden">usado em {Array.from(node.projects).join(', ')}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tech-network {
+    position: relative;
+    width: min(720px, 100%);
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+  }
+  .tech-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .tech-edge {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 0.28;
+    vector-effect: non-scaling-stroke;
+    transition: stroke var(--dur) var(--ease), opacity var(--dur) var(--ease);
+  }
+  .tech-edge.is-active {
+    stroke: var(--accent);
+    opacity: 1;
+  }
+  .tech-edge.is-dim {
+    opacity: 0.15;
+  }
+  .tech-node-dot {
+    fill: var(--accent-dim);
+    transition: fill var(--dur) var(--ease), opacity var(--dur) var(--ease);
+  }
+  .tech-node-dot.is-active {
+    fill: var(--accent);
+  }
+  .tech-node-dot.is-dim {
+    opacity: 0.25;
+  }
+
+  .tech-labels {
+    position: absolute;
+    inset: 0;
+  }
+  .tech-label {
+    position: absolute;
+    white-space: nowrap;
+  }
+  .tech-label-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.72rem;
+    color: var(--muted);
+    padding: 0.2rem 0.4rem;
+    transition: color var(--dur) var(--ease), opacity var(--dur) var(--ease);
+  }
+  .tech-label-btn:hover,
+  .tech-label-btn:focus-visible {
+    color: var(--accent);
+  }
+  .tech-label-btn.is-dim {
+    opacity: 0.35;
+  }
+
+  @media (max-width: 640px) {
+    .tech-network {
+      width: min(480px, 100%);
+    }
+    .tech-label-btn {
+      font-size: 0.62rem;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.tech-network').forEach((root) => {
+    const nodeDots = Array.from(root.querySelectorAll<SVGCircleElement>('[data-node]'));
+    const labels = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-node-btn]'));
+    const edges = Array.from(root.querySelectorAll<SVGPathElement>('[data-edge]'));
+
+    const clear = () => {
+      [...nodeDots, ...labels, ...edges].forEach((el) => el.classList.remove('is-active', 'is-dim'));
+    };
+
+    const highlight = (id: string) => {
+      const connected = new Set([id]);
+      edges.forEach((edge) => {
+        const [a, b] = (edge.dataset.edge ?? '').split(' ');
+        if (a === id || b === id) {
+          edge.classList.add('is-active');
+          connected.add(a);
+          connected.add(b);
+        } else {
+          edge.classList.add('is-dim');
+        }
+      });
+      nodeDots.forEach((n) => n.classList.add(connected.has(n.dataset.node ?? '') ? 'is-active' : 'is-dim'));
+      labels.forEach((l) => l.classList.add(connected.has(l.dataset.nodeBtn ?? '') ? 'is-active' : 'is-dim'));
+    };
+
+    labels.forEach((label) => {
+      const id = label.dataset.nodeBtn ?? '';
+      label.addEventListener('mouseenter', () => highlight(id));
+      label.addEventListener('focus', () => highlight(id));
+      label.addEventListener('mouseleave', clear);
+      label.addEventListener('blur', clear);
+    });
+    nodeDots.forEach((dot) => {
+      const id = dot.dataset.node ?? '';
+      dot.addEventListener('mouseenter', () => highlight(id));
+      dot.addEventListener('mouseleave', clear);
+    });
+  });
+</script>

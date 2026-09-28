@@ -7,16 +7,14 @@ const waLink = `https://wa.me/${site.phone.replace('+', '')}?text=${encodeURICom
 
 <section id="contato" class="section contact-section">
   <div class="container">
-    <div class="section-head centered">
-      <span class="eyebrow" style="justify-content:center">Contato</span>
-      <h2 class="section-title">Vamos conversar</h2>
-      <p class="section-lede">
-        Aberto a oportunidades em dados, ETL e automação. Resposta em até 1 dia útil.
-      </p>
-    </div>
+    <span class="eyebrow" style="justify-content:center">Contato</span>
+    <h2 class="contact-title">Transformar dado <span class="accent">em decisão.</span></h2>
+    <p class="contact-lede">
+      Aberto a oportunidades em dados, IA e automação. Resposta em até 1 dia útil.
+    </p>
 
     <div class="contact-links">
-      <a href={`mailto:${site.email}`} class="btn btn-secondary" data-cta="email"><Icon name="mail" /> E-mail</a>
+      <a href={`mailto:${site.email}`} class="btn btn-primary" data-cta="email"><Icon name="mail" /> E-mail</a>
       <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="btn btn-secondary" data-cta="linkedin"><Icon name="linkedin" /> LinkedIn</a>
       <a href={site.github} target="_blank" rel="noopener noreferrer" class="btn btn-secondary" data-cta="github"><Icon name="github" /> GitHub</a>
       <a href={waLink} target="_blank" rel="noopener noreferrer" class="btn btn-secondary" data-cta="whatsapp"><Icon name="message-circle" /> WhatsApp</a>
@@ -29,15 +27,21 @@ const waLink = `https://wa.me/${site.phone.replace('+', '')}?text=${encodeURICom
     text-align: center;
     padding-bottom: 6rem;
   }
-  .section-head.centered {
-    max-width: 560px;
+  .contact-title {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    max-width: 16ch;
     margin: 0 auto;
+  }
+  .contact-lede {
+    margin: 1.25rem auto 0;
+    max-width: 46ch;
+    font-size: 1.05rem;
   }
   .contact-links {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
-    margin-top: 2.5rem;
+    margin-top: 2.75rem;
   }
 </style>

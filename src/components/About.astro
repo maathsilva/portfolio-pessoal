@@ -1,117 +1,147 @@
 ---
-import { skillGroups } from '../data/skills';
-import Icon from './Icon.astro';
+const stages = [
+  {
+    n: '01',
+    key: 'data',
+    label: 'Data',
+    title: 'Dado disperso, operação manual',
+    text: 'Relatórios financeiros espalhados por múltiplos portais, planilhas de convênio com layouts diferentes, acessos liberados um a um. Antes de qualquer automação, o trabalho começa sempre no mesmo lugar: entender exatamente onde o dado bruto vive e por que ele ainda depende de mão humana.',
+  },
+  {
+    n: '02',
+    key: 'information',
+    label: 'Information',
+    title: 'Pipelines que organizam o fluxo',
+    text: 'Administro e sustento o ambiente Informatica PowerCenter na Spread Tecnologia — workflows, sessions, mappings e SQL Overrides — e já construí ecossistemas próprios de ETL/ELT em Python e SQL para automatizar rotinas financeiras críticas de ponta a ponta.',
+  },
+  {
+    n: '03',
+    key: 'insight',
+    label: 'Insight',
+    title: 'Análise sobre dado validado',
+    text: 'Python (Pandas, NumPy), SQL e PySpark para limpar, validar e cruzar dados — incluindo bases com mais de R$ 40 milhões em valores financeiros processados, com regras de negócio modeladas como dados, não como condicionais espalhados pelo código.',
+  },
+  {
+    n: '04',
+    key: 'intelligence',
+    label: 'Intelligence',
+    title: 'De dado a modelo e a decisão visual',
+    text: 'Dashboards e relatórios em Power BI e Excel avançado traduzem esse dado validado em indicadores de negócio. Em paralelo, pós-graduações em Ciência de Dados e Inteligência Artificial aprofundam a camada de modelagem e machine learning sobre essas mesmas bases.',
+  },
+  {
+    n: '05',
+    key: 'decision',
+    label: 'Decision',
+    title: 'Impacto medido em produção',
+    text: 'Os números vêm de operação real, não de estimativa: provisionamento de acesso 93% mais eficiente, documentação de ETL com 85% menos esforço manual, extração de relatórios 83% mais rápida. Dado auditável, na mão de quem decide.',
+  },
+];
 ---
 
-<section id="sobre" class="section">
+<section id="sobre" class="section about-section">
   <div class="container">
     <div class="section-head">
       <span class="eyebrow">Sobre</span>
-      <h2 class="section-title">O que eu faço</h2>
+      <h2 class="section-title">De dado bruto a decisão</h2>
+      <p class="section-lede">
+        Cinco etapas do mesmo sistema — a forma como penso qualquer problema de dados, da
+        governança de ETL à visualização final.
+      </p>
     </div>
 
-    <div class="about-grid">
-      <div class="about-text card">
-        <p>
-          Sou Analista de Dados com experiência em ETL, automação de processos e governança de
-          dados. Trabalho com Python, SQL, Power BI, Informatica PowerCenter, Databricks e Azure
-          Data Platform para transformar rotinas manuais em pipelines confiáveis.
-        </p>
-        <p>
-          Meus projetos mais recentes reduziram tempo de provisionamento de acesso em 93%,
-          esforço de documentação de ETL em 85% e processos de extração de relatórios em 83% —
-          números que vêm de operações reais, não de estimativa. Meu foco é simplificar o
-          operacional e transformar dado bruto em decisão auditável e escalável.
-        </p>
-      </div>
-
-      <div class="skills-grid">
-        {skillGroups.map((group) => (
-          <div class="skill-group card card-hover">
-            <div class="skill-group-head">
-              <Icon name={group.icon} size={22} />
-              <h3>{group.title}</h3>
-            </div>
-            <ul class="skill-items">
-              {group.items.map((item) => <li>{item}</li>)}
-            </ul>
-            {group.usedIn && (
-              <p class="skill-usedin mono">usado em: {group.usedIn.join(', ')}</p>
-            )}
+    <div class="stages" data-reveal-group>
+      {stages.map((stage, i) => (
+        <article class="stage" data-stage={stage.key} style={`--stage-i: ${i}`}>
+          <div class="stage-rail">
+            <span class="stage-num mono">{stage.n}</span>
+            <span class="stage-dot" aria-hidden="true"></span>
+            {i < stages.length - 1 && <span class="stage-line" aria-hidden="true"></span>}
           </div>
-        ))}
-      </div>
+          <div class="stage-body">
+            <span class="stage-label mono">{stage.label}</span>
+            <h3>{stage.title}</h3>
+            <p>{stage.text}</p>
+          </div>
+        </article>
+      ))}
     </div>
   </div>
 </section>
 
 <style>
-  .about-grid {
-    display: grid;
-    grid-template-columns: 0.85fr 1.15fr;
-    gap: 2.5rem;
-    align-items: start;
-  }
-  .about-text {
-    padding: 2.25rem;
-    position: sticky;
-    top: 6.5rem;
-  }
-  .about-text p {
-    margin-bottom: 1.1rem;
-    font-size: 1.02rem;
-  }
-  .about-text p:last-child {
-    margin-bottom: 0;
-  }
-
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
-  }
-  .skill-group {
-    padding: 1.5rem;
-  }
-  .skill-group-head {
+  .stages {
     display: flex;
+    flex-direction: column;
+    max-width: 780px;
+  }
+  .stage {
+    display: grid;
+    grid-template-columns: 2.75rem 1fr;
+    gap: 1.75rem;
+  }
+  .stage-rail {
+    position: relative;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.65rem;
-    color: var(--accent);
-    margin-bottom: 1rem;
   }
-  .skill-group-head h3 {
-    font-size: 1rem;
-    color: var(--text);
-    font-family: var(--font-sans);
-    font-weight: 600;
-  }
-  .skill-items li {
-    font-size: 0.88rem;
-    color: var(--muted);
-    padding: 0.3rem 0;
-    border-bottom: 1px dashed var(--border);
-  }
-  .skill-items li:last-child {
-    border-bottom: none;
-  }
-  .skill-usedin {
-    margin-top: 0.9rem;
-    font-size: 0.72rem;
+  .stage-num {
+    font-size: 0.7rem;
     color: var(--muted-2);
+    margin-bottom: 0.6rem;
+  }
+  .stage-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    box-shadow: 0 0 0 4px var(--bg);
+    flex-shrink: 0;
+    transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  }
+  .stage-line {
+    flex-grow: 1;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--border-strong), var(--border));
+    margin: 0.5rem 0 0.5rem;
+  }
+  .stage-body {
+    padding-bottom: 3rem;
+  }
+  .stage:last-child .stage-body {
+    padding-bottom: 0;
+  }
+  .stage-label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .stage-body h3 {
+    font-size: 1.3rem;
+    font-family: var(--font-sans);
+    margin-bottom: 0.6rem;
+  }
+  .stage-body p {
+    font-size: 0.98rem;
+    max-width: 62ch;
   }
 
-  @media (max-width: 960px) {
-    .about-grid {
-      grid-template-columns: 1fr;
-    }
-    .about-text {
-      position: static;
-    }
+  /* Once JS confirms it's running (and motion is allowed), the current dot
+     glows as it enters view — a quiet nod to "walking the pipeline". Purely
+     decorative: the stage is fully readable either way. */
+  html.reveal-armed .stage[data-stage].is-visible .stage-dot,
+  .stage-dot.is-active {
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--bg), 0 0 14px 2px rgb(var(--accent-rgb) / 0.55);
   }
-  @media (max-width: 560px) {
-    .skills-grid {
-      grid-template-columns: 1fr;
+
+  @media (max-width: 640px) {
+    .stage {
+      grid-template-columns: 2rem 1fr;
+      gap: 1.1rem;
     }
   }
 </style>

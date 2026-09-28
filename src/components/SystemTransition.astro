@@ -1,0 +1,100 @@
+---
+// The cinematic hinge between the hero and the rest of the site: as this
+// section scrolls past, the data network behind it intensifies, then hands
+// off to "O que eu faço". Kept to one section, one canvas, one progress
+// number — see scroll-system.ts `initSystemTransition`.
+---
+
+<section id="sistema" class="system-transition" data-system-transition aria-hidden="true">
+  <div class="system-transition-inner">
+    <canvas data-transition-network class="transition-network"></canvas>
+    <div class="transition-vignette"></div>
+    <p class="transition-line mono">
+      <span>DATA</span>
+      <span class="sep">→</span>
+      <span>INFORMATION</span>
+      <span class="sep">→</span>
+      <span>INSIGHT</span>
+      <span class="sep">→</span>
+      <span>INTELLIGENCE</span>
+      <span class="sep">→</span>
+      <span>DECISION</span>
+    </p>
+  </div>
+</section>
+
+<style>
+  .system-transition {
+    position: relative;
+    height: 220vh;
+  }
+  .system-transition-inner {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .transition-network {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .transition-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at center,
+      rgb(var(--accent-rgb) / calc(var(--progress, 0) * 0.18)) 0%,
+      transparent 55%
+    );
+    transition: none;
+  }
+  .transition-line {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1rem;
+    max-width: 90%;
+    font-size: clamp(0.75rem, 2vw, 1.15rem);
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    opacity: calc(0.25 + var(--progress, 0) * 0.75);
+    transform: scale(calc(0.94 + var(--progress, 0) * 0.06));
+    transition: none;
+  }
+  .transition-line span:not(.sep) {
+    color: color-mix(in srgb, var(--muted) calc(100% - var(--progress, 0) * 100%), var(--accent) calc(var(--progress, 0) * 100%));
+  }
+  .sep {
+    color: var(--muted-2);
+  }
+
+  @media (max-width: 640px) {
+    .system-transition {
+      height: 160vh;
+    }
+    .transition-line {
+      gap: 0.4rem 0.6rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .system-transition {
+      height: auto;
+      padding: 3rem 0;
+    }
+    .system-transition-inner {
+      position: relative;
+      height: auto;
+    }
+    .transition-network {
+      display: none;
+    }
+  }
+</style>

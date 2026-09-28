@@ -6,13 +6,15 @@ const base = isHome ? '' : '/';
 
 const links = [
   { href: `${base}#sobre`, label: 'Sobre' },
-  { href: `${base}#experiencia`, label: 'Experiência' },
+  { href: `${base}#especialidades`, label: 'Especialidades' },
   { href: `${base}#projetos`, label: 'Projetos' },
+  { href: `${base}#experiencia`, label: 'Experiência' },
+  { href: `${base}#formacao`, label: 'Formação' },
   { href: `${base}#contato`, label: 'Contato' },
 ];
 ---
 
-<header class="header">
+<header class="header" data-header>
   <nav class="navbar container" aria-label="Navegação principal">
     <a href="/" class="logo">
       Matheus<span class="accent">.</span>Silva
@@ -40,13 +42,21 @@ const links = [
 
 <style>
   .header {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
-    padding: 1.1rem 0;
-    background: hsl(30 3% 6% / 0.75);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 0;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), padding var(--dur) var(--ease);
+  }
+  .header.is-scrolled {
+    padding: 0.85rem 0;
+    background: hsl(222 32% 4% / 0.72);
+    backdrop-filter: blur(14px);
+    border-bottom-color: var(--border);
   }
   .navbar {
     display: flex;
@@ -55,19 +65,19 @@ const links = [
   }
   .logo {
     font-family: var(--font-display);
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: -0.02em;
   }
   .nav-menu {
     display: flex;
     align-items: center;
-    gap: 2.25rem;
+    gap: 2rem;
   }
   .nav-link {
     color: var(--muted);
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     padding: 0.3rem 0;
     position: relative;
   }
@@ -107,18 +117,18 @@ const links = [
     display: block;
   }
 
-  @media (max-width: 860px) {
+  @media (max-width: 900px) {
     .menu-toggle {
       display: block;
       z-index: 1001;
     }
     .nav-menu {
       position: fixed;
-      top: 68px;
+      top: 64px;
       right: 0;
       left: 0;
-      height: calc(100vh - 68px);
-      height: calc(100dvh - 68px);
+      height: calc(100vh - 64px);
+      height: calc(100dvh - 64px);
       flex-direction: column;
       align-items: flex-start;
       justify-content: flex-start;

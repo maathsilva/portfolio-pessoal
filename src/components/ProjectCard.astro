@@ -6,124 +6,252 @@ import type { Project } from '../data/projects';
 
 interface Props {
   project: Project;
-  featured?: boolean;
+  index: number;
 }
 
-const { project, featured = false } = Astro.props;
+const { project, index } = Astro.props;
 const cover = getImage(project.cover);
 const topResult = project.results[0];
+const num = String(index + 1).padStart(2, '0');
 ---
 
-<a href={`/projetos/${project.slug}`} data-track={`projeto:${project.slug}`} class={`project-card card card-hover ${featured ? 'is-featured' : ''}`}>
-  <div class="project-media">
-    <Image
-      src={cover}
-      alt={`Captura de tela do projeto ${project.title}`}
-      width={featured ? 640 : 420}
-      loading="lazy"
-    />
-    {topResult && (
-      <span class="project-stat mono">{topResult.value}</span>
-    )}
-  </div>
-  <div class="project-body">
-    <div class="project-heading">
-      <h3>{project.title}</h3>
-      <span class="mono project-context">{project.context}</span>
-    </div>
-    <p>{project.subtitle}</p>
-    <div class="tags">
-      {project.tags.map((tag) => <span class="tag">{tag}</span>)}
-    </div>
-    <span class="details-link">
-      Ver case completo <Icon name="arrow-right" size={16} />
+<details class="module card" data-reveal>
+  <summary class="module-summary">
+    <span class="module-num mono">{num}</span>
+    <span class="module-heading">
+      <span class="module-title">
+        {project.title}
+        {project.featured && <span class="module-badge mono">medido em produção</span>}
+      </span>
+      <span class="module-subtitle">{project.subtitle}</span>
     </span>
+    {topResult && <span class="module-metric mono">{topResult.value}</span>}
+    <span class="module-chevron" aria-hidden="true"><Icon name="chevron-right" size={18} /></span>
+  </summary>
+
+  <div class="module-body">
+    <div class="module-media">
+      <Image src={cover} alt={`Captura de tela do projeto ${project.title}`} width={480} loading="lazy" />
+    </div>
+    <div class="module-details">
+      <div class="tags">
+        {project.tags.map((tag) => <span class="tag">{tag}</span>)}
+        <span class="mono module-context">{project.context} · {project.timeframe}</span>
+      </div>
+
+      <div class="detail">
+        <h4>Problema</h4>
+        <p>{project.problem}</p>
+      </div>
+      <div class="detail-cols">
+        <div class="detail">
+          <h4>Solução</h4>
+          <ul>{project.solution.map((s) => <li>{s}</li>)}</ul>
+        </div>
+        <div class="detail">
+          <h4>Arquitetura</h4>
+          <ul>{project.architecture.map((a) => <li>{a}</li>)}</ul>
+        </div>
+      </div>
+      <div class="detail">
+        <h4>Resultado</h4>
+        <ul class="results">
+          {project.results.map((r) => (
+            <li><strong class="mono">{r.value}</strong> {r.label}</li>
+          ))}
+        </ul>
+      </div>
+
+      <a href={`/projetos/${project.slug}`} data-track={`projeto:${project.slug}`} class="btn btn-secondary module-link">
+        Ver case completo <Icon name="arrow-right" size={16} />
+      </a>
+    </div>
   </div>
-</a>
+</details>
 
 <style>
-  .project-card {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    height: 100%;
-  }
-  .project-media {
-    position: relative;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-elevated);
-    aspect-ratio: 16 / 10;
+  .module {
+    padding: 0;
     overflow: hidden;
   }
-  .project-media :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top;
-  }
-  .project-stat {
-    position: absolute;
-    top: 0.85rem;
-    right: 0.85rem;
-    background: hsl(30 3% 6% / 0.85);
-    border: 1px solid var(--border-strong);
-    color: var(--accent);
-    font-size: 0.82rem;
-    padding: 0.3rem 0.65rem;
-    border-radius: 99px;
-    backdrop-filter: blur(4px);
-  }
-  .project-body {
-    padding: 1.6rem;
+  .module-summary {
+    list-style: none;
     display: flex;
-    flex-direction: column;
-    flex-grow: 1;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.35rem 1.6rem;
+    cursor: pointer;
+    user-select: none;
   }
-  .project-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.5rem;
+  .module-summary::-webkit-details-marker {
+    display: none;
   }
-  .project-heading h3 {
-    font-size: 1.3rem;
-    font-family: var(--font-sans);
-    font-weight: 700;
-  }
-  .project-context {
-    font-size: 0.7rem;
+  .module-num {
+    font-size: 0.85rem;
     color: var(--muted-2);
+    flex-shrink: 0;
+  }
+  .module-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex-grow: 1;
+    min-width: 0;
+  }
+  .module-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .module-badge {
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    background: rgb(var(--accent-rgb) / 0.1);
+    border: 1px solid rgb(var(--accent-rgb) / 0.25);
+    padding: 0.15rem 0.5rem;
+    border-radius: 99px;
+  }
+  .module-subtitle {
+    font-size: 0.88rem;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .project-body p {
-    font-size: 0.92rem;
-    margin: 0.6rem 0 1.1rem;
-    flex-grow: 1;
+  .module-metric {
+    flex-shrink: 0;
+    color: var(--accent);
+    font-size: 1rem;
+    display: none;
   }
-  .tags {
+  .module-chevron {
+    flex-shrink: 0;
+    color: var(--muted-2);
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1.25rem;
+    transition: transform var(--dur) var(--ease), color var(--dur) var(--ease);
   }
-  .details-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text);
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-top: auto;
-  }
-  .project-card:hover .details-link,
-  .project-card:focus-visible .details-link {
+  .module[open] .module-chevron {
+    transform: rotate(90deg);
     color: var(--accent);
   }
-  .project-card:hover .details-link :global(svg),
-  .project-card:focus-visible .details-link :global(svg) {
-    transform: translateX(4px);
+  .module-summary:hover .module-chevron {
+    color: var(--accent);
   }
-  .details-link :global(svg) {
-    transition: transform var(--dur) var(--ease);
+
+  .module-body {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    padding: 0 1.6rem 2rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.75rem;
+  }
+  .module-media {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .module-media :global(img) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .module-details .tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .module-context {
+    font-size: 0.75rem;
+    color: var(--muted-2);
+    margin-left: 0.3rem;
+  }
+  .detail {
+    margin-bottom: 1.5rem;
+  }
+  .detail:last-of-type {
+    margin-bottom: 1.75rem;
+  }
+  .detail h4 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+  }
+  .detail p {
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+  .detail ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .detail li {
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding-left: 1.1rem;
+    position: relative;
+    line-height: 1.55;
+  }
+  .detail li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+  }
+  .detail-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem 2rem;
+  }
+  .results li {
+    padding-left: 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .results li::before {
+    display: none;
+  }
+  .results strong {
+    color: var(--accent);
+    margin-right: 0.4rem;
+  }
+  .module-link {
+    width: fit-content;
+  }
+
+  @media (max-width: 720px) {
+    .module-subtitle {
+      white-space: normal;
+    }
+    .module-body {
+      grid-template-columns: 1fr;
+    }
+    .detail-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (min-width: 560px) {
+    .module-metric {
+      display: block;
+    }
   }
 </style>
