@@ -108,7 +108,7 @@
 }
 .filter-group a[aria-current='true']::before {
   content: '✓ ';
-  color: #d77709;
+  color: var(--accent);
 }
 .export-links {
   font-size: 0.82rem;
@@ -194,10 +194,10 @@
   border-radius: 2px;
 }
 .key-p {
-  background: #d77709;
+  background: var(--accent);
 }
 .key-u {
-  background: #12a597;
+  background: #e2711d;
 }
 
 /* ---- charts ---- */
@@ -227,13 +227,13 @@
   stroke-linecap: round;
 }
 .line-p {
-  stroke: #d77709;
+  stroke: var(--accent);
 }
 .line-u {
-  stroke: #12a597;
+  stroke: #e2711d;
 }
 .area-p {
-  fill: #d77709;
+  fill: var(--accent);
   fill-opacity: 0.1;
 }
 .dot {
@@ -241,24 +241,24 @@
   stroke-width: 2;
 }
 .dot-p {
-  fill: #d77709;
+  fill: var(--accent);
 }
 .dot-u {
-  fill: #12a597;
+  fill: #e2711d;
 }
 .cross {
   stroke: var(--border-strong);
   stroke-width: 1;
 }
 .col {
-  fill: #d77709;
+  fill: var(--accent);
 }
 .col-group {
   outline: none;
 }
 .col-group:hover .col,
 .col-group:focus-visible .col {
-  fill: #e88f1f;
+  fill: var(--accent-strong);
 }
 .col-group:focus-visible rect {
   stroke: var(--accent);
@@ -334,7 +334,7 @@
 .bar {
   display: block;
   height: 10px;
-  background: #d77709;
+  background: var(--accent);
   border-radius: 0 4px 4px 0;
 }
 .rank-val {
