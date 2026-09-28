@@ -30,16 +30,6 @@ export const site = {
 
 export const dashboards = [
   {
-    file: 'dashboard-1.png',
-    title: 'Dashboard de Agência de Viagens',
-    context: 'Desenvolvido para um teste prático da CVC.',
-  },
-  {
-    file: 'dashboard-2.png',
-    title: 'Dashboard Financeiro',
-    context: 'Protótipo para o domínio de crédito consignado, o mesmo em que atuei na Capital Consig.',
-  },
-  {
     file: 'dashboard-3.png',
     title: 'Dashboard de Vendas — Artwalk',
     context: 'Desenvolvido para a Artwalk (Grupo AFEET), loja de streetwear onde liderei a equipe de vendas.',
@@ -53,5 +43,10 @@ export const dashboards = [
     file: 'dashboard-5.png',
     title: 'Painel de Crédito Consignado — Capital Consig',
     context: 'Desenvolvido para a Capital Consig, no mesmo domínio de crédito consignado dos projetos Zion, Mordomo e Nero.',
+  },
+  {
+    file: 'dashboard-6.png',
+    title: 'Dashboard de Pacotes — CVC',
+    context: 'Desenvolvido para um teste prático da CVC.',
   },
 ];
