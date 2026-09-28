@@ -41,7 +41,12 @@ export const dashboards = [
   },
   {
     file: 'dashboard-3.png',
-    title: 'Dashboard de Vendas',
+    title: 'Dashboard de Vendas — Artwalk',
     context: 'Desenvolvido para a Artwalk (Grupo AFEET), loja de streetwear onde liderei a equipe de vendas.',
+  },
+  {
+    file: 'dashboard-4.png',
+    title: 'Dashboard de Vendas — Authentic Feet',
+    context: 'Desenvolvido para a Authentic Feet (Grupo AFEET), outra loja de streetwear em que atuei.',
   },
 ];
