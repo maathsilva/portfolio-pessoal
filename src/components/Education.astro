@@ -36,6 +36,16 @@ import Icon from './Icon.astro';
             <p class="cert-title">{cert.title}</p>
             <p class="mono cert-meta">{cert.institution} · {cert.year}</p>
           </div>
+          {cert.file && (
+            <a
+              href={`/assets/docs/certificados/${cert.file}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="cert-link"
+            >
+              <Icon name="file-text" size={14} /> Ver certificado
+            </a>
+          )}
         </li>
       ))}
     </ul>
@@ -111,6 +121,21 @@ import Icon from './Icon.astro';
   }
   .cert-item {
     padding: 1.1rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .cert-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    width: fit-content;
+  }
+  .cert-link:hover {
+    color: var(--accent-strong);
   }
   @media (max-width: 760px) {
     .cert-grid {

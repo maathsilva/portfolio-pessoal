@@ -82,13 +82,14 @@ export interface Certification {
   title: string;
   institution: string;
   year: string;
+  file?: string;
 }
 
 export const certifications: Certification[] = [
-  { title: 'Formação Python', institution: 'Alura', year: '2024' },
-  { title: 'Formação SQL', institution: 'Alura', year: '2024' },
-  { title: 'Formação Power BI', institution: 'Alura', year: '2024' },
-  { title: 'Formação Excel', institution: 'Alura', year: '2024' },
-  { title: 'Formação Modelagem de Dados', institution: 'Alura', year: '2024' },
+  { title: 'Formação Python', institution: 'Alura', year: '2024', file: 'certificado-python.pdf' },
+  { title: 'Formação SQL', institution: 'Alura', year: '2024', file: 'certificado-sql.pdf' },
+  { title: 'Formação Power BI', institution: 'Alura', year: '2024', file: 'certificado-power-bi.pdf' },
+  { title: 'Formação Excel', institution: 'Alura', year: '2024', file: 'certificado-excel.pdf' },
+  { title: 'Formação Modelagem de Dados', institution: 'Alura', year: '2024', file: 'certificado-modelagem-dados.pdf' },
   { title: 'Formação Databricks', institution: 'Alura', year: '2024' },
 ];
