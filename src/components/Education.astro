@@ -24,6 +24,16 @@ import Icon from './Icon.astro';
           <h3>{item.title}</h3>
           <p class="edu-institution">{item.institution}</p>
           <p class="edu-desc">{item.description}</p>
+          {item.file && (
+            <a
+              href={`/assets/docs/diplomas/${item.file}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="edu-link"
+            >
+              <Icon name="file-text" size={14} /> Ver diploma
+            </a>
+          )}
         </div>
       ))}
     </div>
@@ -102,6 +112,19 @@ import Icon from './Icon.astro';
   .edu-desc {
     font-size: 0.9rem;
     margin: 0;
+  }
+  .edu-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 1rem;
+    width: fit-content;
+  }
+  .edu-link:hover {
+    color: var(--accent-strong);
   }
 
   .subhead {

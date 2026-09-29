@@ -52,6 +52,7 @@ export interface Education {
   institution: string;
   description: string;
   completed: boolean;
+  file?: string;
 }
 
 export const education: Education[] = [
@@ -61,6 +62,7 @@ export const education: Education[] = [
     institution: 'Universidade São Judas Tadeu',
     description: 'Análise, modelagem e aplicação de dados para negócios.',
     completed: true,
+    file: 'diploma-ciencia-de-dados.pdf',
   },
   {
     period: '2025',
@@ -68,6 +70,7 @@ export const education: Education[] = [
     institution: 'Universidade São Judas Tadeu',
     description: 'Machine learning, deep learning e aplicações práticas de sistemas inteligentes.',
     completed: true,
+    file: 'diploma-inteligencia-artificial.pdf',
   },
   {
     period: '2020 — 2024',
@@ -75,6 +78,7 @@ export const education: Education[] = [
     institution: 'Universidade Cidade de São Paulo',
     description: 'Desenvolvimento de software, arquitetura de sistemas e boas práticas de engenharia.',
     completed: true,
+    file: 'diploma-engenharia-software.pdf',
   },
 ];
 
