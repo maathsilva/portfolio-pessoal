@@ -58,8 +58,14 @@ import { site } from '../data/site';
     z-index: 1;
     display: flex;
     justify-content: center;
-    width: 100%;
-    margin: auto 0;
+    /* Only the *longhand* vertical margins — for the flex-centering trick
+       below. A `width` or shorthand `margin` here would win the specificity
+       tie against the shared .container utility (same element has both
+       classes) and erase its side gutters/centering, which only becomes
+       visible once text stops being centered (e.g. .hero-stats going
+       text-align: left on mobile). */
+    margin-top: auto;
+    margin-bottom: auto;
   }
   .hero-copy {
     max-width: 780px;

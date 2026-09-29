@@ -194,6 +194,12 @@ const cover = getImage(project.cover);
     gap: 3rem;
     align-items: start;
   }
+  .case-main {
+    /* Without this, a grid item sizes to fit its content's intrinsic width —
+       the code block's <pre> (white-space: pre, long lines) would then push
+       the whole grid track, and the page, wider than the viewport. */
+    min-width: 0;
+  }
   .case-main h2 {
     font-size: 1.5rem;
     color: var(--accent);
@@ -271,6 +277,7 @@ const cover = getImage(project.cover);
     border-radius: 0 !important;
     font-size: 0.85rem !important;
     padding: 1.25rem !important;
+    overflow-x: auto !important;
   }
 
   .case-sidebar {
