@@ -4,7 +4,9 @@ export interface SkillGroup {
   items: string[];
 }
 
-// Mesma lista do currículo (seção "Habilidades Técnicas"), categoria por categoria.
+// Base: lista do currículo (seção "Habilidades Técnicas"). Cloud & Data
+// Platforms também inclui AWS, GCP e Oracle Cloud — em estudo, fora da
+// pós-graduação em Cloud Computing (ainda não iniciada).
 export const skillGroups: SkillGroup[] = [
   {
     icon: 'code',
@@ -14,7 +16,7 @@ export const skillGroups: SkillGroup[] = [
   {
     icon: 'cloud',
     title: 'Cloud & Data Platforms',
-    items: ['Azure Data Platform', 'Databricks'],
+    items: ['Azure Data Platform', 'AWS', 'Google Cloud Platform (GCP)', 'Oracle Cloud', 'Databricks'],
   },
   {
     icon: 'database',
