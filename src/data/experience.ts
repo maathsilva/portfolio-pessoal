@@ -9,9 +9,21 @@ export interface Experience {
 export const experience: Experience[] = [
   {
     company: 'Spread Tecnologia',
-    role: 'Analista de Dados',
-    period: 'nov/2025 — Atual',
+    role: 'Administrador de Dados (Transpetro)',
+    period: 'out/2026 — Atual',
     current: true,
+    bullets: [
+      'Governança, padronização e modelagem de dados corporativos, garantindo integridade, consistência e aderência às políticas de dados.',
+      'Levantamento e análise de requisitos junto às áreas de negócio para definição de modelos relacionais e documentação técnica.',
+      'Desenvolvimento e validação de procedures, triggers, packages, functions e views em PL/SQL, assegurando performance e estabilidade das aplicações.',
+      'Otimização de consultas SQL e tuning de performance, reduzindo tempos de resposta e melhorando a eficiência dos sistemas.',
+      'Garantia da conformidade com a LGPD e diretrizes internas de segurança da informação.',
+    ],
+  },
+  {
+    company: 'Spread Tecnologia',
+    role: 'Analista de Dados (Ipiranga)',
+    period: 'nov/2025 — set/2026',
     bullets: [
       'Administração, governança e sustentação do ambiente Informatica PowerCenter, garantindo disponibilidade, performance e rastreabilidade dos processos ETL.',
       'Monitoramento, troubleshooting e otimização de workflows, sessions, mappings e SQL Overrides.',
