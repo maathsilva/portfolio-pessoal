@@ -47,13 +47,35 @@ export const experience: Experience[] = [
   {
     company: 'Grupo AFEET',
     role: 'Front Leader',
-    period: 'mai/2019 — out/2024',
+    period: 'set/2020 — out/2024',
     bullets: [
-      'Liderança de equipe com foco em produtividade e cumprimento de metas mensais.',
-      'Gestão de controle de estoque, incluindo inventários periódicos.',
-      'Criação e análise de KPIs de curto e médio prazo para mensurar desempenho da equipe e das operações.',
-      'Dashboards analíticos em Excel para visualização de dados e decisões estratégicas.',
-      'Aumento da taxa de conversão de vendas de 8% para 14% — prêmio de melhor taxa da rede (90 lojas) em 2022.',
+      'Liderança de equipe de vendas, com distribuição e acompanhamento de tarefas diárias, foco em produtividade e cumprimento de metas mensais.',
+      'Criação e acompanhamento de KPIs de curto e médio prazo para mensurar o desempenho da equipe e das operações.',
+      'Relatórios e dashboards analíticos em Excel avançado (tabelas dinâmicas, PROCV, gráficos automatizados) para visualização de dados e decisões estratégicas.',
+      'Controle de estoque, com monitoramento de entrada e saída de mercadorias e inventários periódicos.',
+      'Aumento da taxa de conversão de vendas de 8% para 14% (+75%) — prêmio de melhor taxa da rede (90 lojas) em 2022.',
+    ],
+  },
+  {
+    company: 'Grupo AFEET',
+    role: 'Guide',
+    period: 'fev/2020 — set/2020',
+    bullets: [
+      'Referência técnica em produtos, explicando de forma consultiva as tecnologias de calçados e roupas para apoiar a decisão de compra.',
+      'Treinamento de novos colaboradores em conhecimento de produto, atendimento e processos da loja.',
+      'Apoio à administração da operação da loja e acompanhamento da rotina da equipe.',
+      'Disseminação de boas práticas de venda consultiva entre os vendedores.',
+    ],
+  },
+  {
+    company: 'Grupo AFEET',
+    role: 'Front',
+    period: 'mai/2019 — fev/2020',
+    bullets: [
+      'Vendas diretas de calçados e roupas, com atendimento consultivo e foco na jornada do cliente, do primeiro contato ao pós-venda.',
+      'Tratamento de objeções e resolução de problemas, garantindo satisfação e fidelização.',
+      'Operação de PDV e fechamento de caixa; entrada e conferência de mercadorias.',
+      'Apoio à organização da loja e aos processos de abertura e fechamento.',
     ],
   },
 ];
