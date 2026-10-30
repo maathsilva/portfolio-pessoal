@@ -26,7 +26,7 @@ export const experience: Experience[] = [
     period: 'nov/2025 — set/2026',
     bullets: [
       'Administração, governança e sustentação do ambiente Informatica PowerCenter, garantindo disponibilidade, performance e rastreabilidade dos processos ETL.',
-      'Monitoramento, troubleshooting e otimização de workflows, sessions, mappings e SQL Overrides.',
+      'Monitoramento, troubleshooting e otimização de workflows, sessions, mappings e SQL Overrides, com consultas e validações em PL/SQL e PostgreSQL.',
       'Gestão da esteira de deploy ETL, controle de versões e conformidade entre ambientes.',
       'Auditoria técnica de processos ETL, assegurando padrões de desenvolvimento, qualidade e governança de dados.',
       'Suporte especializado a equipes de desenvolvimento, incidentes críticos e análise de causa raiz.',
@@ -40,7 +40,7 @@ export const experience: Experience[] = [
     bullets: [
       'Desenvolvi um ecossistema de softwares internos (Zion, Mordomo, Nero) para automatizar processos financeiros de crédito consignado, com Python, SQL, Power BI e Excel avançado.',
       'Criação de dashboards interativos em Power BI e relatórios dinâmicos em Excel, com modelagem de dados e indicadores automatizados.',
-      'Consultas SQL complexas para extração e tratamento de grandes volumes de dados, automatizando rotinas financeiras críticas.',
+      'Consultas SQL complexas em Oracle SQL e PostgreSQL para extração e tratamento de grandes volumes de dados, automatizando rotinas financeiras críticas.',
       'Otimização de processos que levavam 7 horas no Excel para 5 minutos via SQL, elevando a confiabilidade das informações.',
     ],
   },
