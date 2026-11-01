@@ -39,6 +39,11 @@ const cover = getImage(project.cover);
         <div class="tags">
           {project.tags.map((tag) => <span class="tag">{tag}</span>)}
         </div>
+        {project.link && (
+          <p class="case-link">
+            <a href={project.link.url} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">{project.link.label} <Icon name="arrow-right" /></a>
+          </p>
+        )}
       </div>
     </section>
 
@@ -163,6 +168,9 @@ const cover = getImage(project.cover);
     color: var(--muted-2);
     font-size: 0.85rem;
     margin-bottom: 1.25rem;
+  }
+  .case-link {
+    margin-top: 1.5rem;
   }
   .tags {
     display: flex;

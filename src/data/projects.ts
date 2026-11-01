@@ -23,6 +23,7 @@ export interface Project {
     lang: string;
     snippet: string;
   };
+  link?: { label: string; url: string };
   gallery: ProjectImage[];
   featured: boolean;
 }
@@ -205,6 +206,48 @@ def run_validation_process(convenio, file_paths, output_path, progress_callback=
     featured: false,
   },
   {
+    slug: 'projeto-canil-kessy-sarameg',
+    title: 'Canil Kessy Sarameg',
+    subtitle:
+      'Site de vendas de Bulldog Francês e Lulu da Pomerânia (Spitz Alemão) com painel administrativo para o dono gerenciar os filhotes e acompanhar a visibilidade do negócio.',
+    context: 'Corporativo',
+    timeframe: '2026 — Projeto para cliente',
+    tags: ['Next.js', 'TypeScript', 'Supabase', 'PostgreSQL', 'Tailwind CSS', 'Vercel'],
+    cover: 'canil1.png',
+    link: { label: 'Ver o site no ar', url: 'https://www.canilkessysarameg.com' },
+    problem:
+      'O cliente criava Bulldog Francês e Lulu da Pomerânia (Spitz Alemão) e precisava de um site próprio para vender os filhotes, sem depender só de redes sociais e conversas soltas no WhatsApp. Além da vitrine pública, ele precisava de um painel administrativo para cadastrar e atualizar os filhotes sozinho, sem chamar um desenvolvedor a cada mudança, e de visibilidade sobre o negócio: quantas pessoas visitam o site, quais páginas e quais filhotes despertam mais interesse.',
+    solution: [
+      'Site público com Início, Sobre nós, Filhotes (filtro por raça e por disponibilidade), página individual de cada filhote com fotos, vídeo e dados, Clientes e Contato — com botão de WhatsApp que já leva o nome do filhote na mensagem.',
+      'Painel administrativo (/admin) para cadastrar, editar, reservar, marcar como vendido e excluir filhotes, com envio de fotos e vídeo. Os status (disponível, reservado, vendido) aparecem no site na hora.',
+      'Mural "Novos lares", gerenciado pelo painel, com as fotos dos clientes e seus filhotes, que serve como prova social no site.',
+      'Analytics próprio no painel: visualizações, visitantes, sessões, páginas mais vistas, origens de tráfego e dispositivos, sem cookies e sem guardar IP.',
+      'SEO: sitemap que inclui cada filhote, dados estruturados (negócio local e trilha de navegação) e domínio próprio com redirecionamentos.',
+    ],
+    architecture: [
+      'Next.js 16 (App Router) com TypeScript e Tailwind CSS 4, publicado na Vercel com deploy automático a cada push.',
+      'Supabase como backend: PostgreSQL para filhotes, fotos e métricas, Auth para o login do administrador e Storage para fotos e vídeos.',
+      'Segurança em três camadas no painel: proxy que bloqueia o acesso sem login, validação no servidor (sessão de no máximo 12 h e conta na lista de administradores) e RLS no banco, de modo que o público só lê e apenas o administrador grava.',
+      'Validação com Zod no navegador e no servidor, limites de tipo e tamanho nos uploads e cabeçalhos de segurança (CSP, HSTS, X-Frame-Options).',
+      'Leitura pública com cache invalidado pelo painel a cada alteração, para o site ser rápido e sempre atualizado.',
+    ],
+    results: [
+      { label: 'Autonomia do cliente', value: 'Gerencia filhotes, fotos e vídeos sozinho' },
+      { label: 'Visibilidade', value: 'Analytics de acessos dentro do painel' },
+      { label: 'Em produção', value: 'canilkessysarameg.com' },
+    ],
+    resultsNote: 'Projeto entregue e em uso pelo cliente; sem métricas de vendas divulgadas.',
+    learnings:
+      'Pensar o painel como produto do cliente, e não só como acesso ao banco, mudou as decisões: reservar ou vender nunca apaga o cadastro, a URL do filhote não muda ao editar (para não quebrar links já compartilhados) e campos vazios simplesmente não aparecem no site. Já a medição de acessos sem cookies e sem IP deu visibilidade ao negócio sem expor os visitantes.',
+    gallery: [
+      { file: 'canil1.png', alt: 'Página inicial do site do Canil Kessy Sarameg', caption: 'Página inicial: vitrine com filhotes disponíveis.' },
+      { file: 'canil2.png', alt: 'Listagem de filhotes com filtros por raça e disponibilidade', caption: 'Listagem de filhotes com filtros e status.' },
+      { file: 'canil3.png', alt: 'Página individual de um filhote', caption: 'Página do filhote, com dados e contato por WhatsApp.' },
+      { file: 'canil4.png', alt: 'Página Sobre nós do canil', caption: 'Página institucional do canil.' },
+    ],
+    featured: false,
+  },
+  {
     slug: 'projeto-nero',
     title: 'Nero',
     subtitle: 'Consolidação de dados validados e geração de relatórios Excel auditáveis.',
@@ -232,39 +275,6 @@ def run_validation_process(convenio, file_paths, output_path, progress_callback=
     gallery: [
       { file: 'nero1.png', alt: 'Tela inicial do Nero', caption: 'Tela inicial de geração de relatórios.' },
       { file: 'nero2.png', alt: 'Relatório consolidado gerado pelo Nero', caption: 'Relatório consolidado formatado.' },
-    ],
-    featured: false,
-  },
-  {
-    slug: 'projeto-luno',
-    title: 'Luno',
-    subtitle: 'Aplicação desktop (PyQt5) para criação e gestão automatizada de escalas de trabalho semanais.',
-    context: 'Pessoal',
-    timeframe: '2024',
-    tags: ['Python', 'PyQt5', 'Algoritmos'],
-    cover: 'luno1.png',
-    problem:
-      'Montar escalas de trabalho semanais para uma equipe de farmácia manualmente é um problema combinatório: é preciso respeitar disponibilidade, carga horária e regras de rodízio, o que torna o processo lento e propenso a inconsistências quando feito à mão.',
-    solution: [
-      'Aplicação desktop onde o gestor cadastra colaboradores, disponibilidade e regras de rodízio.',
-      'Algoritmo de geração de escala que aplica essas regras automaticamente para montar a semana.',
-      'Interface para ajuste manual pontual sobre a escala gerada, sem perder o que já foi validado.',
-    ],
-    architecture: [
-      'PyQt5 para a interface de cadastro e visualização da escala.',
-      'Módulo de geração de escala baseado em regras de disponibilidade e rodízio.',
-    ],
-    results: [
-      { label: 'Escopo', value: 'Projeto pessoal, fora de contexto corporativo' },
-    ],
-    resultsNote: 'Sem métricas de produção — desenvolvido como estudo de algoritmos de agendamento aplicados a um problema real.',
-    learnings:
-      'Modelar "disponibilidade + regras de rodízio" como restrições explícitas, em vez de tentar prever todos os casos manualmente, foi o que tornou o gerador de escala extensível a novas regras sem reescrever a lógica principal.',
-    gallery: [
-      { file: 'luno1.png', alt: 'Cadastro de colaboradores no Luno', caption: 'Cadastro de colaboradores e disponibilidade.' },
-      { file: 'luno2.png', alt: 'Configuração de regras de rodízio', caption: 'Configuração de regras de rodízio.' },
-      { file: 'luno3.png', alt: 'Escala semanal gerada pelo Luno', caption: 'Escala semanal gerada automaticamente.' },
-      { file: 'luno4.png', alt: 'Ajuste manual da escala gerada', caption: 'Ajuste manual sobre a escala gerada.' },
     ],
     featured: false,
   },

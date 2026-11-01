@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
-const slugs = ['faster', 'orus', 'zion', 'mordomo', 'nero', 'luno'];
+const slugs = ['faster', 'orus', 'zion', 'mordomo', 'nero'];
 
 export default defineConfig({
   site: 'https://www.matheussilvabaptista.online',
