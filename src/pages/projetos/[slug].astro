@@ -297,6 +297,7 @@ const cover = getImage(project.cover);
   }
   .sidebar-card {
     padding: 1.5rem;
+    min-width: 0;
   }
   .sidebar-card h3 {
     font-size: 1rem;
@@ -309,8 +310,9 @@ const cover = getImage(project.cover);
     gap: 1rem;
   }
   .result-item dt {
-    font-size: 1.3rem;
+    font-size: clamp(1.05rem, 5vw, 1.3rem);
     color: var(--accent);
+    overflow-wrap: anywhere;
   }
   .result-item dd {
     font-size: 0.82rem;
