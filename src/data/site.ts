@@ -19,7 +19,7 @@ export const site = {
   whatsappMessage: 'Olá Matheus! Vamos conversar sobre uma oportunidade?',
   linkedin: 'https://www.linkedin.com/in/matheussilvabaptista',
   github: 'https://github.com/maathsilva',
-  resumeUrl: '/assets/docs/curriculomatheussilva.pdf',
+  resumeUrl: '/assets/docs/Matheus_Silva_Analista_de_Dados.pdf',
   siteUrl: 'https://www.matheussilvabaptista.online',
   heroStats: [
     { value: '+93%', label: 'eficiência em provisionamento de acessos (Orus)' },
