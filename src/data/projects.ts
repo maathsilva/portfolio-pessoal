@@ -8,7 +8,7 @@ export interface Project {
   slug: string;
   title: string;
   subtitle: string;
-  context: 'Corporativo' | 'Pessoal';
+  context: 'Corporativo' | 'Freelance' | 'Pessoal';
   timeframe: string;
   tags: string[];
   cover: string;
@@ -35,7 +35,7 @@ export const projects: Project[] = [
     subtitle:
       'Automação da documentação e auditoria de processos ETL via API do Informatica PowerCenter.',
     context: 'Corporativo',
-    timeframe: '2025 — Spread Tecnologia',
+    timeframe: 'Spread Tecnologia · cliente Ipiranga',
     tags: ['API', 'Informatica PowerCenter', 'ETL', 'Governança'],
     cover: 'faster1.png',
     problem:
@@ -71,7 +71,7 @@ export const projects: Project[] = [
     title: 'Orus',
     subtitle: 'Plataforma para automação de gestão de acessos, permissões, conexões e folders no ambiente Informatica PowerCenter.',
     context: 'Corporativo',
-    timeframe: '2025 — Spread Tecnologia',
+    timeframe: 'Spread Tecnologia · cliente Ipiranga',
     tags: ['API', 'Automação', 'PowerCenter', 'IAM'],
     cover: 'orus1.png',
     problem:
@@ -210,7 +210,7 @@ def run_validation_process(convenio, file_paths, output_path, progress_callback=
     title: 'Canil Kessy Sarameg',
     subtitle:
       'Site de vendas de Bulldog Francês e Lulu da Pomerânia (Spitz Alemão) com painel administrativo para o dono gerenciar os filhotes e acompanhar a visibilidade do negócio.',
-    context: 'Corporativo',
+    context: 'Freelance',
     timeframe: '2026 — Projeto para cliente',
     tags: ['Next.js', 'TypeScript', 'Supabase', 'PostgreSQL', 'Tailwind CSS', 'Vercel'],
     cover: 'canil1.png',

@@ -1,36 +1,45 @@
+/** A bullet, or a bullet with nested items (e.g. the systems inside an ecosystem). */
+export type Bullet = string | { text: string; items: string[] };
+
 export interface Experience {
   company: string;
   role: string;
+  /** Consulting client the role was allocated to. */
+  client?: string;
   period: string;
   current?: boolean;
-  bullets: string[];
+  bullets: Bullet[];
 }
 
+// Mirrors the résumé (public/assets/docs/Matheus_Silva_Analista_de_Dados.pdf).
+// The site also names the databases used day to day (PL/SQL, PostgreSQL, Oracle SQL).
 export const experience: Experience[] = [
   {
     company: 'Spread Tecnologia',
-    role: 'Administrador de Dados (Transpetro)',
+    role: 'Analista de Dados',
+    client: 'Transpetro',
     period: 'out/2026 — Atual',
     current: true,
     bullets: [
-      'Governança, padronização e modelagem de dados corporativos, garantindo integridade, consistência e aderência às políticas de dados.',
-      'Levantamento e análise de requisitos junto às áreas de negócio para definição de modelos relacionais e documentação técnica.',
-      'Desenvolvimento e validação de procedures, triggers, packages, functions e views em PL/SQL, assegurando performance e estabilidade das aplicações.',
-      'Otimização de consultas SQL e tuning de performance, reduzindo tempos de resposta e melhorando a eficiência dos sistemas.',
-      'Garantia da conformidade com a LGPD e diretrizes internas de segurança da informação.',
+      'Analiso, valido e trato dados corporativos em Oracle com SQL e PL/SQL, garantindo integridade, consistência e qualidade das informações.',
+      'Levanto requisitos com as áreas de negócio e traduzo as necessidades em modelos de dados relacionais e documentação técnica.',
+      'Desenvolvo e valido procedures, functions, packages, triggers e views em PL/SQL, assegurando performance e estabilidade das aplicações.',
+      'Otimizo consultas SQL com tuning de performance, reduzindo tempos de resposta e aumentando a eficiência dos sistemas.',
+      'Atuo na governança e padronização dos dados corporativos, garantindo aderência às políticas de dados, à LGPD e às diretrizes de segurança da informação.',
     ],
   },
   {
     company: 'Spread Tecnologia',
-    role: 'Analista de Dados (Ipiranga)',
+    role: 'Analista de Dados',
+    client: 'Ipiranga',
     period: 'nov/2025 — set/2026',
     bullets: [
-      'Administração, governança e sustentação do ambiente Informatica PowerCenter, garantindo disponibilidade, performance e rastreabilidade dos processos ETL.',
-      'Monitoramento, troubleshooting e otimização de workflows, sessions, mappings e SQL Overrides, com consultas e validações em PL/SQL e PostgreSQL.',
-      'Gestão da esteira de deploy ETL, controle de versões e conformidade entre ambientes.',
-      'Auditoria técnica de processos ETL, assegurando padrões de desenvolvimento, qualidade e governança de dados.',
-      'Suporte especializado a equipes de desenvolvimento, incidentes críticos e análise de causa raiz.',
-      'Capacitação de equipes em Informatica PowerCenter e Informatica Intelligent Cloud Services (IICS).',
+      'Administrei o Informatica PowerCenter de ponta a ponta, incluindo configuração, monitoramento e governança da plataforma.',
+      'Conduzi a esteira de deploy dos processos ETL, garantindo entregas consistentes e rastreáveis.',
+      'Garanti a qualidade dos processos ETL com validação, auditoria e correção de falhas de desempenho e de lógica, usando consultas em PL/SQL e PostgreSQL.',
+      'Idealizei e desenvolvi o Faster, solução de auditoria e governança dos processos ETL integrada à API do PowerCenter.',
+      'Idealizei e desenvolvi o Orus, plataforma integrada via API para gestão automatizada de acessos, conexões e permissões em massa, reduzindo o tempo de provisionamento de 30 para 2 minutos (93%).',
+      'Prestei suporte técnico aos desenvolvedores, orientando boas práticas e otimização de fluxos, e capacitei equipes em Informatica PowerCenter e Informatica Intelligent Cloud Services (IICS).',
     ],
   },
   {
@@ -38,44 +47,28 @@ export const experience: Experience[] = [
     role: 'Analista de Negócios',
     period: 'mai/2025 — nov/2025',
     bullets: [
-      'Desenvolvi um ecossistema de softwares internos (Zion, Mordomo, Nero) para automatizar processos financeiros de crédito consignado, com Python, SQL, Power BI e Excel avançado.',
-      'Criação de dashboards interativos em Power BI e relatórios dinâmicos em Excel, com modelagem de dados e indicadores automatizados.',
-      'Consultas SQL complexas em Oracle SQL e PostgreSQL para extração e tratamento de grandes volumes de dados, automatizando rotinas financeiras críticas.',
-      'Otimização de processos que levavam 7 horas no Excel para 5 minutos via SQL, elevando a confiabilidade das informações.',
+      {
+        text: 'Desenvolvi um ecossistema de sistemas internos em Python e SQL (Mordomo, Zion e Nero) para automação de processos financeiros:',
+        items: [
+          'Mordomo: automação do download e da consolidação de relatórios financeiros, reduzindo o tempo de extração de 30 para 5 minutos (83%).',
+          'Zion: limpeza, validação e reconciliação de bases financeiras com mais de R$ 40 milhões em valores processados, garantindo precisão e rastreabilidade para auditoria.',
+          'Nero: geração de relatórios financeiros detalhados e auditáveis, aumentando a confiabilidade das análises.',
+        ],
+      },
+      'Criei dashboards e relatórios interativos em Power BI e Excel avançado, traduzindo dados complexos em indicadores de fácil leitura.',
+      'Desenvolvi consultas SQL em Oracle SQL e PostgreSQL para análise de grandes volumes de dados e automatizei rotinas críticas, reduzindo erros manuais e tempo operacional.',
+      'Otimizei um processo que levava 7 horas no Excel para 5 minutos com SQL, aumentando a produtividade e a consistência dos resultados.',
     ],
   },
   {
-    company: 'Grupo AFEET',
+    company: 'Grupo AFEET (Authentic Feet)',
     role: 'Front Leader',
-    period: 'set/2020 — out/2024',
+    period: 'mai/2019 — out/2024',
     bullets: [
-      'Liderança de equipe de vendas, com distribuição e acompanhamento de tarefas diárias, foco em produtividade e cumprimento de metas mensais.',
-      'Criação e acompanhamento de KPIs de curto e médio prazo para mensurar o desempenho da equipe e das operações.',
-      'Relatórios e dashboards analíticos em Excel avançado (tabelas dinâmicas, PROCV, gráficos automatizados) para visualização de dados e decisões estratégicas.',
-      'Controle de estoque, com monitoramento de entrada e saída de mercadorias e inventários periódicos.',
-      'Aumento da taxa de conversão de vendas de 8% para 14% (+75%) — prêmio de melhor taxa da rede (90 lojas) em 2022.',
-    ],
-  },
-  {
-    company: 'Grupo AFEET',
-    role: 'Guide',
-    period: 'fev/2020 — set/2020',
-    bullets: [
-      'Referência técnica em produtos, explicando de forma consultiva as tecnologias de calçados e roupas para apoiar a decisão de compra.',
-      'Treinamento de novos colaboradores em conhecimento de produto, atendimento e processos da loja.',
-      'Apoio à administração da operação da loja e acompanhamento da rotina da equipe.',
-      'Disseminação de boas práticas de venda consultiva entre os vendedores.',
-    ],
-  },
-  {
-    company: 'Grupo AFEET',
-    role: 'Front',
-    period: 'mai/2019 — fev/2020',
-    bullets: [
-      'Vendas diretas de calçados e roupas, com atendimento consultivo e foco na jornada do cliente, do primeiro contato ao pós-venda.',
-      'Tratamento de objeções e resolução de problemas, garantindo satisfação e fidelização.',
-      'Operação de PDV e fechamento de caixa; entrada e conferência de mercadorias.',
-      'Apoio à organização da loja e aos processos de abertura e fechamento.',
+      'Promovido de Front (vendedor) a Guide (especialista em produto, responsável por treinar novos colaboradores e administrar a loja) e depois a Front Leader.',
+      'Criei e analisei KPIs operacionais e estratégicos, apoiando a gestão na tomada de decisão baseada em dados.',
+      'Desenvolvi dashboards em Excel com tabelas dinâmicas, gráficos automatizados e acompanhamento de indicadores de desempenho.',
+      'Aumentei a taxa de conversão de vendas de 8% para 14%, conquistando o prêmio de melhor taxa de conversão da rede (90 lojas) em 2022.',
     ],
   },
 ];

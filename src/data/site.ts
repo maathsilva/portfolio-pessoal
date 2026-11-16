@@ -1,19 +1,11 @@
 export const site = {
   name: 'Matheus Silva',
   role: 'Analista de Dados',
-  roles: [
-    'Matheus Silva',
-    'Analista de Dados',
-    'Cientista de Dados',
-    'Engenheiro de Software',
-    'Engenheiro de Dados',
-    'Especialista em IA',
-    'Engenheiro de Machine Learning',
-    'Desenvolvedor Python',
-  ],
-  tagline: 'ETL, automação e governança de dados',
+  // Same headline as the résumé and LinkedIn: only titles the experience backs up.
+  roles: ['Matheus Silva', 'Analista de Dados', 'Engenheiro de Software', 'Desenvolvedor Python'],
+  tagline: 'SQL, PL/SQL, ETL e Python',
   description:
-    'Analista de Dados com experiência em ETL, automação de processos, governança e BI. Construo pipelines, dashboards e ferramentas que reduzem esforço manual e sustentam decisões de negócio.',
+    'Analista de Dados em consultoria para Transpetro e Ipiranga: SQL e PL/SQL em Oracle, ETL com Informatica PowerCenter, automações em Python e dashboards em Power BI.',
   email: 'maatheussilvab@icloud.com',
   phone: '+5511976663146',
   whatsappMessage: 'Olá Matheus! Vamos conversar sobre uma oportunidade?',
@@ -22,9 +14,9 @@ export const site = {
   resumeUrl: '/assets/docs/Matheus_Silva_Analista_de_Dados.pdf',
   siteUrl: 'https://www.matheussilvabaptista.online',
   heroStats: [
-    { value: '+93%', label: 'eficiência em provisionamento de acessos (Orus)' },
-    { value: '-85%', label: 'esforço operacional em documentação de ETL (Faster)' },
-    { value: 'R$40M+', label: 'em dados financeiros validados (Zion)' },
+    { value: '30 → 2 min', label: 'no provisionamento de acessos (Orus)' },
+    { value: '7 h → 5 min', label: 'em um processo de consolidação com SQL' },
+    { value: 'R$ 40M+', label: 'em dados financeiros validados (Zion)' },
   ],
 };
 

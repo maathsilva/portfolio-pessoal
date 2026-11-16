@@ -17,11 +17,25 @@ import { experience } from '../data/experience';
           </div>
           <div class="timeline-content card">
             <div class="timeline-head">
-              <h3>{job.role} <span class="mono timeline-company">— {job.company}</span></h3>
+              <div>
+                <h3>{job.role} <span class="mono timeline-company">— {job.company}</span></h3>
+                {job.client && <p class="mono timeline-client">Cliente: {job.client}</p>}
+              </div>
               <span class="mono timeline-period">{job.period}</span>
             </div>
             <ul>
-              {job.bullets.map((bullet) => <li>{bullet}</li>)}
+              {job.bullets.map((bullet) =>
+                typeof bullet === 'string' ? (
+                  <li>{bullet}</li>
+                ) : (
+                  <li>
+                    {bullet.text}
+                    <ul class="sub-list">
+                      {bullet.items.map((item) => <li>{item}</li>)}
+                    </ul>
+                  </li>
+                )
+              )}
             </ul>
           </div>
         </li>
@@ -97,6 +111,11 @@ import { experience } from '../data/experience';
     font-size: 0.8rem;
     color: var(--muted-2);
   }
+  .timeline-client {
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
   .timeline-content ul {
     display: flex;
     flex-direction: column;
@@ -117,5 +136,14 @@ import { experience } from '../data/experience';
     height: 5px;
     border-radius: 50%;
     background: var(--accent-dim);
+  }
+  .timeline-content .sub-list {
+    margin-top: 0.5rem;
+  }
+  .timeline-content .sub-list li::before {
+    top: 0.75em;
+    width: 7px;
+    height: 1px;
+    border-radius: 0;
   }
 </style>
