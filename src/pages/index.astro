@@ -3,23 +3,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
 import Experience from '../components/Experience.astro';
-import Education from '../components/Education.astro';
 import Projects from '../components/Projects.astro';
 import Dashboards from '../components/Dashboards.astro';
+import Skills from '../components/Skills.astro';
+import Education from '../components/Education.astro';
 import Contact from '../components/Contact.astro';
 import { site } from '../data/site';
 ---
 
 <BaseLayout
-  title={`${site.name} | ${site.role} — ETL, Automação & Governança de Dados`}
+  title={`${site.name} | ${site.role} — SQL, PL/SQL, ETL e Python`}
   description={site.description}
   path="/"
 >
   <Hero />
   <About />
   <Experience />
-  <Education />
   <Projects />
   <Dashboards />
+  <Skills />
+  <Education />
   <Contact />
 </BaseLayout>

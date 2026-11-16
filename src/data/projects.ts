@@ -209,7 +209,7 @@ def run_validation_process(convenio, file_paths, output_path, progress_callback=
     slug: 'projeto-canil-kessy-sarameg',
     title: 'Canil Kessy Sarameg',
     subtitle:
-      'Site de vendas de Bulldog Francês e Lulu da Pomerânia (Spitz Alemão) com painel administrativo para o dono gerenciar os filhotes e acompanhar a visibilidade do negócio.',
+      'Site de vendas de filhotes com painel administrativo para o cliente gerenciar o catálogo e acompanhar os acessos.',
     context: 'Freelance',
     timeframe: '2026 — Projeto para cliente',
     tags: ['Next.js', 'TypeScript', 'Supabase', 'PostgreSQL', 'Tailwind CSS', 'Vercel'],
@@ -232,8 +232,9 @@ def run_validation_process(convenio, file_paths, output_path, progress_callback=
       'Leitura pública com cache invalidado pelo painel a cada alteração, para o site ser rápido e sempre atualizado.',
     ],
     results: [
-      { label: 'Autonomia do cliente', value: 'Gerencia filhotes, fotos e vídeos sozinho' },
-      { label: 'Visibilidade (30 dias, out–nov/2026)', value: '161 visitantes · 350 visualizações' },
+      // The first result is the one shown on the home-page card, so it stays short.
+      { label: 'Visitantes únicos e 350 visualizações em 30 dias (out–nov/2026)', value: '161 visitantes' },
+      { label: 'Gerencia filhotes, fotos e vídeos sozinho', value: 'Autonomia do cliente' },
       { label: 'Em produção', value: 'canilkessysarameg.com' },
     ],
     resultsNote: 'Dados do analytics do próprio painel (03/out a 01/nov/2026). Projeto entregue e em uso pelo cliente; sem métricas de vendas divulgadas.',

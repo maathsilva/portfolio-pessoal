@@ -1,6 +1,6 @@
 ---
 import { Code } from 'astro:components';
-import { Image } from 'astro:assets';
+import { Image, getImage as optimizeImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import { projects } from '../../data/projects';
@@ -16,12 +16,17 @@ export function getStaticPaths() {
 
 const { project } = Astro.props;
 const cover = getImage(project.cover);
+// Share card: the cover cropped to the 1200×630 size LinkedIn/WhatsApp expect.
+const ogImage = await optimizeImage({ src: cover, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpg' });
 ---
 
 <BaseLayout
   title={`${project.title} | ${site.name}`}
   description={project.subtitle}
   path={`/projetos/${project.slug}`}
+  ogImage={ogImage.src}
+  ogImageAlt={`Projeto ${project.title}`}
+  ogType="article"
 >
   <article>
     <section class="case-hero">

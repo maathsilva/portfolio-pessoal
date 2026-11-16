@@ -2,16 +2,30 @@
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
+import { experience, education } from '../data/experience';
 import '../styles/global.css';
+
+const FONTS_URL =
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap';
 
 interface Props {
   title: string;
   description?: string;
+  /** Path (or absolute URL) of a 1200×630 share image. */
   ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: 'website' | 'article';
   path?: string;
 }
 
-const { title, description = site.description, ogImage = '/og-cover.png', path = '/' } = Astro.props;
+const {
+  title,
+  description = site.description,
+  ogImage = '/og-cover.png',
+  ogImageAlt = `${site.name} — ${site.role}`,
+  ogType = 'website',
+  path = '/',
+} = Astro.props;
 const canonicalURL = new URL(path, site.siteUrl).toString();
 const ogImageURL = new URL(ogImage, site.siteUrl).toString();
 
@@ -23,6 +37,13 @@ const personSchema = {
   url: site.siteUrl,
   email: `mailto:${site.email}`,
   sameAs: [site.linkedin, site.github],
+  address: { '@type': 'PostalAddress', addressLocality: 'São Paulo', addressCountry: 'BR' },
+  worksFor: { '@type': 'Organization', name: experience[0].company },
+  alumniOf: [...new Set(education.map((e) => e.institution))].map((name) => ({
+    '@type': 'CollegeOrUniversity',
+    name,
+  })),
+  knowsAbout: ['SQL', 'PL/SQL', 'Oracle Database', 'PostgreSQL', 'Python', 'ETL', 'Informatica PowerCenter', 'Power BI', 'Modelagem de dados', 'Governança de dados'],
 };
 ---
 
@@ -38,10 +59,14 @@ const personSchema = {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#05070a" />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:locale" content="pt_BR" />
 
@@ -49,9 +74,11 @@ const personSchema = {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageURL} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href={FONTS_URL} />
 
     <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
   </head>

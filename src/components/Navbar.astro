@@ -4,10 +4,12 @@ import Icon from './Icon.astro';
 const isHome = Astro.url.pathname === '/';
 const base = isHome ? '' : '/';
 
+// Same order as the sections on the home page.
 const links = [
   { href: `${base}#sobre`, label: 'Sobre' },
-  { href: `${base}#projetos`, label: 'Projetos' },
   { href: `${base}#experiencia`, label: 'Experiência' },
+  { href: `${base}#projetos`, label: 'Projetos' },
+  { href: `${base}#habilidades`, label: 'Habilidades' },
   { href: `${base}#formacao`, label: 'Formação' },
   { href: `${base}#contato`, label: 'Contato' },
 ];
