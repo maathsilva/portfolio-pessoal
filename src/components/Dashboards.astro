@@ -14,9 +14,10 @@ const cards = await Promise.all(
   })
 );
 
-// The strip is the list rendered twice and shifted by exactly one copy, so the
-// loop is seamless. ~14 s per card keeps it slow enough to read.
-const copies = [false, true];
+// The strip is the list rendered three times and shifted by exactly one copy, so
+// the loop is seamless even when one copy is narrower than the screen (QHD/4K).
+// ~14 s per card keeps it slow enough to read.
+const copies = [false, true, true];
 const duration = `${cards.length * 14}s`;
 ---
 
@@ -76,7 +77,7 @@ const duration = `${cards.length * 14}s`;
      holds it still so a card can be read or opened full screen. */
   .marquee {
     --gap: clamp(1.25rem, 2.5vw, 2rem);
-    --card-w: min(560px, 80vw);
+    --card-w: min(35rem, 80vw);
     overflow: hidden;
     padding-block: 0.5rem 1rem;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
@@ -94,14 +95,14 @@ const duration = `${cards.length * 14}s`;
   .marquee-group {
     display: flex;
     gap: var(--gap);
-    padding-right: var(--gap); /* same spacing across the seam between the two copies */
+    padding-right: var(--gap); /* same spacing across the seams between copies */
   }
   .marquee-card {
     flex: 0 0 var(--card-w);
   }
   @keyframes marquee {
     to {
-      transform: translateX(-50%);
+      transform: translateX(calc(-100% / 3)); /* one copy of three */
     }
   }
 
@@ -121,7 +122,7 @@ const duration = `${cards.length * 14}s`;
     color: var(--muted);
   }
 
-  /* Reduced motion: a still row the visitor scrolls by hand, without the duplicate copy. */
+  /* Reduced motion: a still row the visitor scrolls by hand, without the duplicate copies. */
   @media (prefers-reduced-motion: reduce) {
     .marquee {
       overflow-x: auto;

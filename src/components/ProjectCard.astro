@@ -111,8 +111,10 @@ const num = String(index + 1).padStart(2, '0');
     font-size: 0.88rem;
     color: var(--muted);
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   .module-metric {
     flex-shrink: 0;
@@ -230,9 +232,6 @@ const num = String(index + 1).padStart(2, '0');
   }
 
   @media (max-width: 720px) {
-    .module-subtitle {
-      white-space: normal;
-    }
     .module-body {
       grid-template-columns: 1fr;
     }

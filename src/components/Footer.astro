@@ -45,6 +45,11 @@ const year = new Date().getFullYear();
   .footer-links a:hover {
     color: var(--text);
   }
+  @media (pointer: coarse) {
+    .footer-links a {
+      min-height: 2.75rem; /* 44px: comfortable for a finger */
+    }
+  }
   .footer-copy {
     font-size: 0.82rem;
     color: var(--muted-2);

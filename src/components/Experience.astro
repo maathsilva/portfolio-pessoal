@@ -146,4 +146,14 @@ import { experience } from '../data/experience';
     height: 1px;
     border-radius: 0;
   }
+
+  /* Small phones: less inner padding so the text column isn't squeezed. */
+  @media (max-width: 480px) {
+    .timeline-item {
+      gap: 0.85rem;
+    }
+    .timeline-content {
+      padding: 1.25rem 1.15rem;
+    }
+  }
 </style>
