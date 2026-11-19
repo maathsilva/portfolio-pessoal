@@ -29,9 +29,9 @@ import Icon from './Icon.astro';
               href={`/assets/docs/diplomas/${item.file}`}
               target="_blank"
               rel="noopener noreferrer"
-              class="edu-link"
+              class="btn btn-secondary doc-btn"
             >
-              <Icon name="file-text" size={14} /> Ver diploma
+              <Icon name="file-text" size={16} /> Ver diploma
             </a>
           )}
         </div>
@@ -51,9 +51,9 @@ import Icon from './Icon.astro';
               href={`/assets/docs/certificados/${cert.file}`}
               target="_blank"
               rel="noopener noreferrer"
-              class="cert-link"
+              class="btn btn-secondary doc-btn"
             >
-              <Icon name="file-text" size={14} /> Ver certificado
+              <Icon name="file-text" size={16} /> Ver certificado
             </a>
           )}
         </li>
@@ -71,6 +71,8 @@ import Icon from './Icon.astro';
   }
   .edu-card {
     padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
   }
   .edu-top {
     display: flex;
@@ -111,20 +113,20 @@ import Icon from './Icon.astro';
   }
   .edu-desc {
     font-size: 0.9rem;
-    margin: 0;
+    margin: 0 0 1.25rem;
   }
-  .edu-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--accent);
-    margin-top: 1rem;
-    width: fit-content;
+
+  /* Diploma/certificate links as compact glass buttons pinned to the bottom of
+     each card, so the buttons line up across a row. */
+  .doc-btn {
+    width: 100%;
+    margin-top: auto;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
   }
-  .edu-link:hover {
-    color: var(--accent-strong);
+  .doc-btn :global(svg) {
+    width: 1rem;
+    height: 1rem;
   }
 
   .subhead {
@@ -147,18 +149,6 @@ import Icon from './Icon.astro';
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-  }
-  .cert-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--accent);
-    width: fit-content;
-  }
-  .cert-link:hover {
-    color: var(--accent-strong);
   }
   @media (max-width: 760px) {
     .cert-grid {
