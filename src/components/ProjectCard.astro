@@ -21,7 +21,6 @@ const num = String(index + 1).padStart(2, '0');
     <span class="module-heading">
       <span class="module-title">
         {project.title}
-        {project.featured && <span class="module-badge mono">medido em produção</span>}
       </span>
       <span class="module-subtitle">{project.subtitle}</span>
     </span>
@@ -107,17 +106,6 @@ const num = String(index + 1).padStart(2, '0');
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--text);
-  }
-  .module-badge {
-    font-size: 0.65rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--accent);
-    background: rgb(var(--accent-rgb) / 0.1);
-    border: 1px solid rgb(var(--accent-rgb) / 0.25);
-    padding: 0.15rem 0.5rem;
-    border-radius: 99px;
   }
   .module-subtitle {
     font-size: 0.88rem;

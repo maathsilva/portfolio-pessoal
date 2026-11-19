@@ -30,6 +30,7 @@
 
   --radius: 0.75rem;
   --radius-sm: 0.5rem;
+  --radius-xs: 0.3rem; /* small chips: tags, badges */
   --container: 1180px;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -263,7 +264,7 @@ main {
   place-items: center;
   width: 2.1rem;
   height: 2.1rem;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: hsl(222 30% 8% / 0.75);
   border: 1px solid var(--border-strong);
   color: var(--text);
@@ -281,9 +282,10 @@ html.lightbox-open {
   overflow: hidden;
 }
 
-/* Buttons — glass pills. On hover: a soft light follows the pointer (::before,
-   position fed by scroll-system.ts), a sheen sweeps across once (::after) and
-   the edge lights up blue. */
+/* Buttons — glass, with the same squared-off corners as the cards (one step
+   smaller). On hover: a soft light follows the pointer (::before, position fed
+   by scroll-system.ts), a sheen sweeps across once (::after) and the edge
+   lights up blue. */
 .btn {
   position: relative;
   isolation: isolate; /* keeps the light layers between the background and the label */
@@ -293,7 +295,7 @@ html.lightbox-open {
   justify-content: center;
   gap: 0.55rem;
   padding: 0.8rem 1.5rem;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-sans);
   font-weight: 600;
   font-size: 0.95rem;
@@ -422,7 +424,7 @@ html.lightbox-open {
   background: rgb(var(--accent-rgb) / 0.1);
   border: 1px solid rgb(var(--accent-rgb) / 0.25);
   padding: 0.3rem 0.7rem;
-  border-radius: 99px;
+  border-radius: var(--radius-xs);
 }
 
 /* A single, CSS-only entrance for the hero — content must never depend on
