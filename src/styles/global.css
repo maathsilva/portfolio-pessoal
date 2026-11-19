@@ -20,7 +20,8 @@
   --accent: hsl(217, 91%, 60%);
   --accent-strong: hsl(213, 96%, 70%);
   --accent-dim: hsl(217, 55%, 58%);
-  --accent-rgb: 59, 130, 246;
+  /* Space-separated: used as rgb(var(--accent-rgb) / <alpha>), which rejects commas. */
+  --accent-rgb: 59 130 246;
   --on-accent: hsl(222, 45%, 6%);
 
   --font-sans: 'Inter', system-ui, sans-serif;
@@ -230,42 +231,188 @@ main {
   box-shadow: 0 20px 45px -28px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(var(--accent-rgb) / 0.12);
 }
 
-/* Buttons */
+/* Screenshot that opens in the full-screen viewer (Lightbox.astro + scripts/media.ts) */
+.zoomable {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: inherit;
+  cursor: zoom-in;
+  border-radius: 0.8rem;
+}
+.zoomable .browser {
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.zoomable:hover .browser,
+.zoomable:focus-visible .browser {
+  border-color: rgb(var(--accent-rgb) / 0.45);
+  box-shadow: 0 28px 70px -30px rgb(0 0 0 / 0.95), 0 0 0 1px rgb(var(--accent-rgb) / 0.15);
+}
+.zoomable:hover img {
+  transform: scale(1.015);
+}
+.zoom-hint {
+  position: absolute;
+  top: 2.5rem;
+  right: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  background: hsl(222 30% 8% / 0.75);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.zoomable:hover .zoom-hint,
+.zoomable:focus-visible .zoom-hint {
+  opacity: 1;
+  transform: none;
+}
+html.lightbox-open {
+  overflow: hidden;
+}
+
+/* Buttons — glass pills. On hover: a soft light follows the pointer (::before,
+   position fed by scroll-system.ts), a sheen sweeps across once (::after) and
+   the edge lights up blue. */
 .btn {
+  position: relative;
+  isolation: isolate; /* keeps the light layers between the background and the label */
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
   padding: 0.8rem 1.5rem;
-  border-radius: var(--radius-sm);
+  border-radius: 999px;
   font-family: var(--font-sans);
   font-weight: 600;
   font-size: 0.95rem;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  transition:
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(140px circle at var(--mx, 50%) var(--my, 50%), hsl(210 100% 88% / 0.16), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 35%, hsl(0 0% 100% / 0.13) 50%, transparent 65%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.btn:hover::before {
+  opacity: 1;
+}
+.btn:hover::after {
+  transform: translateX(120%);
+  transition: transform 0.85s var(--ease);
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 .btn svg {
   width: 1.1rem;
   height: 1.1rem;
   flex-shrink: 0;
+  transition: color var(--dur) var(--ease);
 }
+
+/* Primary: lit blue glass — gradient body, inner highlight, blue halo. */
 .btn-primary {
-  background: var(--accent);
-  color: var(--on-accent);
+  color: #fff;
+  background: linear-gradient(180deg, hsl(217 91% 60%), hsl(224 76% 48%));
+  border-color: hsl(213 96% 78% / 0.45);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.3),
+    inset 0 -1px 0 hsl(224 80% 25% / 0.5),
+    0 10px 30px -10px rgb(var(--accent-rgb) / 0.65);
 }
 .btn-primary:hover {
-  background: var(--accent-strong);
-  box-shadow: 0 0 0 1px rgb(var(--accent-rgb) / 0.4), 0 8px 24px -8px rgb(var(--accent-rgb) / 0.5);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.35),
+    inset 0 -1px 0 hsl(224 80% 25% / 0.5),
+    0 0 0 4px rgb(var(--accent-rgb) / 0.15),
+    0 14px 36px -10px rgb(var(--accent-rgb) / 0.8);
 }
+
+/* Secondary: frosted glass — the data network blurs through it. */
 .btn-secondary {
-  background: transparent;
   color: var(--text);
-  border-color: var(--border-strong);
+  background:
+    linear-gradient(180deg, hsl(215 40% 100% / 0.045), hsl(215 40% 100% / 0.01)),
+    hsl(222 30% 9% / 0.15);
+  border-color: hsl(215 60% 85% / 0.16);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.08),
+    0 8px 24px -14px rgb(0 0 0 / 0.8);
 }
 .btn-secondary:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: rgb(var(--accent-rgb) / 0.55);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.1),
+    0 0 0 4px rgb(var(--accent-rgb) / 0.08),
+    0 12px 30px -14px rgb(var(--accent-rgb) / 0.5);
+}
+.btn-secondary:hover svg {
+  color: var(--accent-strong);
+}
+/* Contact links: the icon takes the brand's colour on hover. */
+.btn[data-cta='whatsapp']:hover svg {
+  color: hsl(142 70% 52%);
+}
+.btn[data-cta='linkedin']:hover svg {
+  color: hsl(205 80% 60%);
+}
+.btn[data-cta='github']:hover svg {
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn::after {
+    display: none;
+  }
+  .btn:hover,
+  .btn:active {
+    transform: none;
+  }
 }
 
 .tag {

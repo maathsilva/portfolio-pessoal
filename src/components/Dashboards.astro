@@ -1,7 +1,23 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage as optimizeImage } from 'astro:assets';
+import BrowserFrame from './BrowserFrame.astro';
+import Icon from './Icon.astro';
 import { dashboards } from '../data/site';
 import { getImage } from '../lib/images';
+
+// Each card also gets a large version for the full-screen viewer.
+const cards = await Promise.all(
+  dashboards.map(async (dash) => {
+    const img = getImage(dash.file);
+    const full = await optimizeImage({ src: img, width: Math.min(img.width, 1920) });
+    return { ...dash, img, full: full.src };
+  })
+);
+
+// The strip is the list rendered twice and shifted by exactly one copy, so the
+// loop is seamless. ~14 s per card keeps it slow enough to read.
+const copies = [false, true];
+const duration = `${cards.length * 14}s`;
 ---
 
 <section id="dashboards" class="section dashboards-section">
@@ -11,20 +27,42 @@ import { getImage } from '../lib/images';
       <h2 class="section-title">Dashboards</h2>
       <p class="section-lede">Interfaces de dashboard que desenvolvi, aplicadas a contextos reais dos negócios em que atuei.</p>
     </div>
+  </div>
 
-    <div class="dash-scroller">
-      {dashboards.map((dash) => {
-        const img = getImage(dash.file);
-        return (
-          <figure class="dash-card card">
-            <Image src={img} alt={`Captura de tela: ${dash.title}`} width={640} loading="lazy" />
-            <figcaption>
-              <span class="dash-title">{dash.title}</span>
-              <span class="dash-context">{dash.context}</span>
-            </figcaption>
-          </figure>
-        );
-      })}
+  <div class="marquee" style={`--duration: ${duration}`}>
+    <div class="marquee-track">
+      {copies.map((isClone) => (
+        <ul class="marquee-group" aria-hidden={isClone ? 'true' : undefined}>
+          {cards.map((dash) => (
+            <li class="marquee-card">
+              <button
+                type="button"
+                class="zoomable"
+                data-lightbox="dashboards"
+                data-full={dash.full}
+                data-caption={dash.title}
+                aria-label={`Ampliar: ${dash.title}`}
+                tabindex={isClone ? -1 : undefined}
+              >
+                <BrowserFrame ratio="2 / 1">
+                  <Image
+                    src={dash.img}
+                    alt={isClone ? '' : `Captura de tela: ${dash.title}`}
+                    widths={[560, 1120]}
+                    sizes="(max-width: 700px) 80vw, 560px"
+                    loading="lazy"
+                  />
+                </BrowserFrame>
+                <span class="zoom-hint" aria-hidden="true"><Icon name="maximize" size={16} /></span>
+              </button>
+              <div class="marquee-caption">
+                <span class="dash-title">{dash.title}</span>
+                <span class="dash-context">{dash.context}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ))}
     </div>
   </div>
 </section>
@@ -33,38 +71,69 @@ import { getImage } from '../lib/images';
   .dashboards-section {
     overflow: hidden;
   }
-  .dash-scroller {
-    display: flex;
-    gap: 1.5rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 1rem;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-strong) transparent;
-  }
-  .dash-card {
-    flex: 0 0 min(85%, 560px);
-    scroll-snap-align: start;
+
+  /* Continuous strip: slides left forever, fades out at both edges. Hovering
+     holds it still so a card can be read or opened full screen. */
+  .marquee {
+    --gap: clamp(1.25rem, 2.5vw, 2rem);
+    --card-w: min(560px, 80vw);
     overflow: hidden;
+    padding-block: 0.5rem 1rem;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
   }
-  .dash-card :global(img) {
-    width: 100%;
-    height: auto;
-    border-bottom: 1px solid var(--border);
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee var(--duration) linear infinite;
   }
-  .dash-card figcaption {
-    padding: 1.15rem 1.35rem;
+  .marquee:hover .marquee-track,
+  .marquee:has(:focus-visible) .marquee-track {
+    animation-play-state: paused;
+  }
+  .marquee-group {
+    display: flex;
+    gap: var(--gap);
+    padding-right: var(--gap); /* same spacing across the seam between the two copies */
+  }
+  .marquee-card {
+    flex: 0 0 var(--card-w);
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .marquee-caption {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.3rem;
+    margin-top: 1rem;
   }
   .dash-title {
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 600;
   }
   .dash-context {
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     color: var(--muted);
+  }
+
+  /* Reduced motion: a still row the visitor scrolls by hand, without the duplicate copy. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      overflow-x: auto;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .marquee-track {
+      animation: none;
+      padding-inline: 1.5rem;
+    }
+    .marquee-group[aria-hidden='true'] {
+      display: none;
+    }
   }
 </style>

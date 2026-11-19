@@ -1,0 +1,140 @@
+---
+import Icon from './Icon.astro';
+// One full-screen image viewer per page. Any element with data-lightbox="<group>"
+// and data-full="<large image url>" opens it (see src/scripts/media.ts).
+---
+
+<dialog class="lightbox" data-lightbox-dialog aria-label="Imagem ampliada">
+  <figure class="lb-figure">
+    <img class="lb-img" data-lightbox-img alt="" />
+    <figcaption class="lb-caption">
+      <span data-lightbox-caption></span>
+      <span class="lb-count mono" data-lightbox-count></span>
+    </figcaption>
+  </figure>
+  <button type="button" class="lb-btn lb-close" data-lightbox-close aria-label="Fechar">
+    <Icon name="x" size={20} />
+  </button>
+  <button type="button" class="lb-btn lb-prev" data-lightbox-prev aria-label="Imagem anterior">
+    <Icon name="chevron-left" size={22} />
+  </button>
+  <button type="button" class="lb-btn lb-next" data-lightbox-next aria-label="Próxima imagem">
+    <Icon name="chevron-right" size={22} />
+  </button>
+</dialog>
+
+<style>
+  .lightbox {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 3.5rem 5.5rem 2rem;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    overflow: hidden;
+  }
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+    animation: lb-in 0.25s var(--ease);
+  }
+  .lightbox::backdrop {
+    background: hsl(222 32% 3% / 0.9);
+    backdrop-filter: blur(6px);
+  }
+  .lb-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 100%;
+    max-height: 100%;
+  }
+  .lb-img {
+    max-width: 100%;
+    max-height: calc(100dvh - 8.5rem);
+    border-radius: 0.7rem;
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.95);
+    transition: opacity 0.25s var(--ease);
+  }
+  .lb-img.is-loading {
+    opacity: 0;
+  }
+  .lb-caption {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+    font-size: 0.9rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  .lb-count {
+    font-size: 0.78rem;
+    color: var(--muted-2);
+  }
+  .lb-btn {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: hsl(222 30% 9% / 0.7);
+    color: var(--text);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  }
+  .lb-btn:hover {
+    background: hsl(222 30% 14% / 0.9);
+    border-color: rgb(var(--accent-rgb) / 0.5);
+  }
+  .lb-btn[hidden] {
+    display: none;
+  }
+  .lb-close {
+    top: 1rem;
+    right: 1rem;
+  }
+  .lb-prev {
+    left: 1.25rem;
+    top: 50%;
+    translate: 0 -50%;
+  }
+  .lb-next {
+    right: 1.25rem;
+    top: 50%;
+    translate: 0 -50%;
+  }
+
+  @keyframes lb-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox[open] {
+      animation: none;
+    }
+  }
+  @media (max-width: 640px) {
+    .lightbox {
+      padding: 4rem 0.75rem 1.5rem;
+    }
+    .lb-prev,
+    .lb-next {
+      top: auto;
+      bottom: 1rem;
+      translate: none;
+    }
+    .lb-img {
+      max-height: calc(100dvh - 10rem);
+    }
+  }
+</style>

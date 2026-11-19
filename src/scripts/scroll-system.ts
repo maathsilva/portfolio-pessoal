@@ -158,6 +158,17 @@ function initBackgroundNetwork() {
   mountDataNetwork(canvas, { interactive: true, areaPerParticle: 9000, maxParticles: 110, baseSpeed: 0.09 });
 }
 
+/** Feeds the pointer position to the buttons' glass spotlight (.btn::before in global.css). */
+function initButtonSpotlight() {
+  document.querySelectorAll<HTMLElement>('.btn').forEach((btn) => {
+    btn.addEventListener('pointermove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      btn.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+      btn.style.setProperty('--my', `${e.clientY - rect.top}px`);
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initActiveNav();
@@ -165,4 +176,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavbarScroll();
   initReveal();
   initBackgroundNetwork();
+  initButtonSpotlight();
 });

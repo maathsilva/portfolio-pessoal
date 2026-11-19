@@ -1,6 +1,7 @@
 ---
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import Lightbox from '../components/Lightbox.astro';
 import { site } from '../data/site';
 import { experience, education } from '../data/experience';
 import '../styles/global.css';
@@ -90,7 +91,9 @@ const personSchema = {
       <slot />
     </main>
     <Footer />
+    <Lightbox />
     <script src="../scripts/scroll-system.ts"></script>
+    <script src="../scripts/media.ts"></script>
     <script src="../scripts/analytics.ts"></script>
   </body>
 </html>

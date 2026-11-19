@@ -3,6 +3,7 @@ import { Code } from 'astro:components';
 import { Image, getImage as optimizeImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import BrowserFrame from '../../components/BrowserFrame.astro';
 import { projects } from '../../data/projects';
 import { site } from '../../data/site';
 import { getImage } from '../../lib/images';
@@ -18,6 +19,14 @@ const { project } = Astro.props;
 const cover = getImage(project.cover);
 // Share card: the cover cropped to the 1200×630 size LinkedIn/WhatsApp expect.
 const ogImage = await optimizeImage({ src: cover, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpg' });
+// Gallery thumbnails plus a large version of each for the full-screen viewer.
+const gallery = await Promise.all(
+  project.gallery.map(async (item) => {
+    const img = getImage(item.file);
+    const full = await optimizeImage({ src: img, width: Math.min(img.width, 1920) });
+    return { ...item, img, full: full.src };
+  })
+);
 ---
 
 <BaseLayout
@@ -78,19 +87,28 @@ const ogImage = await optimizeImage({ src: cover, width: 1200, height: 630, fit:
             </ul>
           </div>
 
-          {project.gallery.length > 0 && (
+          {gallery.length > 0 && (
             <div>
               <h2>Interface</h2>
               <div class="gallery-grid">
-                {project.gallery.map((img) => {
-                  const galleryImg = getImage(img.file);
-                  return (
-                    <figure>
-                      <Image src={galleryImg} alt={img.alt} width={480} loading="lazy" />
-                      <figcaption>{img.caption}</figcaption>
-                    </figure>
-                  );
-                })}
+                {gallery.map((item) => (
+                  <figure>
+                    <button
+                      type="button"
+                      class="zoomable"
+                      data-lightbox="galeria"
+                      data-full={item.full}
+                      data-caption={item.caption}
+                      aria-label={`Ampliar: ${item.caption}`}
+                    >
+                      <BrowserFrame>
+                        <Image src={item.img} alt={item.alt} widths={[480, 960]} sizes="(max-width: 700px) 92vw, 380px" loading="lazy" />
+                      </BrowserFrame>
+                      <span class="zoom-hint" aria-hidden="true"><Icon name="maximize" size={16} /></span>
+                    </button>
+                    <figcaption>{item.caption}</figcaption>
+                  </figure>
+                ))}
               </div>
             </div>
           )}
@@ -258,16 +276,10 @@ const ogImage = await optimizeImage({ src: cover, width: 1200, height: 630, fit:
   .gallery-grid figure {
     margin: 0;
   }
-  .gallery-grid :global(img) {
-    width: 100%;
-    height: auto;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-  }
   .gallery-grid figcaption {
     font-size: 0.85rem;
     color: var(--muted-2);
-    margin-top: 0.6rem;
+    margin-top: 0.7rem;
   }
 
   .code-block {
