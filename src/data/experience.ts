@@ -84,6 +84,13 @@ export interface Education {
 
 export const education: Education[] = [
   {
+    period: '2026 — atual',
+    title: 'Pós-graduação Lato Sensu — Cloud Computing Corporativo',
+    institution: 'Universidade São Judas Tadeu',
+    description: 'Arquiteturas multicloud com AWS, Azure, Google Cloud e Oracle: escalabilidade, segurança e DevSecOps.',
+    completed: false,
+  },
+  {
     period: '2026',
     title: 'Pós-graduação Lato Sensu — Ciência de Dados',
     institution: 'Universidade São Judas Tadeu',
